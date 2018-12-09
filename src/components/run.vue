@@ -1,0 +1,158 @@
+<template>
+  <div>
+    <RunDetail :run="run"/>
+
+    <div class="tabs">
+      <ul>
+        <li>
+          <a>Tasks</a>
+        </li>
+      </ul>
+    </div>
+
+    <div v-if="run" class="tasks-list">
+      <div v-for="task in run.sortedTasks" v-bind:key="task.id" :class="taskClass(task)">
+        <div class="task-content">
+          <div class="columns">
+            <router-link class="column is-10" tag="a" :to="runTaskLink(task)">
+              <span class="name">{{task.name}}</span>
+            </router-link>
+            <div class="parents column">
+              <span v-if="parents(task).length > 0">depends on: &nbsp;</span>
+              <span class="parent" v-for="dep in parents(task)" v-bind:key="dep">{{dep}}</span>
+            </div>
+          </div>
+          <!--               <span
+                class="duration"
+                v-if="duration && (step.Phase == 'success' || step.Phase == 'failed') "
+          >{{duration}}</span>-->
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { fetchRun } from "@/util/data.js";
+import { userLocalRunTaskLink, projectRunTaskLink } from "@/util/link.js";
+
+import RunDetail from "@/components/rundetail.vue";
+
+export default {
+  name: "run",
+  components: { RunDetail },
+  props: {
+    ownertype: String,
+    ownername: String,
+    projectname: String,
+    runid: String
+  },
+  data() {
+    return {
+      run: null,
+      polling: null
+    };
+  },
+  methods: {
+    runTaskLink(task) {
+      if (this.projectname) {
+        return projectRunTaskLink(
+          this.ownertype,
+          this.ownername,
+          this.projectname,
+          this.runid,
+          task.id
+        );
+      } else {
+        return userLocalRunTaskLink(this.ownername, this.runid, task.id);
+      }
+    },
+    parents(task) {
+      return task.depends.map(d => {
+        console.log(d.task_id);
+        return this.run.tasks[d.task_id].name;
+      });
+    },
+    taskClass(task) {
+      if (task.status == "success") return "success";
+      if (task.status == "failed") return "failed";
+      if (task.status == "stopped") return "failed";
+      if (task.status == "running") return "running";
+      return "unknown";
+    },
+    async fetchRun() {
+      this.run = await fetchRun(this.runid);
+      // sort tasks by level
+      let tasks = this.run.tasks;
+      let sortedTasks = Object.keys(this.run.tasks)
+        .sort((a, b) =>
+          tasks[a].level > tasks[b].level
+            ? 1
+            : tasks[b].level > tasks[a].level
+            ? -1
+            : 0
+        )
+        .map(k => this.run.tasks[k]);
+      this.run.sortedTasks = sortedTasks;
+      console.log("run: ", this.run);
+    },
+    pollData() {
+      this.polling = setInterval(() => {
+        this.fetchRun();
+      }, 2000);
+    }
+  },
+  created: function() {
+    this.fetchRun();
+    this.pollData();
+  },
+  beforeDestroy() {
+    clearInterval(this.polling);
+  }
+};
+</script>
+
+<style scoped lang="scss">
+@import "@/css/_variables.scss";
+
+.tasks-list {
+  .task-content {
+    margin-bottom: 5px;
+    border: 1px solid $grey-lighter;
+    border-left: 0 solid;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .success {
+    border-left: 5px solid $green;
+  }
+
+  .failed {
+    border-left: 5px solid $red;
+  }
+
+  .running {
+    border-left: 5px solid $blue;
+  }
+
+  .unknown {
+    border-left: 5px solid $grey-lighter;
+  }
+
+  .name {
+    font-weight: bold;
+  }
+
+  .parents {
+    margin-left: 1rem;
+    margin-right: 0rem;
+    font-weight: lighter;
+    font-size: 0.8rem;
+    .parent {
+      font-weight: normal;
+    }
+  }
+}
+</style>

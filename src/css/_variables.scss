@@ -1,0 +1,73 @@
+@import "~bulma/sass/utilities/initial-variables.sass";
+@import "~bulma/sass/utilities/functions.sass";
+
+$grey: #8c9b9d;
+$grey-light: #a9afb7;
+$grey-lighter: #dee2e5;
+$orange: #e67e22;
+$yellow: #f1b70e;
+$green: #2ecc71;
+$turquoise: #1abc9c;
+$blue: #3498db;
+$purple: #8e44ad;
+$red: #e42522;
+$white-ter: #ecf0f1;
+$primary: #34495e !default;
+$yellow-invert: #fff;
+
+$grey-lighter-invert: findColorInvert($grey-lighter);
+$green-invert: findColorInvert($green);
+$red-invert: findColorInvert($red);
+$blue-invert: findColorInvert($red);
+
+$custom-colors: (
+  "unknown": (
+    $grey-lighter,
+    $grey-lighter-invert
+  ),
+  "success": (
+    $green,
+    $green-invert
+  ),
+  "failed": (
+    $red,
+    $red-invert
+  ),
+  "running": (
+    $blue,
+    $blue-invert
+  )
+);
+
+$link: $grey;
+$tabs-link-active-color: $blue;
+$tabs-link-active-border-bottom-color: $blue;
+$tabs-link-hover-color: $blue;
+$tabs-link-hover-border-bottom-color: $blue;
+
+$spacing: 20px;
+
+$breadcrumb-item-color: $grey-dark !default;
+$breadcrumb-item-hover-color: $grey-dark !default;
+
+$breadcrumb-item-padding-vertical: 0 !default;
+$breadcrumb-item-padding-horizontal: 0.5em !default;
+
+$breadcrumb-item-separator-color: $grey-light !default;
+
+$ansi-black: #222;
+$ansi-black-bright: #222;
+$ansi-red: #c0392b;
+$ansi-red-bright: #e74c3c;
+$ansi-green: #27af60;
+$ansi-green-bright: #2ecc71;
+$ansi-yellow: #f39c12;
+$ansi-yellow-bright: #f1c40f;
+$ansi-blue: #2e8dcd;
+$ansi-blue-bright: #3498db;
+$ansi-magenta: #8e44ad;
+$ansi-magenta-bright: #9b59b6;
+$ansi-cyan: #0097a4;
+$ansi-cyan-bright: #02c8d9;
+$ansi-white: #bdc3c7;
+$ansi-white-bright: #ffffff;

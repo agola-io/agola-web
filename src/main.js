@@ -1,0 +1,26 @@
+import "@mdi/font/css/materialdesignicons.css";
+
+import Vue from "vue";
+import Vue2Filters from "vue2-filters";
+import App from "./App.vue";
+import router from "./router";
+import store from "./store";
+
+import { getUser } from "@/util/auth";
+
+Vue.use(Vue2Filters);
+
+const USER = 'user';
+
+// TODO(sgotti) use vuex for login/logout
+new Vue({
+  router,
+  store,
+  created: function () {
+    let user = getUser()
+    if (user) {
+      store.dispatch('setUser', user)
+    }
+  },
+  render: h => h(App)
+}).$mount("#app");
