@@ -18,6 +18,7 @@ export default {
     show: Boolean,
     runid: String,
     taskid: String,
+    setup: Boolean,
     step: Number,
     stepphase: String
   },
@@ -49,17 +50,15 @@ export default {
       }
     },
     streamLogs: function() {
-      this.es = new EventSource(
-        apiurlwithtoken(
-          "/logs?runID=" +
-            this.runid +
-            "&taskID=" +
-            this.taskid +
-            "&step=" +
-            this.step +
-            "&follow"
-        )
-      );
+      let path = "/logs?runID=" + this.runid + "&taskID=" + this.taskid;
+      if (this.setup) {
+        path += "&setup";
+      } else {
+        path += "&step=" + this.step;
+      }
+      path += "&follow&stream";
+
+      this.es = new EventSource(apiurlwithtoken(path));
       this.es.onmessage = event => {
         var data = event.data;
         // TODO(sgotti) ansi_up doesn't handle carriage return (\r), find a way to also handle it
@@ -71,16 +70,13 @@ export default {
       };
     },
     getLogs: function() {
-      fetch(
-        apiurl(
-          "/logs?runID=" +
-            this.runid +
-            "&taskID=" +
-            this.taskid +
-            "&step=" +
-            this.step
-        )
-      )
+      let path = "/logs?runID=" + this.runid + "&taskID=" + this.taskid;
+      if (this.setup) {
+        path += "&setup";
+      } else {
+        path += "&step=" + this.step;
+      }
+      fetch(apiurl(path))
         .then(r => {
           if (r.status == 200) {
             return r.text();

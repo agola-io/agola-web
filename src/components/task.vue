@@ -6,6 +6,12 @@
         <span class="task-name" v-html="task.name"/>
         <span class="tag" :class="taskClass(task)">{{ task.status | capitalize }}</span>
       </div>
+      <Collapse
+        v-bind:runid="runid"
+        v-bind:taskid="taskid"
+        v-bind:setup="true"
+        v-bind:step="task.setup_step"
+      />
       <div v-for="(step, index) in task.steps" v-bind:key="index">
         <Collapse
           v-bind:runid="runid"

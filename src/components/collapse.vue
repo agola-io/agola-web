@@ -22,6 +22,7 @@
           <Log
             v-bind:runid="runid"
             v-bind:taskid="taskid"
+            v-bind:setup="setup"
             v-bind:step="stepnum"
             v-bind:stepphase="step.phase"
             v-bind:show="active"
@@ -53,6 +54,7 @@ export default {
   props: {
     runid: String,
     taskid: String,
+    setup: Boolean,
     stepnum: Number,
     step: Object
   },
