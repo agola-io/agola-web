@@ -37,7 +37,7 @@ export default {
         .then(res => res.json())
         .then(res => {
           console.log("remote sources result", res);
-          this.remotesources = res.remote_sources;
+          this.remotesources = res;
         });
     },
     doLogin(rsName, username, password) {

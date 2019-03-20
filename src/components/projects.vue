@@ -39,16 +39,14 @@ export default {
       }
     },
     fetchProjects(ownertype, ownername) {
-      let path = "/" + ownertype;
-      if (ownername) {
-        path += "/" + ownername;
-      }
+      let path =
+        "/projectgroups/" + encodeURIComponent(ownertype + "/" + ownername);
       path += "/projects";
       fetch(apiurl(path))
         .then(res => res.json())
         .then(res => {
           console.log(res);
-          let projects = res.projects.map(function(project) {
+          let projects = res.map(function(project) {
             return project;
           });
           this.projects = projects;

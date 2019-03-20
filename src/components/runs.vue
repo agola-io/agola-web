@@ -100,16 +100,12 @@ export default {
       return "unknown";
     },
     fetchProjectRuns() {
-      fetch(
-        apiurl(
-          "/projects/" +
-            this.ownertype +
-            "/" +
-            this.ownername +
-            "/" +
-            this.projectname
-        )
-      )
+      let path =
+        "/projects/" +
+        encodeURIComponent(
+          this.ownertype + "/" + this.ownername + "/" + this.projectname
+        );
+      fetch(apiurl(path))
         .then(res => res.json())
         .then(res => {
           console.log(res);
@@ -144,7 +140,7 @@ export default {
         .then(res => res.json())
         .then(res => {
           console.log(res);
-          let runs = res.runs.map(function(run) {
+          let runs = res.map(function(run) {
             return run;
           });
           this.runs = runs;
