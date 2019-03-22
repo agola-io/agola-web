@@ -71,11 +71,7 @@ export default {
   name: "User",
   components: { tabarrow },
   props: {
-    username: String,
-    currentTab: {
-      type: String,
-      default: "projects"
-    }
+    username: String
   },
   data() {
     return {

@@ -46,10 +46,7 @@ export default {
         .then(res => res.json())
         .then(res => {
           console.log(res);
-          let projects = res.map(function(project) {
-            return project;
-          });
-          this.projects = projects;
+          this.projects = res;
           console.log("projects", this.projects);
         });
     }

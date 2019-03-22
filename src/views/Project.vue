@@ -34,6 +34,11 @@
           >Task {{$route.params.taskid}}</router-link>
         </li>
       </ul>
+      <ul class="is-right">
+        <li :class="[{ 'is-active': $route.name.endsWith('project settings') }]">
+          <router-link :to="projectSettingsLink(ownertype, ownername, projectname)">Project Settings</router-link>
+        </li>
+      </ul>
     </div>
     <router-view></router-view>
   </div>
@@ -45,7 +50,8 @@ import {
   projectLink,
   projectRunsLink,
   projectRunLink,
-  projectRunTaskLink
+  projectRunTaskLink,
+  projectSettingsLink
 } from "@/util/link.js";
 
 import projbreadcrumbs from "@/components/projbreadcrumbs.vue";
@@ -58,17 +64,14 @@ export default {
   props: {
     ownertype: String,
     ownername: String,
-    projectname: String,
-    currentTab: {
-      type: String,
-      default: "description"
-    }
+    projectname: String
   },
   methods: {
     projectLink: projectLink,
     projectRunsLink: projectRunsLink,
     projectRunLink: projectRunLink,
-    projectRunTaskLink: projectRunTaskLink
+    projectRunTaskLink: projectRunTaskLink,
+    projectSettingsLink: projectSettingsLink
   }
 };
 </script>

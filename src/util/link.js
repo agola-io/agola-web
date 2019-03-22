@@ -38,3 +38,7 @@ export function projectRunLink(ownertype, ownername, projectname, runid) {
 export function projectRunTaskLink(ownertype, ownername, projectname, runid, taskid) {
     return { name: ownertype + " project run task", params: { orgname: ownername, projectname: projectname, runid: runid, taskid: taskid } }
 }
+
+export function projectSettingsLink(ownertype, ownername, projectname) {
+    return { name: ownertype + " project settings", params: { username: ownername, projectname: projectname } }
+}

@@ -6,6 +6,7 @@ import Org from "./views/Org.vue";
 import Project from "./views/Project.vue";
 //import Run from "./views/Run.vue";
 import projects from "./components/projects.vue";
+import projectsettings from "./components/projectsettings.vue";
 import runs from "./components/runs.vue";
 import run from "./components/run.vue";
 import task from "./components/task.vue";
@@ -104,7 +105,12 @@ export default new VueRouter({
           component: task,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, runid: route.params.runid, taskid: route.params.taskid })
         },
-
+        {
+          path: "settings",
+          name: "user project settings",
+          component: projectsettings,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname })
+        },
       ]
     },
     {
@@ -142,6 +148,12 @@ export default new VueRouter({
           name: "org project run task",
           component: task,
           props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, runid: route.params.runid, taskid: route.params.taskid })
+        },
+        {
+          path: "settings",
+          name: "org project settings",
+          component: projectsettings,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname })
         },
       ]
     },
