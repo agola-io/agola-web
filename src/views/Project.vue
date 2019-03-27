@@ -4,9 +4,18 @@
     <div class="tabs">
       <ul>
         <li
-          :class="[{ 'is-active': $route.name.endsWith('project runs') || $route.name.endsWith('project') }]"
+          :class="[{ 'is-active': $route.name.match('project runs') || $route.name.endsWith('project') }]"
         >
-          <router-link :to="projectRunsLink(ownertype, ownername, projectname)">Runs</router-link>
+          <router-link :to="projectRunsLink(ownertype, ownername, projectname)">Runs History</router-link>
+        </li>
+        <li :class="[{ 'is-active': $route.name.match('project branches runs') }]">
+          <router-link :to="projectBranchesRunsLink(ownertype, ownername, projectname)">Branches</router-link>
+        </li>
+        <li :class="[{ 'is-active': $route.name.match('project tags runs') }]">
+          <router-link :to="projectTagsRunsLink(ownertype, ownername, projectname)">Tags</router-link>
+        </li>
+        <li :class="[{ 'is-active': $route.name.match('project pull requests runs') }]">
+          <router-link :to="projectPRsRunsLink(ownertype, ownername, projectname)">Pull Requests</router-link>
         </li>
         <li
           v-if="$route.name.endsWith('project run') || $route.name.endsWith('project run task')"
@@ -20,7 +29,12 @@
         >
           <router-link
             :to="projectRunLink(ownertype, ownername, $route.params.projectname, $route.params.runid)"
-          >Run {{$route.params.runid}}</router-link>
+          >
+            <p v-if="run">
+              Run
+              <strong>#{{run.counter}}</strong>
+            </p>
+          </router-link>
         </li>
         <li
           v-if="$route.name.endsWith('project run task')"
@@ -31,7 +45,12 @@
         <li v-if="$route.name.endsWith('project run task')" class="is-active">
           <router-link
             :to="projectRunTaskLink(ownertype, ownername, $route.params.projectname, $route.params.runid, $route.params.taskid)"
-          >Task {{$route.params.taskid}}</router-link>
+          >
+            <p v-if="run">
+              Task
+              <strong>{{run.tasks[$route.params.taskid].name}}</strong>
+            </p>
+          </router-link>
         </li>
       </ul>
       <ul class="is-right">
@@ -49,10 +68,15 @@
 import {
   projectLink,
   projectRunsLink,
+  projectBranchesRunsLink,
+  projectTagsRunsLink,
+  projectPRsRunsLink,
   projectRunLink,
   projectRunTaskLink,
   projectSettingsLink
 } from "@/util/link.js";
+
+import { fetchRun } from "@/util/data.js";
 
 import projbreadcrumbs from "@/components/projbreadcrumbs.vue";
 import runs from "@/components/runs.vue";
@@ -66,12 +90,32 @@ export default {
     ownername: String,
     projectname: String
   },
+  data() {
+    return {
+      run: null
+    };
+  },
+  watch: {
+    $route: async function(route) {
+      if (route.params.runid) {
+        this.run = await fetchRun(route.params.runid);
+      }
+    }
+  },
   methods: {
     projectLink: projectLink,
     projectRunsLink: projectRunsLink,
+    projectBranchesRunsLink: projectBranchesRunsLink,
+    projectTagsRunsLink: projectTagsRunsLink,
+    projectPRsRunsLink: projectPRsRunsLink,
     projectRunLink: projectRunLink,
     projectRunTaskLink: projectRunTaskLink,
     projectSettingsLink: projectSettingsLink
+  },
+  created: async function() {
+    if (this.$route.params.runid) {
+      this.run = await fetchRun(this.$route.params.runid);
+    }
   }
 };
 </script>

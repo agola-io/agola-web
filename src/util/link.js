@@ -31,6 +31,18 @@ export function projectRunsLink(ownertype, ownername, projectname) {
     return { name: ownertype + " project runs", params: { orgname: ownername, projectname: projectname } }
 }
 
+export function projectBranchesRunsLink(ownertype, ownername, projectname) {
+    return { name: ownertype + " project branches runs", params: { orgname: ownername, projectname: projectname } }
+}
+
+export function projectTagsRunsLink(ownertype, ownername, projectname) {
+    return { name: ownertype + " project tags runs", params: { orgname: ownername, projectname: projectname } }
+}
+
+export function projectPRsRunsLink(ownertype, ownername, projectname) {
+    return { name: ownertype + " project pull requests runs", params: { orgname: ownername, projectname: projectname } }
+}
+
 export function projectRunLink(ownertype, ownername, projectname, runid) {
     return { name: ownertype + " project run", params: { orgname: ownername, projectname: projectname, runid: runid } }
 }

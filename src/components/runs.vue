@@ -63,6 +63,7 @@
 
 <script>
 import { apiurl, fetch } from "@/util/auth";
+import { fetchRuns } from "@/util/data.js";
 import { userLocalRunLink, projectRunLink } from "@/util/link.js";
 
 export default {
@@ -72,7 +73,8 @@ export default {
     ownertype: String,
     ownername: String,
     username: String,
-    projectname: String
+    projectname: String,
+    query: String
   },
   data() {
     return {
@@ -81,6 +83,11 @@ export default {
       project: null,
       user: null
     };
+  },
+  watch: {
+    $route: function(route) {
+      this.update();
+    }
   },
   methods: {
     projectRunLink: projectRunLink,
@@ -99,7 +106,20 @@ export default {
       if (run.result == "stopped") return "failed";
       return "unknown";
     },
-    fetchProjectRuns() {
+    update() {
+      clearInterval(this.polling);
+      console.log("username", this.username);
+      console.log("projectname", this.projectname);
+      if (this.projectname !== undefined) {
+        this.fetchProject();
+      } else if (this.username !== undefined) {
+        this.fetchUser();
+      } else {
+        this.fetchRuns();
+      }
+      this.pollData();
+    },
+    fetchProject() {
       let path =
         "/projects/" +
         encodeURIComponent(
@@ -115,7 +135,7 @@ export default {
           this.fetchRuns();
         });
     },
-    fetchUserRuns() {
+    fetchUser() {
       fetch(apiurl("/users/" + this.username))
         .then(res => res.json())
         .then(res => {
@@ -126,44 +146,37 @@ export default {
           this.fetchRuns();
         });
     },
-    fetchRuns() {
-      let u = apiurl("/runs");
-      //console.log("this.project.id", this.project.id);
-      console.log("u", u);
+    async fetchRuns() {
+      let group;
+      let lastrun = false;
       if (this.project !== null) {
-        u.searchParams.append("group", this.project.id);
+        if (this.query == "branches") {
+          group = "project/" + this.project.id + "/branch";
+          lastrun = true;
+        } else if (this.query == "tags") {
+          group = "project/" + this.project.id + "/tag";
+          lastrun = true;
+        } else if (this.query == "pullrequests") {
+          group = "project/" + this.project.id + "/pr";
+          lastrun = true;
+        } else {
+          group = "project/" + this.project.id;
+        }
       } else if (this.user !== null) {
-        u.searchParams.append("group", this.user.id);
+        group = "user/" + this.user.id;
       }
 
-      fetch(u)
-        .then(res => res.json())
-        .then(res => {
-          console.log(res);
-          let runs = res.map(function(run) {
-            return run;
-          });
-          this.runs = runs;
-          console.log("runs", this.runs);
-        });
+      this.runs = await fetchRuns(group, lastrun);
     },
     pollData() {
+      clearInterval(this.polling);
       this.polling = setInterval(() => {
         this.fetchRuns();
       }, 2000);
     }
   },
   created: function() {
-    console.log("username", this.username);
-    console.log("projectname", this.projectname);
-    if (this.projectname !== undefined) {
-      this.fetchProjectRuns();
-    } else if (this.username !== undefined) {
-      this.fetchUserRuns();
-    } else {
-      this.fetchRuns();
-    }
-    this.pollData();
+    this.update();
   },
   beforeDestroy() {
     clearInterval(this.polling);

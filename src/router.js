@@ -94,6 +94,24 @@ export default new VueRouter({
           props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname })
         },
         {
+          path: "branches",
+          name: "user project branches runs",
+          component: runs,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, query: "branches" })
+        },
+        {
+          path: "tags",
+          name: "user project tags runs",
+          component: runs,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, query: "tags" })
+        },
+        {
+          path: "pullrequests",
+          name: "user project pull requests runs",
+          component: runs,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, query: "pullrequests" })
+        },
+        {
           path: "runs/:runid",
           name: "user project run",
           component: run,
@@ -136,6 +154,24 @@ export default new VueRouter({
           name: "org project runs",
           component: runs,
           props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname })
+        },
+        {
+          path: "branches",
+          name: "org project branches runs",
+          component: runs,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, query: "branches" })
+        },
+        {
+          path: "tags",
+          name: "org project tags runs",
+          component: runs,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, query: "tags" })
+        },
+        {
+          path: "pullrequests",
+          name: "org project pull requests runs",
+          component: runs,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, query: "pullrequests" })
         },
         {
           path: "runs/:runid",
