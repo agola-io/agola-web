@@ -119,32 +119,26 @@ export default {
       }
       this.pollData();
     },
-    fetchProject() {
+    async fetchProject() {
       let path =
         "/projects/" +
         encodeURIComponent(
           this.ownertype + "/" + this.ownername + "/" + this.projectname
         );
-      fetch(apiurl(path))
-        .then(res => res.json())
-        .then(res => {
-          console.log(res);
-          this.project = res;
-          console.log("project", this.project);
+      let res = await (await fetch(apiurl(path))).json();
+      console.log(res);
+      this.project = res;
+      console.log("project", this.project);
 
-          this.fetchRuns();
-        });
+      this.fetchRuns();
     },
-    fetchUser() {
-      fetch(apiurl("/users/" + this.username))
-        .then(res => res.json())
-        .then(res => {
-          console.log(res);
-          this.user = res;
-          console.log("user", this.user);
+    async fetchUser() {
+      let res = await (await fetch(apiurl("/users/" + this.username))).json();
+      console.log(res);
+      this.user = res;
+      console.log("user", this.user);
 
-          this.fetchRuns();
-        });
+      this.fetchRuns();
     },
     async fetchRuns() {
       let group;

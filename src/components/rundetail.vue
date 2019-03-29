@@ -134,34 +134,32 @@ export default {
       if (task.status == "running") return "running";
       return "unknown";
     },
-    restartRun(run, fromStart) {
-      fetch(apiurl("/run/" + run.id + "/actions"), {
+    async restartRun(run, fromStart) {
+      let res = await fetch(apiurl("/run/" + run.id + "/actions"), {
         method: "POST",
         body: JSON.stringify({
           action_type: "restart",
           from_start: fromStart
         })
-      }).then(r => {
-        console.log("r: " + r);
-        if (r.status == 200) {
-          return r.json();
-        }
-        throw Error(r.statusText);
       });
+      console.log("r: " + r);
+      if (r.status == 200) {
+        return r.json();
+      }
+      throw Error(r.statusText);
     },
-    stopRun(run) {
-      fetch(apiurl("/run/" + run.id + "/actions"), {
+    async stopRun(run) {
+      let res = fetch(apiurl("/run/" + run.id + "/actions"), {
         method: "POST",
         body: JSON.stringify({
           action_type: "stop"
         })
-      }).then(r => {
-        console.log("r: " + r);
-        if (r.status == 200) {
-          return r.json();
-        }
-        throw Error(r.statusText);
       });
+      console.log("r: " + r);
+      if (r.status == 200) {
+        return r.json();
+      }
+      throw Error(r.statusText);
     }
   }
 };

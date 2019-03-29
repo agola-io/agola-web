@@ -36,7 +36,7 @@ export default {
     };
   },
   methods: {
-    fetch: function() {
+    fetch() {
       if (this.fetching) {
         return;
       }
@@ -49,7 +49,7 @@ export default {
         this.getLogs();
       }
     },
-    streamLogs: function() {
+    streamLogs() {
       let path = "/logs?runID=" + this.runid + "&taskID=" + this.taskid;
       if (this.setup) {
         path += "&setup";
@@ -69,14 +69,14 @@ export default {
         this.es.close();
       };
     },
-    getLogs: function() {
+    async getLogs() {
       let path = "/logs?runID=" + this.runid + "&taskID=" + this.taskid;
       if (this.setup) {
         path += "&setup";
       } else {
         path += "&step=" + this.step;
       }
-      fetch(apiurl(path))
+      let res = await fetch(apiurl(path))
         .then(r => {
           if (r.status == 200) {
             return r.text();

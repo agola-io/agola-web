@@ -38,17 +38,14 @@ export default {
         };
       }
     },
-    fetchProjects(ownertype, ownername) {
+    async fetchProjects(ownertype, ownername) {
       let path =
         "/projectgroups/" + encodeURIComponent(ownertype + "/" + ownername);
       path += "/projects";
-      fetch(apiurl(path))
-        .then(res => res.json())
-        .then(res => {
-          console.log(res);
-          this.projects = res;
-          console.log("projects", this.projects);
-        });
+      let res = await (await fetch(apiurl(path))).json();
+      console.log(res);
+      this.projects = res;
+      console.log("projects", this.projects);
     }
   },
   created: function() {
