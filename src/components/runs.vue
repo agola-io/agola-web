@@ -151,19 +151,19 @@ export default {
       let lastrun = false;
       if (this.project !== null) {
         if (this.query == "branches") {
-          group = "project/" + this.project.id + "/branch";
+          group = "/project/" + this.project.id + "/branch";
           lastrun = true;
         } else if (this.query == "tags") {
-          group = "project/" + this.project.id + "/tag";
+          group = "/project/" + this.project.id + "/tag";
           lastrun = true;
         } else if (this.query == "pullrequests") {
-          group = "project/" + this.project.id + "/pr";
+          group = "/project/" + this.project.id + "/pr";
           lastrun = true;
         } else {
-          group = "project/" + this.project.id;
+          group = "/project/" + this.project.id;
         }
       } else if (this.user !== null) {
-        group = "user/" + this.user.id;
+        group = "/user/" + this.user.id;
       }
 
       this.runs = await fetchRuns(group, lastrun);
