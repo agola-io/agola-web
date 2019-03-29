@@ -36,11 +36,19 @@ export function loginurl() {
     return new URL(API_URL + "/login");
 }
 
+export function authorizeurl() {
+    return new URL(API_URL + "/authorize");
+}
+
+export function registerurl() {
+    return new URL(API_URL + "/register");
+}
+
 export function oauth2callbackurl() {
     return new URL(API_URL + "/oauth2/callback");
 }
 
-export function fetch(url, init) {
+export async function fetch(url, init) {
     if (init === undefined) {
         init = {}
     }
@@ -52,11 +60,10 @@ export function fetch(url, init) {
         init.headers["Authorization"] = "bearer " + idToken
     }
 
-    return window.fetch(url, init).then(res => {
-        if (res.status === 401) {
-            router.push({ name: "login" })
-        } else { return res }
-    })
+    let res = await window.fetch(url, init)
+    if (res.status === 401) {
+        router.push({ name: "login" })
+    } else { return res }
 }
 
 export function setIdToken(idToken) {

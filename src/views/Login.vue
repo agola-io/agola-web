@@ -2,7 +2,8 @@
   <div>
     <div class="column is-4 is-offset-4">
       <div class="box" v-for="rs in remotesources" v-bind:key="rs.id">
-        <Loginform
+        <LoginForm
+          action="Login"
           :name="rs.name"
           v-if="rs.auth_type == 'password'"
           v-on:login="doLogin(rs.name, $event.username, $event.password)"
@@ -18,13 +19,13 @@
 </template>
 
 <script>
-import Loginform from "@/components/loginform";
+import LoginForm from "@/components/loginform";
 import { apiurl, loginurl, fetch, login, logout } from "@/util/auth";
 
 export default {
   name: "Login",
   components: {
-    Loginform
+    LoginForm
   },
   data: function() {
     return {
@@ -32,35 +33,28 @@ export default {
     };
   },
   methods: {
-    getRemoteSources() {
-      fetch(apiurl("/remotesources"))
-        .then(res => res.json())
-        .then(res => {
-          console.log("remote sources result", res);
-          this.remotesources = res;
-        });
+    async getRemoteSources() {
+      let res = await (await fetch(apiurl("/remotesources"))).json();
+      console.log("remote sources result", res);
+      this.remotesources = res;
     },
-    doLogin(rsName, username, password) {
+    async doLogin(rsName, username, password) {
       let u = loginurl();
-      console.log("u:", u);
-      fetch(u, {
+      let res = await (await fetch(u, {
         method: "POST",
         body: JSON.stringify({
           remote_source_name: rsName,
           login_name: username,
           password: password
         })
-      })
-        .then(res => res.json())
-        .then(res => {
-          console.log("login result", res);
-          if (res.oauth2_redirect) {
-            window.location = res.oauth2_redirect;
-            return;
-          }
-          login(res.token, res.user);
-          this.$router.push({ name: "home" });
-        });
+      })).json();
+      console.log("login result", res);
+      if (res.oauth2_redirect) {
+        window.location = res.oauth2_redirect;
+        return;
+      }
+      login(res.token, res.user);
+      this.$router.push({ name: "home" });
     }
   },
   created: function() {

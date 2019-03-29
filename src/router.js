@@ -11,6 +11,7 @@ import runs from "./components/runs.vue";
 import run from "./components/run.vue";
 import task from "./components/task.vue";
 import Oauth2 from "./views/Oauth2.vue";
+import Register from "./views/Register.vue";
 import Login from "./views/Login.vue";
 import Logout from "./views/Logout.vue";
 
@@ -19,6 +20,11 @@ Vue.use(VueRouter);
 export default new VueRouter({
   mode: "history",
   routes: [
+    {
+      path: "/register",
+      name: "register",
+      component: Register,
+    },
     {
       path: "/login",
       name: "login",

@@ -12,19 +12,8 @@
       </p>
     </div>
     <div class="field">
-      <p class="control has-icons-left">
-        <input v-model="password" class="input" type="password" placeholder="Password">
-        <span class="icon is-small is-left">
-          <i class="fas fa-lock"></i>
-        </span>
-      </p>
-    </div>
-    <div class="field">
       <p class="control">
-        <button
-          @click="$emit('login', { username, password })"
-          class="button is-info is-fullwidth"
-        >{{action}} with {{name}}</button>
+        <button @click="$emit('login', { username })" class="button is-info is-fullwidth">Register</button>
       </p>
     </div>
   </div>
@@ -35,18 +24,12 @@
 import { apiurl, loginurl, fetch } from "@/util/auth";
 
 export default {
-  name: "LoginForm",
+  name: "RegisterForm",
   props: {
-    action: String,
-    name: String
-  },
-  data: function() {
-    return {
-      username: null,
-      password: null
-    };
+    username: String
   }
 };
 </script>
+
 
 

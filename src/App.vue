@@ -36,6 +36,7 @@
               </div>
             </div>
             <div v-else class="navbar-item">
+              <router-link class="button" to="/register">Sign up</router-link>
               <router-link class="button" to="/login">Login</router-link>
             </div>
           </div>

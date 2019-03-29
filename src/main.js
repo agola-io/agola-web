@@ -21,6 +21,7 @@ new Vue({
     if (user) {
       store.dispatch('setUser', user)
     }
+    store.dispatch("setRegisterUser", null)
   },
   render: h => h(App)
 }).$mount("#app");
