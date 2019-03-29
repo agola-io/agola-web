@@ -15,7 +15,10 @@
                 <span v-if="!stillRunning(run)" class="stillrunning"></span>
               </div>
               <div class="run-actions column is-2 is-pulled-right">
-                <div class="dropdown is-hoverable is-right" v-if="run.phase == 'finished'">
+                <div
+                  class="dropdown is-hoverable is-right"
+                  v-if="run.can_restart_from_scratch || run.can_restart_from_failed_tasks"
+                >
                   <div class="dropdown-trigger">
                     <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
                       <span>Restart</span>
@@ -26,8 +29,16 @@
                   </div>
                   <div class="dropdown-menu" role="menu">
                     <div class="dropdown-content">
-                      <a class="dropdown-item" @click="restartRun(run, true)">From start</a>
-                      <a class="dropdown-item" @click="restartRun(run)">From failed tasks</a>
+                      <a
+                        v-if="run.can_restart_from_scratch"
+                        class="dropdown-item"
+                        @click="restartRun(run, true)"
+                      >From start</a>
+                      <a
+                        v-if="run.can_restart_from_failed_tasks"
+                        class="dropdown-item"
+                        @click="restartRun(run)"
+                      >From failed tasks</a>
                     </div>
                   </div>
                 </div>￼
