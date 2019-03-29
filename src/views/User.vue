@@ -78,15 +78,12 @@ export default {
       run: null
     };
   },
-  async beforeRouteEnter(to, from, next) {
-    if (!to.params.runid) next();
-    let run = await fetchRun(to.params.runid);
-    next(vm => (vm.run = run));
-  },
-  async beforeRouteUpdate(to, from, next) {
-    if (!to.params.runid) next();
-    this.run = await fetchRun(to.params.runid);
-    next();
+  watch: {
+    $route: async function(route) {
+      if (route.params.runid) {
+        this.run = await fetchRun(route.params.runid);
+      }
+    }
   },
   methods: {
     ownerLink: ownerLink,
