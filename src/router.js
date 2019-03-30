@@ -139,9 +139,22 @@ export default new VueRouter({
     },
     {
       path: "/org/:orgname",
-      name: "org",
       component: Org,
       props: (route) => ({ orgname: route.params.orgname }),
+      children: [
+        {
+          path: "",
+          name: "org",
+          component: projects,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname })
+        },
+        {
+          path: "projects",
+          name: "org projects",
+          component: projects,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname })
+        },
+      ]
     },
 
     {
