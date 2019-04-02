@@ -44,7 +44,7 @@ export default {
   props: {
     ownertype: String,
     ownername: String,
-    projectname: String,
+    projectref: Array,
     runid: String
   },
   data() {
@@ -55,11 +55,11 @@ export default {
   },
   methods: {
     runTaskLink(task) {
-      if (this.projectname) {
+      if (this.projectref) {
         return projectRunTaskLink(
           this.ownertype,
           this.ownername,
-          this.projectname,
+          this.projectref,
           this.runid,
           task.id
         );
@@ -69,7 +69,6 @@ export default {
     },
     parents(task) {
       return task.depends.map(d => {
-        console.log(d.task_id);
         return this.run.tasks[d.task_id].name;
       });
     },
@@ -94,7 +93,6 @@ export default {
         )
         .map(k => this.run.tasks[k]);
       this.run.sortedTasks = sortedTasks;
-      console.log("run: ", this.run);
     },
     pollData() {
       this.polling = setInterval(() => {

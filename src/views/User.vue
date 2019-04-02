@@ -1,10 +1,15 @@
 <template>
   <div>
-    <div class="user-title">
-      <router-link class="user-name" :to="ownerLink('user', username)">
-        <span>{{username}}</span>
-      </router-link>
-    </div>
+    <nav class="breadcrumb is-large" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <a>user</a>
+        </li>
+        <li>
+          <router-link :to="ownerLink('user', username)">{{username}}</router-link>
+        </li>
+      </ul>
+    </nav>
     <div class="tabs">
       <ul>
         <li :class="[{ 'is-active': $route.name === 'user projects' || $route.name === 'user' }]">

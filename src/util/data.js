@@ -22,10 +22,21 @@ export async function fetchTask(runid, taskid) {
     return res.json();
 }
 
-export async function fetchVariables(ownertype, ownername, projectname, all) {
-    let path =
-        "/projects/" +
-        encodeURIComponent(ownertype + "/" + ownername + "/" + projectname);
+export async function fetchProject(ref) {
+    let path = "/projects/" + encodeURIComponent(ref)
+
+    let res = await fetch(apiurl(path));
+    return res.json();
+}
+
+export async function fetchVariables(ownertype, ref, all) {
+    let path
+    if (ownertype == "project") {
+        path = "/projects/"
+    } else if (ownertype == "projectgroup") {
+        path = "/projectgroups/"
+    }
+    path += encodeURIComponent(ref);
     path += "/variables";
     if (all) {
         path += "?tree&removeoverridden";

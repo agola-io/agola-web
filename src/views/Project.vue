@@ -1,21 +1,21 @@
 <template>
   <div>
-    <projbreadcrumbs :ownertype="ownertype" :ownername="ownername" :projectname="projectname"/>
+    <projbreadcrumbs :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
     <div class="tabs">
       <ul>
         <li
           :class="[{ 'is-active': $route.name.match('project runs') || $route.name.endsWith('project') }]"
         >
-          <router-link :to="projectRunsLink(ownertype, ownername, projectname)">Runs History</router-link>
+          <router-link :to="projectRunsLink(ownertype, ownername, projectref)">Runs History</router-link>
         </li>
         <li :class="[{ 'is-active': $route.name.match('project branches runs') }]">
-          <router-link :to="projectBranchesRunsLink(ownertype, ownername, projectname)">Branches</router-link>
+          <router-link :to="projectBranchesRunsLink(ownertype, ownername, projectref)">Branches</router-link>
         </li>
         <li :class="[{ 'is-active': $route.name.match('project tags runs') }]">
-          <router-link :to="projectTagsRunsLink(ownertype, ownername, projectname)">Tags</router-link>
+          <router-link :to="projectTagsRunsLink(ownertype, ownername, projectref)">Tags</router-link>
         </li>
         <li :class="[{ 'is-active': $route.name.match('project pull requests runs') }]">
-          <router-link :to="projectPRsRunsLink(ownertype, ownername, projectname)">Pull Requests</router-link>
+          <router-link :to="projectPRsRunsLink(ownertype, ownername, projectref)">Pull Requests</router-link>
         </li>
         <li
           v-if="$route.name.endsWith('project run') || $route.name.endsWith('project run task')"
@@ -27,9 +27,7 @@
           v-if="$route.name.endsWith('project run') || $route.name.endsWith('project run task')"
           :class="[{ 'is-active': $route.name.endsWith('project run') }]"
         >
-          <router-link
-            :to="projectRunLink(ownertype, ownername, $route.params.projectname, $route.params.runid)"
-          >
+          <router-link :to="projectRunLink(ownertype, ownername, projectref, $route.params.runid)">
             <p v-if="run">
               Run
               <strong>#{{run.counter}}</strong>
@@ -44,7 +42,7 @@
         </li>
         <li v-if="$route.name.endsWith('project run task')" class="is-active">
           <router-link
-            :to="projectRunTaskLink(ownertype, ownername, $route.params.projectname, $route.params.runid, $route.params.taskid)"
+            :to="projectRunTaskLink(ownertype, ownername, projectref, $route.params.runid, $route.params.taskid)"
           >
             <p v-if="run">
               Task
@@ -55,7 +53,7 @@
       </ul>
       <ul class="is-right">
         <li :class="[{ 'is-active': $route.name.endsWith('project settings') }]">
-          <router-link :to="projectSettingsLink(ownertype, ownername, projectname)">Project Settings</router-link>
+          <router-link :to="projectSettingsLink(ownertype, ownername, projectref)">Project Settings</router-link>
         </li>
       </ul>
     </div>
@@ -79,16 +77,15 @@ import {
 import { fetchRun } from "@/util/data.js";
 
 import projbreadcrumbs from "@/components/projbreadcrumbs.vue";
-import runs from "@/components/runs.vue";
 import tabarrow from "@/components/tabarrow.vue";
 
 export default {
   name: "Project",
-  components: { projbreadcrumbs, runs, tabarrow },
+  components: { projbreadcrumbs, tabarrow },
   props: {
     ownertype: String,
     ownername: String,
-    projectname: String
+    projectref: Array
   },
   data() {
     return {

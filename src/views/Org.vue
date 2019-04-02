@@ -1,10 +1,15 @@
 <template>
   <div>
-    <div class="org-title">
-      <router-link class="org-name" :to="ownerLink('org', orgname)">
-        <span>{{orgname}}</span>
-      </router-link>
-    </div>
+    <nav class="breadcrumb is-large" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <a>org</a>
+        </li>
+        <li>
+          <router-link :to="ownerLink('org', orgname)">{{orgname}}</router-link>
+        </li>
+      </ul>
+    </nav>
     <div class="tabs">
       <ul>
         <li :class="[{ 'is-active': $route.name === 'org projects' || $route.name === 'org' }]">

@@ -4,9 +4,11 @@ import Home from "./views/Home.vue";
 import User from "./views/User.vue";
 import Org from "./views/Org.vue";
 import Project from "./views/Project.vue";
+import ProjectGroup from "./views/ProjectGroup.vue";
 //import Run from "./views/Run.vue";
 import projects from "./components/projects.vue";
 import projectsettings from "./components/projectsettings.vue";
+import projectgroupsettings from "./components/projectgroupsettings.vue";
 import runs from "./components/runs.vue";
 import run from "./components/run.vue";
 import task from "./components/task.vue";
@@ -14,6 +16,8 @@ import Oauth2 from "./views/Oauth2.vue";
 import Register from "./views/Register.vue";
 import Login from "./views/Login.vue";
 import Logout from "./views/Logout.vue";
+
+import { parseRef } from "@/util/link.js";
 
 Vue.use(VueRouter);
 
@@ -83,60 +87,87 @@ export default new VueRouter({
       ]
     },
     {
-      path: "/user/:username/projects/:projectname",
+      path: "/user/:username/projects/:projectref(.*\\.proj)",
       component: Project,
-      props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname }),
+      props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref) }),
       children: [
         {
           path: "",
           name: "user project",
           component: runs,
-          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref) })
         },
         {
           path: "runs",
           name: "user project runs",
           component: runs,
-          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref) })
         },
         {
           path: "branches",
           name: "user project branches runs",
           component: runs,
-          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, query: "branches" })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref), query: "branches" })
         },
         {
           path: "tags",
           name: "user project tags runs",
           component: runs,
-          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, query: "tags" })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref), query: "tags" })
         },
         {
           path: "pullrequests",
           name: "user project pull requests runs",
           component: runs,
-          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, query: "pullrequests" })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref), query: "pullrequests" })
         },
         {
           path: "runs/:runid",
           name: "user project run",
           component: run,
-          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, runid: route.params.runid })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref), runid: route.params.runid })
         },
         {
           path: "runs/:runid/tasks/:taskid",
           name: "user project run task",
           component: task,
-          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname, runid: route.params.runid, taskid: route.params.taskid })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref), runid: route.params.runid, taskid: route.params.taskid })
         },
         {
           path: "settings",
           name: "user project settings",
           component: projectsettings,
-          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectname: route.params.projectname })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref) })
         },
       ]
     },
+
+    {
+      path: "/user/:username/projectgroups/:projectgroupref(.*\\.proj)",
+      component: ProjectGroup,
+      props: (route) => ({ ownertype: "user", ownername: route.params.username, projectgroupref: parseRef(route.params.projectgroupref) }),
+      children: [
+        {
+          path: "",
+          name: "user project group",
+          component: projects,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectgroupref: parseRef(route.params.projectgroupref) }),
+        },
+        {
+          path: "projects",
+          name: "user project group projects",
+          component: projects,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectgroupref: parseRef(route.params.projectgroupref) })
+        },
+        {
+          path: "settings",
+          name: "user project group settings",
+          component: projectgroupsettings,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectgroupref: parseRef(route.params.projectgroupref) })
+        },
+      ]
+    },
+
     {
       path: "/org/:orgname",
       component: Org,
@@ -158,57 +189,83 @@ export default new VueRouter({
     },
 
     {
-      path: "/org/:orgname/projects/:projectname",
+      path: "/org/:orgname/projects/:projectref(.*\\.proj)",
       component: Project,
-      props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname }),
+      props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref) }),
       children: [
         {
           path: "",
           name: "org project",
           component: runs,
-          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname })
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref) })
         },
         {
           path: "runs",
           name: "org project runs",
           component: runs,
-          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname })
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref) })
         },
         {
           path: "branches",
           name: "org project branches runs",
           component: runs,
-          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, query: "branches" })
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref), query: "branches" })
         },
         {
           path: "tags",
           name: "org project tags runs",
           component: runs,
-          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, query: "tags" })
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref), query: "tags" })
         },
         {
           path: "pullrequests",
           name: "org project pull requests runs",
           component: runs,
-          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, query: "pullrequests" })
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref), query: "pullrequests" })
         },
         {
           path: "runs/:runid",
           name: "org project run",
           component: run,
-          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, runid: route.params.runid })
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref), runid: route.params.runid })
         },
         {
           path: "runs/:runid/tasks/:taskid",
           name: "org project run task",
           component: task,
-          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname, runid: route.params.runid, taskid: route.params.taskid })
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref), runid: route.params.runid, taskid: route.params.taskid })
         },
         {
           path: "settings",
           name: "org project settings",
           component: projectsettings,
-          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectname: route.params.projectname })
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref) })
+        },
+      ]
+    },
+
+    {
+      path: "/org/:orgname/projectgroups/:projectgroupref(.*\\.proj)",
+      component: ProjectGroup,
+      props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectgroupref: parseRef(route.params.projectgroupref) }),
+      children: [
+        {
+          path: "",
+          name: "org project group",
+          component: projects,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectgroupref: parseRef(route.params.projectgroupref) }),
+        },
+        {
+          path: "projects",
+          name: "org project group projects",
+          component: projects,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectgroupref: parseRef(route.params.projectgroupref) })
+        },
+        {
+          path: "settings",
+          name: "org project group settings",
+          component: projectgroupsettings,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectgroupref: parseRef(route.params.projectgroupref) })
         },
       ]
     },

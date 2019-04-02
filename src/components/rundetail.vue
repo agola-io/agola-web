@@ -94,7 +94,6 @@
 
 <script>
 import { apiurl, fetch } from "@/util/auth";
-import { userLocalRunTaskLink, projectRunTaskLink } from "@/util/link.js";
 
 export default {
   name: "RunDetail",
@@ -116,7 +115,7 @@ export default {
       return run.result;
     },
     runResultClass(run) {
-      status = this.runStatus(run);
+      let status = this.runStatus(run);
 
       if (status == "queued") return "unknown";
       if (status == "cancelled") return "failed";
@@ -142,11 +141,10 @@ export default {
           from_start: fromStart
         })
       });
-      console.log("r: " + r);
-      if (r.status == 200) {
-        return r.json();
+      if (res.status == 200) {
+        return res.json();
       }
-      throw Error(r.statusText);
+      throw Error(res.statusText);
     },
     async stopRun(run) {
       let res = fetch(apiurl("/run/" + run.id + "/actions"), {
@@ -155,11 +153,10 @@ export default {
           action_type: "stop"
         })
       });
-      console.log("r: " + r);
-      if (r.status == 200) {
-        return r.json();
+      if (res.status == 200) {
+        return res.json();
       }
-      throw Error(r.statusText);
+      throw Error(res.statusText);
     }
   }
 };

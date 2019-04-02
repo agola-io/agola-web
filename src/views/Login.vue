@@ -35,7 +35,6 @@ export default {
   methods: {
     async getRemoteSources() {
       let res = await (await fetch(apiurl("/remotesources"))).json();
-      console.log("remote sources result", res);
       this.remotesources = res;
     },
     async doLogin(rsName, username, password) {
@@ -48,7 +47,6 @@ export default {
           password: password
         })
       })).json();
-      console.log("login result", res);
       if (res.oauth2_redirect) {
         window.location = res.oauth2_redirect;
         return;

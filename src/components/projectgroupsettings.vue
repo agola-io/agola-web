@@ -11,11 +11,11 @@ import projectvars from "@/components/projectvars";
 
 export default {
   components: { projectvars },
-  name: "projectsettings",
+  name: "projectgroupsettings",
   props: {
     ownertype: String,
     ownername: String,
-    projectref: Array
+    projectgroupref: Array
   },
   data() {
     return {
@@ -25,13 +25,13 @@ export default {
   },
   created: async function() {
     this.variables = await fetchVariables(
-      "project",
-      [this.ownertype, this.ownername, ...this.projectref].join("/"),
+      "projectgroup",
+      [this.ownertype, this.ownername, ...this.projectgroupref].join("/"),
       false
     );
     this.allvariables = await fetchVariables(
-      "project",
-      [this.ownertype, this.ownername, ...this.projectref].join("/"),
+      "projectgroup",
+      [this.ownertype, this.ownername, ...this.projectgroupref].join("/"),
       true
     );
   }
@@ -41,3 +41,4 @@ export default {
 <style scoped lang="scss">
 @import "@/css/_variables.scss";
 </style>
+

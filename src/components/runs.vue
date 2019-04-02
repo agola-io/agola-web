@@ -15,7 +15,7 @@
             v-else
             tag="div"
             class="name"
-            :to="projectRunLink(ownertype, ownername, projectname, run.id)"
+            :to="projectRunLink(ownertype, ownername, projectref, run.id)"
           >
             <span>{{run.name}}</span>
           </router-link>
@@ -63,7 +63,7 @@
 
 <script>
 import { apiurl, fetch } from "@/util/auth";
-import { fetchRuns } from "@/util/data.js";
+import { fetchProject, fetchRuns } from "@/util/data.js";
 import { userLocalRunLink, projectRunLink } from "@/util/link.js";
 
 export default {
@@ -73,7 +73,7 @@ export default {
     ownertype: String,
     ownername: String,
     username: String,
-    projectname: String,
+    projectref: Array,
     query: String
   },
   data() {
@@ -85,7 +85,7 @@ export default {
     };
   },
   watch: {
-    $route: function(route) {
+    $route: function() {
       this.update();
     }
   },
@@ -108,9 +108,7 @@ export default {
     },
     update() {
       clearInterval(this.polling);
-      console.log("username", this.username);
-      console.log("projectname", this.projectname);
-      if (this.projectname !== undefined) {
+      if (this.projectref !== undefined) {
         this.fetchProject();
       } else if (this.username !== undefined) {
         this.fetchUser();
@@ -120,23 +118,15 @@ export default {
       this.pollData();
     },
     async fetchProject() {
-      let path =
-        "/projects/" +
-        encodeURIComponent(
-          this.ownertype + "/" + this.ownername + "/" + this.projectname
-        );
-      let res = await (await fetch(apiurl(path))).json();
-      console.log(res);
-      this.project = res;
-      console.log("project", this.project);
+      this.project = await fetchProject(
+        [this.ownertype, this.ownername, ...this.projectref].join("/")
+      );
 
       this.fetchRuns();
     },
     async fetchUser() {
       let res = await (await fetch(apiurl("/users/" + this.username))).json();
-      console.log(res);
       this.user = res;
-      console.log("user", this.user);
 
       this.fetchRuns();
     },
