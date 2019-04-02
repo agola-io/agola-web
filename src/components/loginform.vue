@@ -32,8 +32,6 @@
 
 
 <script>
-import { apiurl, loginurl, fetch } from "@/util/auth";
-
 export default {
   name: "LoginForm",
   props: {

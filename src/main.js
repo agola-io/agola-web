@@ -10,8 +10,6 @@ import { getUser } from "@/util/auth";
 
 Vue.use(Vue2Filters);
 
-const USER = 'user';
-
 // TODO(sgotti) use vuex for login/logout
 new Vue({
   router,

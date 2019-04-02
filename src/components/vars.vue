@@ -72,8 +72,6 @@
 </template>
 
 <script>
-import { apiurl, fetch } from "@/util/auth";
-
 export default {
   components: {},
   name: "vars",

@@ -21,8 +21,6 @@
 
 
 <script>
-import { apiurl, loginurl, fetch } from "@/util/auth";
-
 export default {
   name: "RegisterForm",
   props: {

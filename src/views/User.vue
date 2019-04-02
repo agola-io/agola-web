@@ -59,7 +59,6 @@
 
 
 <script>
-import { apiurl, fetch } from "@/util/auth";
 import {
   ownerLink,
   ownerProjectsLink,

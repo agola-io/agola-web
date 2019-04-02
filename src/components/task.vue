@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import { apiurl, fetch } from "@/util/auth";
 import { fetchRun, fetchTask } from "@/util/data.js";
 
 import Collapse from "@/components/collapse.vue";

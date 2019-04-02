@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import { apiurl, fetch } from "@/util/auth";
 import vars from "@/components/vars";
 
 export default {

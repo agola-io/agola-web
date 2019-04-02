@@ -76,16 +76,11 @@ export default {
       } else {
         path += "&step=" + this.step;
       }
-      let res = await fetch(apiurl(path))
-        .then(r => {
-          if (r.status == 200) {
-            return r.text();
-          }
-          return "";
-        })
-        .then(data => {
-          this.items.push(this.formatter.ansi_to_html(data));
-        });
+      let res = await fetch(apiurl(path));
+      if (res.status == 200) {
+        let data = await res.text();
+        this.items.push(this.formatter.ansi_to_html(data));
+      }
     }
   },
   watch: {

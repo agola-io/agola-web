@@ -25,11 +25,9 @@
 <script>
 import { ownerLink, ownerProjectsLink } from "@/util/link.js";
 
-import projects from "@/components/projects.vue";
-
 export default {
   name: "Org",
-  components: { projects },
+  components: {},
   props: {
     orgname: String
   },

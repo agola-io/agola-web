@@ -1,5 +1,3 @@
-<template></template>
-
 <script>
 import { logout } from "@/util/auth";
 
