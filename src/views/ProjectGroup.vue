@@ -11,7 +11,9 @@
         <li
           :class="[{ 'is-active': $route.name.match('project group project') || $route.name.endsWith('project group') }]"
         >
-          <router-link :to="projectGroupProjectsLink(ownertype, ownername)">Projects</router-link>
+          <router-link
+            :to="projectGroupProjectsLink(ownertype, ownername, projectgroupref)"
+          >Projects</router-link>
         </li>
       </ul>
       <ul class="is-right">

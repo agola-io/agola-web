@@ -5,7 +5,7 @@ import User from "./views/User.vue";
 import Org from "./views/Org.vue";
 import Project from "./views/Project.vue";
 import ProjectGroup from "./views/ProjectGroup.vue";
-//import Run from "./views/Run.vue";
+import usersettings from "./components/usersettings.vue";
 import projects from "./components/projects.vue";
 import projectsettings from "./components/projectsettings.vue";
 import projectgroupsettings from "./components/projectgroupsettings.vue";
@@ -83,6 +83,12 @@ export default new VueRouter({
           name: "user local run task",
           component: task,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, runid: route.params.runid, taskid: route.params.taskid })
+        },
+        {
+          path: "settings",
+          name: "user settings",
+          component: usersettings,
+          props: (route) => ({ username: route.params.username }),
         },
       ]
     },

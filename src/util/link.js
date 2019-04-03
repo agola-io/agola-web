@@ -15,9 +15,6 @@ export function ownerProjectsLink(ownertype, ownername) {
     return { name: ownertype + " projects", params: { ownername: ownername } }
 }
 
-export function projectGroupProjectsLink(ownertype, ownername) {
-    return { name: ownertype + " project group projects", params: { ownername: ownername } }
-}
 
 export function userLocalRunsLink(username) {
     return { name: "user local runs", params: { username: username } }
@@ -31,12 +28,21 @@ export function userLocalRunTaskLink(username, runid, taskid) {
     return { name: "user local run task", params: { username: username, runid: runid, taskid: taskid } }
 }
 
+export function userSettingsLink(username) {
+    return { name: "user settings", params: { username: username } }
+}
+
 // Note, when creating a router link containing a project/projectgroup ref (a
 // path), unfortunately, we cannot use route name and params since it will path
 // escape it
 export function projectGroupLink(ownertype, ownername, projectgroupref) {
     let projectgrouppath = (projectgroupref.join("/") + ".proj")
     return { path: `/${ownertype}/${ownername}/projectgroups/${projectgrouppath}`, }
+}
+
+export function projectGroupProjectsLink(ownertype, ownername, projectgroupref) {
+    let projectgrouppath = (projectgroupref.join("/") + ".proj")
+    return { path: `/${ownertype}/${ownername}/projectgroups/${projectgrouppath}/projects`, }
 }
 
 export function projectLink(ownertype, ownername, projectref) {

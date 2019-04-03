@@ -52,6 +52,11 @@
           </router-link>
         </li>
       </ul>
+      <ul class="is-right">
+        <li :class="[{ 'is-active': $route.name.endsWith('user settings') }]">
+          <router-link :to="userSettingsLink(username)">User Settings</router-link>
+        </li>
+      </ul>
     </div>
     <router-view></router-view>
   </div>
@@ -64,7 +69,8 @@ import {
   ownerProjectsLink,
   userLocalRunsLink,
   userLocalRunLink,
-  userLocalRunTaskLink
+  userLocalRunTaskLink,
+  userSettingsLink
 } from "@/util/link.js";
 
 import { fetchRun } from "@/util/data.js";
@@ -94,7 +100,8 @@ export default {
     ownerProjectsLink: ownerProjectsLink,
     userLocalRunsLink: userLocalRunsLink,
     userLocalRunLink: userLocalRunLink,
-    userLocalRunTaskLink: userLocalRunTaskLink
+    userLocalRunTaskLink: userLocalRunTaskLink,
+    userSettingsLink: userSettingsLink
   }
 };
 </script>
