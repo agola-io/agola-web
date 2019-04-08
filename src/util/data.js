@@ -72,6 +72,31 @@ export async function deleteUserToken(username, tokenname) {
     return res.text();
 }
 
+export async function restartRun(runid, fromStart) {
+    let path = "/runs/" + runid + "/actions"
+    let init = {
+        method: "PUT",
+        body: JSON.stringify({
+            action_type: "restart",
+            from_start: fromStart
+        })
+    }
+    let res = await fetch(apiurl(path), init)
+    return res.json();
+}
+
+export async function stopRun(runid) {
+    let path = "/runs/" + runid + "/actions"
+    let init = {
+        method: "PUT",
+        body: JSON.stringify({
+            action_type: "stop"
+        })
+    }
+    let res = await fetch(apiurl(path), init)
+    return res.json();
+}
+
 export async function approveTask(runid, taskid) {
     let path = "/runs/" + runid + "/tasks/" + taskid + "/actions"
     let init = {

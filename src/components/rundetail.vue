@@ -32,12 +32,12 @@
                       <a
                         v-if="run.can_restart_from_scratch"
                         class="dropdown-item"
-                        @click="restartRun(run, true)"
+                        @click="restartRun(run.id, true)"
                       >From start</a>
                       <a
                         v-if="run.can_restart_from_failed_tasks"
                         class="dropdown-item"
-                        @click="restartRun(run)"
+                        @click="restartRun(run.id)"
                       >From failed tasks</a>
                     </div>
                   </div>
@@ -45,7 +45,7 @@
                 <button
                   class="button is-danger"
                   v-if="run.phase == 'running'"
-                  @click="stopRun(run)"
+                  @click="stopRun(run.id)"
                 >Stop</button>
               </div>
             </div>
@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { apiurl, fetch } from "@/util/auth";
+import { stopRun, restartRun } from "@/util/data.js";
 
 export default {
   name: "RunDetail",
@@ -133,31 +133,8 @@ export default {
       if (task.status == "running") return "running";
       return "unknown";
     },
-    async restartRun(run, fromStart) {
-      let res = await fetch(apiurl("/runs/" + run.id + "/actions"), {
-        method: "PUT",
-        body: JSON.stringify({
-          action_type: "restart",
-          from_start: fromStart
-        })
-      });
-      if (res.status == 200) {
-        return res.json();
-      }
-      throw Error(res.statusText);
-    },
-    async stopRun(run) {
-      let res = fetch(apiurl("/runs/" + run.id + "/actions"), {
-        method: "PUT",
-        body: JSON.stringify({
-          action_type: "stop"
-        })
-      });
-      if (res.status == 200) {
-        return res.json();
-      }
-      throw Error(res.statusText);
-    }
+    stopRun: stopRun,
+    restartRun: restartRun
   }
 };
 </script>
