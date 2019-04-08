@@ -135,7 +135,7 @@ export default {
     },
     async restartRun(run, fromStart) {
       let res = await fetch(apiurl("/run/" + run.id + "/actions"), {
-        method: "POST",
+        method: "PUT",
         body: JSON.stringify({
           action_type: "restart",
           from_start: fromStart
@@ -148,7 +148,7 @@ export default {
     },
     async stopRun(run) {
       let res = fetch(apiurl("/run/" + run.id + "/actions"), {
-        method: "POST",
+        method: "PUT",
         body: JSON.stringify({
           action_type: "stop"
         })
