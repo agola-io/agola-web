@@ -19,12 +19,12 @@ export async function fetchRuns(group, lastrun) {
 }
 
 export async function fetchRun(runid) {
-    let res = await fetch(apiurl("/run/" + runid));
+    let res = await fetch(apiurl("/runs/" + runid));
     return res.json();
 }
 
 export async function fetchTask(runid, taskid) {
-    let res = await fetch(apiurl("/run/" + runid + "/task/" + taskid))
+    let res = await fetch(apiurl("/runs/" + runid + "/tasks/" + taskid))
     return res.json();
 }
 
