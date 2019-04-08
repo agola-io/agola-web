@@ -20,6 +20,8 @@
             <span>{{run.name}}</span>
           </router-link>
           <div class="commitmessage">{{run.annotations.message}}</div>
+          <span v-if="waitingApproval(run)" class="waitingapproval tag">Waiting Approval</span>
+          <span v-if="!waitingApproval(run)" class="waitingapproval"></span>
           <span v-if="stillRunning(run)" class="stillrunning tag">Still running</span>
           <span v-if="!stillRunning(run)" class="stillrunning"></span>
           <div class="source-info">
@@ -94,6 +96,9 @@ export default {
     userLocalRunLink: userLocalRunLink,
     stillRunning(run) {
       return run.result != "unknown" && run.phase == "running";
+    },
+    waitingApproval(run) {
+      return run.tasks_waiting_approval.length > 0;
     },
     runResultClass(run) {
       if (run.result == "unknown") {
@@ -224,6 +229,10 @@ export default {
   }
 
   .stillrunning {
+    flex: 0 0 10%;
+  }
+
+  .waitingapproval {
     flex: 0 0 10%;
   }
 

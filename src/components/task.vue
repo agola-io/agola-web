@@ -2,9 +2,18 @@
   <div>
     <RunDetail :run="run"/>
     <div v-if="task != null">
-      <div class="task-title">
-        <span class="task-name" v-html="task.name"/>
-        <span class="tag" :class="taskClass(task)">{{ task.status | capitalize }}</span>
+      <div class="columns">
+        <div class="task-title column is-10">
+          <span class="task-name" v-html="task.name"/>
+          <span class="tag" :class="taskClass(task)">{{ task.status | capitalize }}</span>
+        </div>
+        <div class="task-actions column is-2 is-pulled-right">
+          <button
+            class="button is-primary"
+            v-if="task.waiting_approval"
+            @click="approveTask(run.id, task.id)"
+          >Approve</button>
+        </div>
       </div>
       <Collapse
         v-bind:runid="runid"
@@ -25,7 +34,7 @@
 </template>
 
 <script>
-import { fetchRun, fetchTask } from "@/util/data.js";
+import { fetchRun, fetchTask, approveTask } from "@/util/data.js";
 
 import Collapse from "@/components/collapse.vue";
 import RunDetail from "@/components/rundetail.vue";
@@ -64,7 +73,8 @@ export default {
         this.fetchTask();
         this.fetchRun();
       }, 2000);
-    }
+    },
+    approveTask: approveTask
   },
   created: function() {
     this.fetchRun();
@@ -89,5 +99,9 @@ export default {
     font-size: 1.5rem;
     padding-right: 1rem;
   }
+}
+
+.task-actions {
+  text-align: right;
 }
 </style>

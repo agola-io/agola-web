@@ -71,3 +71,15 @@ export async function deleteUserToken(username, tokenname) {
     let res = await fetch(apiurl(path), init)
     return res.text();
 }
+
+export async function approveTask(runid, taskid) {
+    let path = "/runs/" + runid + "/tasks/" + taskid + "/actions"
+    let init = {
+        method: "PUT",
+        body: JSON.stringify({
+            action_type: "approve"
+        })
+    }
+    let res = await fetch(apiurl(path), init)
+    return res.json();
+}

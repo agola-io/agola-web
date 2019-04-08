@@ -17,6 +17,9 @@
             <router-link class="column is-10" tag="a" :to="runTaskLink(task)">
               <span class="name">{{task.name}}</span>
             </router-link>
+            <div class="column">
+              <span class="tag" v-if="run.tasks_waiting_approval.includes(task.id)">Waiting approval</span>
+            </div>
             <div class="parents column">
               <span v-if="parents(task).length > 0">depends on: &nbsp;</span>
               <span class="parent" v-for="dep in parents(task)" v-bind:key="dep">{{dep}}</span>
