@@ -102,6 +102,7 @@ export default {
     },
     runResultClass(run) {
       if (run.result == "unknown") {
+        if (run.phase == "setuperror") return "setuperror";
         if (run.phase == "queued") return "unknown";
         if (run.phase == "cancelled") return "failed";
         if (run.phase == "running") return "running";
@@ -216,6 +217,10 @@ export default {
 
   .unknown {
     border-left: 5px solid $grey-lighter;
+  }
+
+  .setuperror {
+    border-left: 5px solid $yellow;
   }
 
   .name {

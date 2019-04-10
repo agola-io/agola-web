@@ -117,6 +117,7 @@ export default {
     runResultClass(run) {
       let status = this.runStatus(run);
 
+      if (status == "setuperror") return "setuperror";
       if (status == "queued") return "unknown";
       if (status == "cancelled") return "failed";
       if (status == "running") return "running";
@@ -204,6 +205,10 @@ export default {
 
   .unknown {
     border-left: 5px solid $grey-lighter;
+  }
+
+  .setuperror {
+    border-left: 5px solid $yellow;
   }
 
   .name {
