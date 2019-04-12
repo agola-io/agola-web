@@ -87,8 +87,8 @@ export default {
       }
     },
     parents(task) {
-      return task.depends.map(d => {
-        return this.run.tasks[d.task_id].name;
+      return Object.keys(task.depends).map(key => {
+        return this.run.tasks[task.depends[key].task_id].name;
       });
     },
     taskClass(task) {
