@@ -9,27 +9,27 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@mdi/font": "^3.3.92",
+    "@mdi/font": "^3.6.95",
     "ansi_up": "^3.0.0",
     "axios": "^0.18.0",
     "bulma": "^0.7.4",
     "moment": "^2.23.0",
     "moment-duration-format": "^2.2.2",
-    "vue": "^2.5.21",
-    "vue-router": "^3.0.2",
+    "vue": "^2.6.10",
+    "vue-router": "^3.0.6",
     "vue2-filters": "^0.4.1",
     "vuex": "^3.1.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.4.0",
-    "@vue/cli-plugin-eslint": "^3.4.0",
-    "@vue/cli-service": "^3.4.0",
+    "@vue/cli-plugin-babel": "^3.6.0",
+    "@vue/cli-plugin-eslint": "^3.6.0",
+    "@vue/cli-service": "^3.6.0",
     "babel-eslint": "^10.0.1",
-    "eslint": "^5.12.0",
-    "eslint-plugin-vue": "^5.1.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.2.2",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.5.21"
+    "vue-template-compiler": "^2.6.10"
   },
   "eslintConfig": {
     "root": true,
