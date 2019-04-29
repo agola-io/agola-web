@@ -1,27 +1,33 @@
 <template>
   <div>
     <h4 class="title is-4">Projects</h4>
-    <div class="item-list" v-for="project in projects" v-bind:key="project.id">
-      <router-link
-        tag="div"
-        class="item"
-        :to="projectLink(ownertype, ownername, ref(project.name))"
-      >
-        <span class="name">{{project.name}}</span>
-      </router-link>
+    <div v-if="projects.length > 0">
+      <div class="item-list" v-for="project in projects" v-bind:key="project.id">
+        <router-link
+          tag="div"
+          class="item"
+          :to="projectLink(ownertype, ownername, ref(project.name))"
+        >
+          <span class="name">{{project.name}}</span>
+        </router-link>
+      </div>
     </div>
+    <div v-else class="item-list">No projects</div>
 
     <hr>
     <h4 class="title is-4">Project Groups</h4>
-    <div class="item-list" v-for="projectgroup in projectgroups" v-bind:key="projectgroup.id">
-      <router-link
-        tag="div"
-        class="item"
-        :to="projectGroupLink(ownertype, ownername, ref(projectgroup.name))"
-      >
-        <span class="name">{{projectgroup.name}}</span>
-      </router-link>
+    <div v-if="projectgroups.length > 0">
+      <div class="item-list" v-for="projectgroup in projectgroups" v-bind:key="projectgroup.id">
+        <router-link
+          tag="div"
+          class="item"
+          :to="projectGroupLink(ownertype, ownername, ref(projectgroup.name))"
+        >
+          <span class="name">{{projectgroup.name}}</span>
+        </router-link>
+      </div>
     </div>
+    <div v-else class="item-list">No project groups</div>
   </div>
 </template>
 
