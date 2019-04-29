@@ -1,64 +1,67 @@
 <template>
   <div>
     <div class="item-list">
-      <div class="item" v-for="run in runs" v-bind:key="run.id" :class="runResultClass(run)">
-        <div class="item-content">
-          <router-link
-            v-if="username"
-            tag="div"
-            class="name"
-            :to="userLocalRunLink(username, run.id)"
-          >
-            <span>{{run.name}}</span>
-          </router-link>
-          <router-link
-            v-else
-            tag="div"
-            class="name"
-            :to="projectRunLink(ownertype, ownername, projectref, run.id)"
-          >
-            <span>{{run.name}}</span>
-          </router-link>
-          <div class="commitmessage">{{run.annotations.message}}</div>
-          <span v-if="waitingApproval(run)" class="waitingapproval tag">Waiting Approval</span>
-          <span v-if="!waitingApproval(run)" class="waitingapproval"></span>
-          <span v-if="stillRunning(run)" class="stillrunning tag">Still running</span>
-          <span v-if="!stillRunning(run)" class="stillrunning"></span>
-          <div class="source-info">
-            <a :href="run.annotations.commit_link" class="commit" target="_blank">
-              <i class="mdi mdi-source-commit mdi-rotate-90"></i>
-              <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
-            </a>
-            <a
-              v-if="run.annotations.event_type == 'push'"
-              :href="run.annotations.branch_link"
-              class="commit"
-              target="_blank"
+      <div v-if="runs.length > 0">
+        <div class="item" v-for="run in runs" v-bind:key="run.id" :class="runResultClass(run)">
+          <div class="item-content">
+            <router-link
+              v-if="username"
+              tag="div"
+              class="name"
+              :to="userLocalRunLink(username, run.id)"
             >
-              <i class="mdi mdi-source-branch"></i>
-              <span>{{run.annotations.branch}}</span>
-            </a>
-            <a
-              v-else-if="run.annotations.event_type == 'tag'"
-              :href="run.annotations.tag_link"
-              class="commit"
-              target="_blank"
+              <span>{{run.name}}</span>
+            </router-link>
+            <router-link
+              v-else
+              tag="div"
+              class="name"
+              :to="projectRunLink(ownertype, ownername, projectref, run.id)"
             >
-              <i class="mdi mdi-tag"></i>
-              <span>{{run.annotations.tag}}</span>
-            </a>
-            <a
-              v-else-if="run.annotations.event_type == 'pull_request'"
-              :href="run.annotations.pull_request_link"
-              class="commit"
-              target="_blank"
-            >
-              <i class="mdi mdi-source-pull"></i>
-              <span>PR #{{run.annotations.pull_request_id}}</span>
-            </a>
+              <span>{{run.name}}</span>
+            </router-link>
+            <div class="commitmessage">{{run.annotations.message}}</div>
+            <span v-if="waitingApproval(run)" class="waitingapproval tag">Waiting Approval</span>
+            <span v-if="!waitingApproval(run)" class="waitingapproval"></span>
+            <span v-if="stillRunning(run)" class="stillrunning tag">Still running</span>
+            <span v-if="!stillRunning(run)" class="stillrunning"></span>
+            <div class="source-info">
+              <a :href="run.annotations.commit_link" class="commit" target="_blank">
+                <i class="mdi mdi-source-commit mdi-rotate-90"></i>
+                <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
+              </a>
+              <a
+                v-if="run.annotations.event_type == 'push'"
+                :href="run.annotations.branch_link"
+                class="commit"
+                target="_blank"
+              >
+                <i class="mdi mdi-source-branch"></i>
+                <span>{{run.annotations.branch}}</span>
+              </a>
+              <a
+                v-else-if="run.annotations.event_type == 'tag'"
+                :href="run.annotations.tag_link"
+                class="commit"
+                target="_blank"
+              >
+                <i class="mdi mdi-tag"></i>
+                <span>{{run.annotations.tag}}</span>
+              </a>
+              <a
+                v-else-if="run.annotations.event_type == 'pull_request'"
+                :href="run.annotations.pull_request_link"
+                class="commit"
+                target="_blank"
+              >
+                <i class="mdi mdi-source-pull"></i>
+                <span>PR #{{run.annotations.pull_request_id}}</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
+      <div v-else class="item-list">No runs</div>
     </div>
   </div>
 </template>
