@@ -108,3 +108,9 @@ export async function approveTask(runid, taskid) {
     let res = await fetch(apiurl(path), init)
     return res.json();
 }
+
+export async function fetchRemoteSources() {
+    let path = "/remotesources"
+    let res = await fetch(apiurl(path));
+    return res.json();
+}

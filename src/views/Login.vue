@@ -19,8 +19,10 @@
 </template>
 
 <script>
+import { fetchRemoteSources } from "@/util/data";
+import { loginurl, fetch, login, logout } from "@/util/auth";
+
 import LoginForm from "@/components/loginform";
-import { apiurl, loginurl, fetch, login, logout } from "@/util/auth";
 
 export default {
   name: "Login",
@@ -34,8 +36,7 @@ export default {
   },
   methods: {
     async getRemoteSources() {
-      let res = await (await fetch(apiurl("/remotesources"))).json();
-      this.remotesources = res;
+      this.remotesources = await fetchRemoteSources();
     },
     async doLogin(rsName, username, password) {
       let u = loginurl();
