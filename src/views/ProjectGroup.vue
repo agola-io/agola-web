@@ -11,16 +11,22 @@
         <li
           :class="[{ 'is-active': $route.name.match('project group project') || $route.name.endsWith('project group') }]"
         >
-          <router-link
-            :to="projectGroupProjectsLink(ownertype, ownername, projectgroupref)"
-          >Projects</router-link>
+          <router-link :to="projectGroupProjectsLink(ownertype, ownername, projectgroupref)">
+            <span class="icon is-small">
+              <i class="mdi mdi-home"/>
+            </span>
+            <span>Projects</span>
+          </router-link>
         </li>
       </ul>
       <ul class="is-right">
         <li :class="[{ 'is-active': $route.name.endsWith('project group settings') }]">
-          <router-link
-            :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)"
-          >Project Group Settings</router-link>
+          <router-link :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)">
+            <span class="icon is-small">
+              <i class="mdi mdi-settings"/>
+            </span>
+            <span>Project Group Settings</span>
+          </router-link>
         </li>
       </ul>
     </div>

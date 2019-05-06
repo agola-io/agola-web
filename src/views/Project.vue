@@ -3,19 +3,48 @@
     <projbreadcrumbs :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
     <div class="tabs">
       <ul>
+        <li>
+          <span class="icon is-small">
+            <i class="mdi mdi-run-fast"/>
+          </span>
+          <span>Runs</span>
+        </li>
+        <li>
+          <tabarrow/>
+        </li>
         <li
           :class="[{ 'is-active': $route.name.match('project runs') || $route.name.endsWith('project') }]"
         >
-          <router-link :to="projectRunsLink(ownertype, ownername, projectref)">Runs History</router-link>
+          <router-link :to="projectRunsLink(ownertype, ownername, projectref)">
+            <span class="icon is-small">
+              <i class="mdi mdi-asterisk"/>
+            </span>
+            <span>All</span>
+          </router-link>
         </li>
         <li :class="[{ 'is-active': $route.name.match('project branches runs') }]">
-          <router-link :to="projectBranchesRunsLink(ownertype, ownername, projectref)">Branches</router-link>
+          <router-link :to="projectBranchesRunsLink(ownertype, ownername, projectref)">
+            <span class="icon is-small">
+              <i class="mdi mdi-source-branch"/>
+            </span>
+            <span>Branches</span>
+          </router-link>
         </li>
         <li :class="[{ 'is-active': $route.name.match('project tags runs') }]">
-          <router-link :to="projectTagsRunsLink(ownertype, ownername, projectref)">Tags</router-link>
+          <router-link :to="projectTagsRunsLink(ownertype, ownername, projectref)">
+            <span class="icon is-small">
+              <i class="mdi mdi-tag"/>
+            </span>
+            <span>Tags</span>
+          </router-link>
         </li>
         <li :class="[{ 'is-active': $route.name.match('project pull requests runs') }]">
-          <router-link :to="projectPRsRunsLink(ownertype, ownername, projectref)">Pull Requests</router-link>
+          <router-link :to="projectPRsRunsLink(ownertype, ownername, projectref)">
+            <span class="icon is-small">
+              <i class="mdi mdi-source-pull"/>
+            </span>
+            <span>Pull Requests</span>
+          </router-link>
         </li>
         <li
           v-if="$route.name.endsWith('project run') || $route.name.endsWith('project run task')"
@@ -53,7 +82,12 @@
       </ul>
       <ul class="is-right">
         <li :class="[{ 'is-active': $route.name.endsWith('project settings') }]">
-          <router-link :to="projectSettingsLink(ownertype, ownername, projectref)">Project Settings</router-link>
+          <router-link :to="projectSettingsLink(ownertype, ownername, projectref)">
+            <span class="icon is-small">
+              <i class="mdi mdi-settings"/>
+            </span>
+            <span>Project Settings</span>
+          </router-link>
         </li>
       </ul>
     </div>

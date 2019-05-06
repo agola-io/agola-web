@@ -13,10 +13,20 @@
     <div class="tabs">
       <ul>
         <li :class="[{ 'is-active': $route.name === 'user projects' || $route.name === 'user' }]">
-          <router-link :to="ownerProjectsLink('user', username)">Projects</router-link>
+          <router-link :to="ownerProjectsLink('user', username)">
+            <span class="icon is-small">
+              <i class="mdi mdi-home"/>
+            </span>
+            <span>Projects</span>
+          </router-link>
         </li>
         <li :class="[{ 'is-active': $route.name === 'user local runs' }]">
-          <router-link :to="userLocalRunsLink(username)">Local Runs</router-link>
+          <router-link :to="userLocalRunsLink(username)">
+            <span class="icon is-small">
+              <i class="mdi mdi-run-fast"/>
+            </span>
+            <span>Local Runs</span>
+          </router-link>
         </li>
         <li
           v-if="$route.name === 'user local run' || $route.name == 'user local run task'"
@@ -54,7 +64,12 @@
       </ul>
       <ul class="is-right">
         <li :class="[{ 'is-active': $route.name.endsWith('user settings') }]">
-          <router-link :to="userSettingsLink(username)">User Settings</router-link>
+          <router-link :to="userSettingsLink(username)">
+            <span class="icon is-small">
+              <i class="mdi mdi-settings"/>
+            </span>
+            <span>User Settings</span>
+          </router-link>
         </li>
       </ul>
     </div>

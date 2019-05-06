@@ -13,7 +13,12 @@
     <div class="tabs">
       <ul>
         <li :class="[{ 'is-active': $route.name === 'org projects' || $route.name === 'org' }]">
-          <router-link :to="ownerProjectsLink('org', orgname)">Projects</router-link>
+          <router-link :to="ownerProjectsLink('org', orgname)">
+            <span class="icon is-small">
+              <i class="mdi mdi-home"/>
+            </span>
+            <span>Projects</span>
+          </router-link>
         </li>
       </ul>
     </div>
