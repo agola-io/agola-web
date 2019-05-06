@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav class="breadcrumb is-large" aria-label="breadcrumbs">
+    <nav class="breadcrumb" aria-label="breadcrumbs">
       <ul>
         <li>
           <a>org</a>
@@ -10,6 +10,11 @@
         </li>
       </ul>
     </nav>
+
+    <div class="name">
+      <span class="is-size-3">{{orgname}}</span>
+    </div>
+
     <div class="tabs">
       <ul>
         <li :class="[{ 'is-active': $route.name === 'org projects' || $route.name === 'org' }]">
@@ -46,16 +51,8 @@ export default {
 <style scoped lang="scss">
 @import "@/css/_variables.scss";
 
-.org-title {
-  display: flex;
-  align-items: center;
+.name {
   padding-left: 5px;
   margin-bottom: 25px;
-  .org-name {
-    color: $grey-dark;
-    padding-left: 5px;
-    font-size: 1.5rem;
-    padding-right: 1rem;
-  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <nav class="breadcrumb is-large" aria-label="breadcrumbs">
+  <nav class="breadcrumb" aria-label="breadcrumbs">
     <ul>
       <li>
         <a>{{ownertype}}</a>

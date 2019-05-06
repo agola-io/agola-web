@@ -6,6 +6,11 @@
       :ownername="ownername"
       :projectgroupref="projectgroupref"
     />
+
+    <div class="name">
+      <span class="is-size-3">{{projectgroupref[projectgroupref.length-1]}}</span>
+    </div>
+
     <div class="tabs">
       <ul>
         <li
@@ -80,15 +85,8 @@ export default {
 <style scoped lang="scss">
 @import "@/css/_variables.scss";
 
-.user-title {
-  display: flex;
-  align-items: center;
+.name {
   padding-left: 5px;
   margin-bottom: 25px;
-  .user-name {
-    padding-left: 5px;
-    font-size: 1.5rem;
-    padding-right: 1rem;
-  }
 }
 </style>
