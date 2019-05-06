@@ -13,6 +13,9 @@
 
     <div class="name">
       <span class="is-size-3">{{username}}</span>
+      <div class="is-pulled-right">
+        <createprojectbutton v-on:click="goToCreate($event)"/>
+      </div>
     </div>
 
     <div class="tabs">
@@ -90,16 +93,19 @@ import {
   userLocalRunsLink,
   userLocalRunLink,
   userLocalRunTaskLink,
-  ownerSettingsLink
+  ownerSettingsLink,
+  projectGroupCreateProjectGroupLink,
+  projectGroupCreateProjectLink
 } from "@/util/link.js";
 
 import { fetchRun } from "@/util/data.js";
 
+import createprojectbutton from "@/components/createprojectbutton.vue";
 import tabarrow from "@/components/tabarrow.vue";
 
 export default {
   name: "User",
-  components: { tabarrow },
+  components: { createprojectbutton, tabarrow },
   props: {
     username: String
   },
@@ -121,7 +127,18 @@ export default {
     userLocalRunsLink: userLocalRunsLink,
     userLocalRunLink: userLocalRunLink,
     userLocalRunTaskLink: userLocalRunTaskLink,
-    ownerSettingsLink: ownerSettingsLink
+    ownerSettingsLink: ownerSettingsLink,
+    projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
+    projectGroupCreateProjectLink: projectGroupCreateProjectLink,
+    goToCreate(type) {
+      if (type == "project") {
+        this.$router.push(projectGroupCreateProjectLink("user", this.username));
+        return;
+      }
+      this.$router.push(
+        projectGroupCreateProjectGroupLink("user", this.username)
+      );
+    }
   }
 };
 </script>

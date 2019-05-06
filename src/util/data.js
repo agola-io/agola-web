@@ -114,3 +114,39 @@ export async function fetchRemoteSources() {
     let res = await fetch(apiurl(path));
     return res.json();
 }
+
+export async function userRemoteRepos(remotesourceid) {
+    let path = "/user/remoterepos/" + remotesourceid
+    let res = await fetch(apiurl(path));
+    return res.json();
+}
+
+export async function createProjectGroup(parentref, name) {
+    let path = "/projectgroups"
+    let init = {
+        method: "POST",
+        body: JSON.stringify({
+            name: name,
+            parent_ref: parentref,
+            visibility: "public",
+        })
+    }
+    let res = await fetch(apiurl(path), init)
+    return res.json();
+}
+
+export async function createProject(parentref, name, remotesourcename, remoterepopath) {
+    let path = "/projects"
+    let init = {
+        method: "POST",
+        body: JSON.stringify({
+            name: name,
+            parent_ref: parentref,
+            visibility: "public",
+            remote_source_name: remotesourcename,
+            repo_path: remoterepopath,
+        })
+    }
+    let res = await fetch(apiurl(path), init)
+    return res.json();
+}

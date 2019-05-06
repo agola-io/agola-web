@@ -8,7 +8,10 @@
     />
 
     <div class="name">
-      <span class="is-size-3">{{projectgroupref[projectgroupref.length-1]}}</span>
+      <span class="is-size-3">{{projectGroupName()}}</span>
+      <div class="is-pulled-right">
+        <createprojectbutton v-on:click="goToCreate($event)"/>
+      </div>
     </div>
 
     <div class="tabs">
@@ -43,16 +46,19 @@
 <script>
 import {
   projectGroupProjectsLink,
-  projectGroupSettingsLink
+  projectGroupSettingsLink,
+  projectGroupCreateProjectGroupLink,
+  projectGroupCreateProjectLink
 } from "@/util/link.js";
 
 import { fetchRun } from "@/util/data.js";
 
 import projbreadcrumbs from "@/components/projbreadcrumbs.vue";
+import createprojectbutton from "@/components/createprojectbutton.vue";
 
 export default {
   name: "ProjectGroup",
-  components: { projbreadcrumbs },
+  components: { projbreadcrumbs, createprojectbutton },
   props: {
     ownertype: String,
     ownername: String,
@@ -72,7 +78,31 @@ export default {
   },
   methods: {
     projectGroupProjectsLink: projectGroupProjectsLink,
-    projectGroupSettingsLink: projectGroupSettingsLink
+    projectGroupSettingsLink: projectGroupSettingsLink,
+    projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
+    projectGroupCreateProjectLink: projectGroupCreateProjectLink,
+    projectGroupName() {
+      return this.projectgroupref[this.projectgroupref.length - 1];
+    },
+    goToCreate(type) {
+      if (type == "project") {
+        this.$router.push(
+          projectGroupCreateProjectLink(
+            this.ownertype,
+            this.ownername,
+            this.projectgroupref
+          )
+        );
+        return;
+      }
+      this.$router.push(
+        projectGroupCreateProjectGroupLink(
+          this.ownertype,
+          this.ownername,
+          this.projectgroupref
+        )
+      );
+    }
   },
   created: async function() {
     if (this.$route.params.runid) {

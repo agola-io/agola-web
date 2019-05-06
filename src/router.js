@@ -9,6 +9,8 @@ import usersettings from "./components/usersettings.vue";
 import projects from "./components/projects.vue";
 import projectsettings from "./components/projectsettings.vue";
 import projectgroupsettings from "./components/projectgroupsettings.vue";
+import createproject from "./components/createproject.vue";
+import createprojectgroup from "./components/createprojectgroup.vue";
 import runs from "./components/runs.vue";
 import run from "./components/run.vue";
 import task from "./components/task.vue";
@@ -89,6 +91,18 @@ export default new VueRouter({
           name: "user settings",
           component: usersettings,
           props: (route) => ({ username: route.params.username }),
+        },
+        {
+          path: "createprojectgroup",
+          name: "user create project group",
+          component: createprojectgroup,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username })
+        },
+        {
+          path: "createproject",
+          name: "user create project",
+          component: createproject,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username })
         },
       ]
     },
@@ -171,6 +185,18 @@ export default new VueRouter({
           component: projectgroupsettings,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, projectgroupref: parseRef(route.params.projectgroupref) })
         },
+        {
+          path: "createprojectgroup",
+          name: "user project group create project group",
+          component: createprojectgroup,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectgroupref: parseRef(route.params.projectgroupref) })
+        },
+        {
+          path: "createproject",
+          name: "user project group create project",
+          component: createproject,
+          props: (route) => ({ ownertype: "user", ownername: route.params.username, projectgroupref: parseRef(route.params.projectgroupref) })
+        },
       ]
     },
 
@@ -189,6 +215,18 @@ export default new VueRouter({
           path: "projects",
           name: "org projects",
           component: projects,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname })
+        },
+        {
+          path: "createprojectgroup",
+          name: "org create project group",
+          component: createprojectgroup,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname })
+        },
+        {
+          path: "createproject",
+          name: "org create project",
+          component: createproject,
           props: (route) => ({ ownertype: "org", ownername: route.params.orgname })
         },
       ]
@@ -271,6 +309,18 @@ export default new VueRouter({
           path: "settings",
           name: "org project group settings",
           component: projectgroupsettings,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectgroupref: parseRef(route.params.projectgroupref) })
+        },
+        {
+          path: "createprojectgroup",
+          name: "org project group create project group",
+          component: createprojectgroup,
+          props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectgroupref: parseRef(route.params.projectgroupref) })
+        },
+        {
+          path: "createproject",
+          name: "org project group create project",
+          component: createproject,
           props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectgroupref: parseRef(route.params.projectgroupref) })
         },
       ]

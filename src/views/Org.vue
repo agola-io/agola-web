@@ -13,6 +13,9 @@
 
     <div class="name">
       <span class="is-size-3">{{orgname}}</span>
+      <div class="is-pulled-right">
+        <createprojectbutton v-on:click="goToCreate($event)"/>
+      </div>
     </div>
 
     <div class="tabs">
@@ -46,19 +49,34 @@
 import {
   ownerLink,
   ownerProjectsLink,
-  ownerSettingsLink
+  ownerSettingsLink,
+  projectGroupCreateProjectGroupLink,
+  projectGroupCreateProjectLink
 } from "@/util/link.js";
+
+import createprojectbutton from "@/components/createprojectbutton.vue";
 
 export default {
   name: "Org",
-  components: {},
+  components: { createprojectbutton },
   props: {
     orgname: String
   },
   methods: {
     ownerLink: ownerLink,
     ownerProjectsLink: ownerProjectsLink,
-    ownerSettingsLink: ownerSettingsLink
+    ownerSettingsLink: ownerSettingsLink,
+    projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
+    projectGroupCreateProjectLink: projectGroupCreateProjectLink,
+    goToCreate(type) {
+      if (type == "project") {
+        this.$router.push(projectGroupCreateProjectLink("org", this.orgname));
+        return;
+      }
+      this.$router.push(
+        projectGroupCreateProjectGroupLink("org", this.orgname)
+      );
+    }
   }
 };
 </script>

@@ -39,14 +39,31 @@ export function userLocalRunTaskLink(username, runid, taskid) {
 // Note, when creating a router link containing a project/projectgroup ref (a
 // path), unfortunately, we cannot use route name and params since it will path
 // escape it
+export function projectGroupPath(ownertype, ownername, projectgroupref) {
+    let path = `/${ownertype}/${ownername}`
+    if (Array.isArray(projectgroupref) && projectgroupref.length) {
+        let projectgrouppath = (projectgroupref.join("/") + ".proj")
+        path = `${path}/projectgroups/${projectgrouppath}`
+    }
+    return path
+}
+
+export function projectPath(ownertype, ownername, projectref) {
+    let path = `/${ownertype}/${ownername}`
+    if (Array.isArray(projectref) && projectref.length) {
+        let projectpath = (projectref.join("/") + ".proj")
+        path = `${path}/projects/${projectpath}`
+    }
+    return path
+}
+
 export function projectGroupLink(ownertype, ownername, projectgroupref) {
-    let projectgrouppath = (projectgroupref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projectgroups/${projectgrouppath}`, }
+    return { path: projectGroupPath(ownertype, ownername, projectgroupref) }
 }
 
 export function projectGroupProjectsLink(ownertype, ownername, projectgroupref) {
     let projectgrouppath = (projectgroupref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projectgroups/${projectgrouppath}/projects`, }
+    return { path: `/${ownertype}/${ownername}/projectgroups/${projectgrouppath}/projects` }
 }
 
 export function projectLink(ownertype, ownername, projectref) {
@@ -61,35 +78,45 @@ export function projectRunsLink(ownertype, ownername, projectref) {
 
 export function projectBranchesRunsLink(ownertype, ownername, projectref) {
     let projectpath = (projectref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/branches`, }
+    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/branches` }
 }
 
 export function projectTagsRunsLink(ownertype, ownername, projectref) {
     let projectpath = (projectref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/tags`, }
+    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/tags` }
 }
 
 export function projectPRsRunsLink(ownertype, ownername, projectref) {
     let projectpath = (projectref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/pullrequests`, }
+    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/pullrequests` }
 }
 
 export function projectRunLink(ownertype, ownername, projectref, runid) {
     let projectpath = (projectref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/runs/${runid}`, }
+    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/runs/${runid}` }
 }
 
 export function projectRunTaskLink(ownertype, ownername, projectref, runid, taskid) {
     let projectpath = (projectref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/runs/${runid}/tasks/${taskid}`, }
+    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/runs/${runid}/tasks/${taskid}` }
 }
 
 export function projectGroupSettingsLink(ownertype, ownername, projectgroupref) {
     let projectgrouppath = (projectgroupref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projectgroups/${projectgrouppath}/settings`, }
+    return { path: `/${ownertype}/${ownername}/projectgroups/${projectgrouppath}/settings` }
 }
 
 export function projectSettingsLink(ownertype, ownername, projectref) {
     let projectpath = (projectref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/settings`, }
+    return { path: `/${ownertype}/${ownername}/projects/${projectpath}/settings` }
+}
+
+export function projectGroupCreateProjectGroupLink(ownertype, ownername, projectgroupref) {
+    let path = projectGroupPath(ownertype, ownername, projectgroupref)
+    return { path: `${path}/createprojectgroup` }
+}
+
+export function projectGroupCreateProjectLink(ownertype, ownername, projectgroupref) {
+    let path = projectGroupPath(ownertype, ownername, projectgroupref)
+    return { path: `${path}/createproject` }
 }
