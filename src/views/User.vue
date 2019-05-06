@@ -69,7 +69,7 @@
       </ul>
       <ul class="is-right">
         <li :class="[{ 'is-active': $route.name.endsWith('user settings') }]">
-          <router-link :to="userSettingsLink(username)">
+          <router-link :to="ownerSettingsLink('user', username)">
             <span class="icon is-small">
               <i class="mdi mdi-settings"/>
             </span>
@@ -90,7 +90,7 @@ import {
   userLocalRunsLink,
   userLocalRunLink,
   userLocalRunTaskLink,
-  userSettingsLink
+  ownerSettingsLink
 } from "@/util/link.js";
 
 import { fetchRun } from "@/util/data.js";
@@ -121,7 +121,7 @@ export default {
     userLocalRunsLink: userLocalRunsLink,
     userLocalRunLink: userLocalRunLink,
     userLocalRunTaskLink: userLocalRunTaskLink,
-    userSettingsLink: userSettingsLink
+    ownerSettingsLink: ownerSettingsLink
   }
 };
 </script>

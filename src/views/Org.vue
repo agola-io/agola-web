@@ -26,6 +26,16 @@
           </router-link>
         </li>
       </ul>
+      <ul class="is-right">
+        <li :class="[{ 'is-active': $route.name.endsWith('project group settings') }]">
+          <router-link :to="ownerSettingsLink('org', orgname)">
+            <span class="icon is-small">
+              <i class="mdi mdi-settings"/>
+            </span>
+            <span>Organization Settings</span>
+          </router-link>
+        </li>
+      </ul>
     </div>
     <router-view></router-view>
   </div>
@@ -33,7 +43,11 @@
 
 
 <script>
-import { ownerLink, ownerProjectsLink } from "@/util/link.js";
+import {
+  ownerLink,
+  ownerProjectsLink,
+  ownerSettingsLink
+} from "@/util/link.js";
 
 export default {
   name: "Org",
@@ -43,7 +57,8 @@ export default {
   },
   methods: {
     ownerLink: ownerLink,
-    ownerProjectsLink: ownerProjectsLink
+    ownerProjectsLink: ownerProjectsLink,
+    ownerSettingsLink: ownerSettingsLink
   }
 };
 </script>
