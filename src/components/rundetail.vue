@@ -16,11 +16,12 @@
               </div>
               <div class="run-actions column is-2 is-pulled-right">
                 <div
-                  class="dropdown is-hoverable is-right"
                   v-if="run.can_restart_from_scratch || run.can_restart_from_failed_tasks"
+                  class="dropdown is-right"
+                  v-bind:class="{ 'is-active': dropdownActive }"
                 >
                   <div class="dropdown-trigger">
-                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                    <button class="button" @click="toggleDropdown()">
                       <span>Restart</span>
                       <span class="icon is-small">
                         <i class="mdi mdi-restart" aria-hidden="true"></i>
@@ -101,9 +102,14 @@ export default {
     run: Object
   },
   data() {
-    return {};
+    return {
+      dropdownActive: false
+    };
   },
   methods: {
+    toggleDropdown() {
+      this.dropdownActive = !this.dropdownActive;
+    },
     stillRunning(run) {
       return run.result != "unknown" && run.phase == "running";
     },
@@ -135,7 +141,10 @@ export default {
       return "unknown";
     },
     stopRun: stopRun,
-    restartRun: restartRun
+    restartRun(runid, fromStart) {
+      this.dropdownActive = false;
+      restartRun(runid, fromStart);
+    }
   }
 };
 </script>
