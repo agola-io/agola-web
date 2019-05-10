@@ -78,8 +78,24 @@ export default {
       }
       let res = await fetch(apiurl(path));
       if (res.status == 200) {
-        let data = await res.text();
-        this.items.push(this.formatter.ansi_to_html(data));
+        const reader = res.body.getReader();
+
+        let items = this.items;
+        let formatter = this.formatter;
+
+        for (;;) {
+          let { done, value } = await reader.read();
+          if (done) {
+            return;
+          }
+
+          let data = String.fromCharCode.apply(null, value);
+
+          let lines = data.split("\n");
+          lines.forEach(line => {
+            items.push(formatter.ansi_to_html(line));
+          });
+        }
       }
     }
   },
