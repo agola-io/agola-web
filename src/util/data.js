@@ -150,3 +150,12 @@ export async function createProject(parentref, name, remotesourcename, remoterep
     let res = await fetch(apiurl(path), init)
     return res.json();
 }
+
+export async function deleteProject(projectref) {
+    let path = "/projects/" + encodeURIComponent(projectref)
+    let init = {
+        method: "DELETE",
+    }
+    let res = await fetch(apiurl(path), init)
+    return res.text();
+}
