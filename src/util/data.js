@@ -159,3 +159,12 @@ export async function deleteProject(projectref) {
     let res = await fetch(apiurl(path), init)
     return res.text();
 }
+
+export async function deleteProjectGroup(projectgroupref) {
+    let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
+    let init = {
+        method: "DELETE",
+    }
+    let res = await fetch(apiurl(path), init)
+    return res.text();
+}
