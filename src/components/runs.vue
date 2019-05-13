@@ -67,8 +67,7 @@
 </template>
 
 <script>
-import { apiurl, fetch } from "@/util/auth";
-import { fetchProject, fetchRuns } from "@/util/data.js";
+import { fetchUser, fetchProject, fetchRuns } from "@/util/data.js";
 import { userLocalRunLink, projectRunLink } from "@/util/link.js";
 
 export default {
@@ -127,15 +126,28 @@ export default {
       this.pollData();
     },
     async fetchProject() {
-      this.project = await fetchProject(
-        [this.ownertype, this.ownername, ...this.projectref].join("/")
-      );
+      let projectref = [
+        this.ownertype,
+        this.ownername,
+        ...this.projectref
+      ].join("/");
+
+      let { data, error } = await fetchProject(projectref);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.project = data;
 
       this.fetchRuns();
     },
     async fetchUser() {
-      let res = await (await fetch(apiurl("/users/" + this.username))).json();
-      this.user = res;
+      let { data, error } = await fetchUser(this.username);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.user = data;
 
       this.fetchRuns();
     },
@@ -159,7 +171,12 @@ export default {
         group = "/user/" + this.user.id;
       }
 
-      this.runs = await fetchRuns(group, lastrun);
+      let { data, error } = await fetchRuns(group, lastrun);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.runs = data;
     },
     pollData() {
       clearInterval(this.polling);

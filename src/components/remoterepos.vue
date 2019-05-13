@@ -43,7 +43,12 @@ export default {
       this.$emit("reposelected", this.remoterepos[index].path);
     },
     async fetchRemoteRepos(remotesourceid) {
-      this.remoterepos = await userRemoteRepos(remotesourceid);
+      let { data, error } = await userRemoteRepos(remotesourceid);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.remoterepos = data;
     }
   },
   created: function() {

@@ -4,11 +4,16 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 const state = {
+    error: null,
     user: null,
-    registeruser: null
+    registeruser: null,
 }
 
 const getters = {
+    // global error
+    error: state => {
+        return state.error
+    },
     user: state => {
         return state.user
     },
@@ -18,6 +23,9 @@ const getters = {
 }
 
 const mutations = {
+    setError(state, error) {
+        state.error = error
+    },
     setUser(state, user) {
         state.user = user
     },
@@ -27,6 +35,9 @@ const mutations = {
 }
 
 const actions = {
+    setError({ commit }, error) {
+        commit('setError', error)
+    },
     setUser({ commit }, user) {
         commit('setUser', user)
     },

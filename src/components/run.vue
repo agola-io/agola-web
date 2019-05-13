@@ -101,7 +101,13 @@ export default {
       return "unknown";
     },
     async fetchRun() {
-      this.run = await fetchRun(this.runid);
+      let { data, error } = await fetchRun(this.runid);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.run = data;
+
       // sort tasks by level
       let tasks = this.run.tasks;
       let sortedTasks = Object.keys(this.run.tasks)

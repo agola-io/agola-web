@@ -43,8 +43,27 @@
         </div>
       </div>
     </nav>
-    <div class="main-container container">
-      <router-view></router-view>
+
+    <div v-if="error" class="container">
+      <div class="message is-danger global-error-message">
+        <div class="message-body">
+          <nav class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <p>Failed to fetch data: {{ error }}</p>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <button class="button is-danger" @click="reload()">Retry</button>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <div v-else class="main-container container">
+      <router-view v-if="routerActive"></router-view>
     </div>
   </div>
 </template>
@@ -57,7 +76,12 @@ export default {
   name: "App",
   components: {},
   computed: {
-    ...mapGetters(["user"])
+    ...mapGetters(["error", "user"])
+  },
+  data() {
+    return {
+      routerActive: true
+    };
   },
   watch: {
     user: function(user) {
@@ -68,6 +92,14 @@ export default {
         });
       }
     }
+  },
+  // method to reload current view from https://github.com/vuejs/vue-router/issues/296#issuecomment-356530037
+  methods: {
+    reload() {
+      this.$store.dispatch("setError", null);
+      this.routerActive = false;
+      this.$nextTick(() => (this.routerActive = true));
+    }
   }
 };
 </script>
@@ -77,5 +109,9 @@ export default {
 
 .main-container {
   margin-top: 2rem;
+}
+
+.global-error-message {
+  margin-top: 10rem;
 }
 </style>

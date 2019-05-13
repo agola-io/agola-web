@@ -1,12 +1,18 @@
 <template>
   <div>
-    <div>{{code}}</div>
-    <div>{{username}}</div>
+    <div v-if="error" class="message is-danger">
+      <div class="message-header">
+        <p>Error</p>
+      </div>
+      <div class="message-body">{{ error }}</div>
+    </div>
   </div>
 </template>
 
 <script>
-import { oauth2callbackurl, login, fetch } from "@/util/auth";
+import { fetch } from "@/util/data";
+
+import { oauth2callbackurl, setLoggedUser } from "@/util/auth";
 
 export default {
   components: {},
@@ -14,6 +20,7 @@ export default {
   props: {},
   data() {
     return {
+      error: null,
       run: null,
       code: this.$route.query.code,
       polling: null,
@@ -25,12 +32,18 @@ export default {
       let u = oauth2callbackurl();
       u.searchParams.append("code", this.$route.query.code);
       u.searchParams.append("state", this.$route.query.state);
-      let res = await (await fetch(u)).json();
-      if (res.request_type === "loginuser") {
-        login(res.response.token, res.response.user);
+      let { data, error } = await fetch(u);
+      if (error) {
+        // set local login error on failed oauth2.
+        this.error = error;
+        return;
+      }
+
+      if (data.request_type === "loginuser") {
+        setLoggedUser(data.response.token, data.response.user);
         this.$router.push("/");
-      } else if (res.request_type === "authorize") {
-        this.$store.dispatch("setRegisterUser", res.response);
+      } else if (data.request_type === "authorize") {
+        this.$store.dispatch("setRegisterUser", data.response);
         this.$router.push("/register");
       }
     }

@@ -63,10 +63,20 @@ export default {
       return "unknown";
     },
     async fetchRun() {
-      this.run = await fetchRun(this.runid);
+      let { data, error } = await fetchRun(this.runid);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.run = data;
     },
     async fetchTask() {
-      this.task = await fetchTask(this.runid, this.taskid);
+      let { data, error } = await fetchTask(this.runid, this.taskid);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.task = data;
     },
     pollData() {
       this.polling = setInterval(() => {

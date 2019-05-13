@@ -42,6 +42,9 @@
             >Delete Project Group</button>
           </div>
         </div>
+        <div v-if="deleteProjectGroupError" class="message is-danger">
+          <div class="message-body">{{ deleteProjectGroupError }}</div>
+        </div>
       </div>
     </nav>
   </div>
@@ -64,6 +67,7 @@ export default {
   },
   data() {
     return {
+      deleteProjectGroupError: null,
       variables: [],
       allvariables: [],
       projectGroupNameToDelete: ""
@@ -83,6 +87,9 @@ export default {
     }
   },
   methods: {
+    resetErrors() {
+      this.deleteProjectGroupError = null;
+    },
     async deleteProjectGroup() {
       let projectgroupref = [
         this.ownertype,
@@ -91,7 +98,11 @@ export default {
       ].join("/");
 
       if (this.projectGroupNameToDelete == this.projectGroupName) {
-        let res = await deleteProjectGroup(projectgroupref);
+        let { error } = await deleteProjectGroup(projectgroupref);
+        if (error) {
+          this.deleteProjectGroupError = error;
+          return;
+        }
         this.$router.push(
           projectGroupLink(
             this.ownertype,
@@ -103,16 +114,33 @@ export default {
     }
   },
   created: async function() {
-    this.variables = await fetchVariables(
+    let projectgroupref = [
+      this.ownertype,
+      this.ownername,
+      ...this.projectgroupref
+    ].join("/");
+
+    let { data, error } = await fetchVariables(
       "projectgroup",
-      [this.ownertype, this.ownername, ...this.projectgroupref].join("/"),
+      projectgroupref,
       false
     );
-    this.allvariables = await fetchVariables(
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.variables = data;
+
+    ({ data, error } = await fetchVariables(
       "projectgroup",
-      [this.ownertype, this.ownername, ...this.projectgroupref].join("/"),
+      projectgroupref,
       true
-    );
+    ));
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.allvariables = data;
   }
 };
 </script>

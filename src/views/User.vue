@@ -117,7 +117,12 @@ export default {
   watch: {
     $route: async function(route) {
       if (route.params.runid) {
-        this.run = await fetchRun(route.params.runid);
+        let { data, error } = await fetchRun(route.params.runid);
+        if (error) {
+          this.$store.dispatch("setError", error);
+          return;
+        }
+        this.run = data;
       }
     }
   },

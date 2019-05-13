@@ -51,8 +51,6 @@ import {
   projectGroupCreateProjectLink
 } from "@/util/link.js";
 
-import { fetchRun } from "@/util/data.js";
-
 import projbreadcrumbs from "@/components/projbreadcrumbs.vue";
 import createprojectbutton from "@/components/createprojectbutton.vue";
 
@@ -63,18 +61,6 @@ export default {
     ownertype: String,
     ownername: String,
     projectgroupref: Array
-  },
-  data() {
-    return {
-      run: null
-    };
-  },
-  watch: {
-    $route: async function(route) {
-      if (route.params.runid) {
-        this.run = await fetchRun(route.params.runid);
-      }
-    }
   },
   methods: {
     projectGroupProjectsLink: projectGroupProjectsLink,
@@ -102,11 +88,6 @@ export default {
           this.projectgroupref
         )
       );
-    }
-  },
-  created: async function() {
-    if (this.$route.params.runid) {
-      this.run = await fetchRun(this.$route.params.runid);
     }
   }
 };

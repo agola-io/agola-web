@@ -23,6 +23,10 @@
             <button class="button is-primary" @click="updateProject()">Update</button>
           </div>
         </div>
+
+        <div v-if="updateProjectError" class="message is-danger">
+          <div class="message-body">{{ updateProjectError }}</div>
+        </div>
       </div>
     </nav>
     <nav class="panel">
@@ -64,6 +68,10 @@
             @click="deleteProject()"
             :disabled="!deleteButtonEnabled"
           >Delete Project</button>
+
+          <div v-if="deleteProjectError" class="message is-danger">
+            <div class="message-body">{{ deleteProjectError }}</div>
+          </div>
         </div>
       </div>
     </nav>
@@ -92,6 +100,8 @@ export default {
   },
   data() {
     return {
+      updateProjectError: null,
+      deleteProjectError: null,
       project: null,
       projectIsPrivate: false,
       variables: [],
@@ -111,7 +121,13 @@ export default {
     }
   },
   methods: {
+    resetErrors() {
+      this.updateProjectError = null;
+      this.deleteProjectError = null;
+    },
     async updateProject() {
+      this.resetErrors();
+
       let projectref = [
         this.ownertype,
         this.ownername,
@@ -122,9 +138,19 @@ export default {
       if (this.projectIsPrivate) {
         visibility = "private";
       }
-      let res = await updateProject(projectref, this.project.name, visibility);
+      let { error } = await updateProject(
+        projectref,
+        this.project.name,
+        visibility
+      );
+      if (error) {
+        this.updateProjectError = error;
+        return;
+      }
     },
     async deleteProject() {
+      this.resetErrors();
+
       let projectref = [
         this.ownertype,
         this.ownername,
@@ -132,7 +158,11 @@ export default {
       ].join("/");
 
       if (this.projectNameToDelete == this.projectName) {
-        let res = await deleteProject(projectref);
+        let { error } = await deleteProject(projectref);
+        if (error) {
+          this.deleteProjectError = error;
+          return;
+        }
         this.$router.push(
           projectGroupLink(
             this.ownertype,
@@ -148,19 +178,27 @@ export default {
       "/"
     );
 
-    this.project = await fetchProject(projectref);
+    let { data, error } = await fetchProject(projectref);
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.project = data;
     this.projectIsPrivate = this.project.visibility == "private";
 
-    this.variables = await fetchVariables(
-      "project",
-      [this.ownertype, this.ownername, ...this.projectref].join("/"),
-      false
-    );
-    this.allvariables = await fetchVariables(
-      "project",
-      [this.ownertype, this.ownername, ...this.projectref].join("/"),
-      true
-    );
+    ({ data, error } = await fetchVariables("project", projectref, false));
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.variables = data;
+
+    ({ data, error } = await fetchVariables("project", projectref, true));
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.allvariables = data;
   }
 };
 </script>

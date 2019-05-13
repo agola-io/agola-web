@@ -15,9 +15,9 @@
       <div class="control">
         <button class="button is-primary" @click="createProjectGroup()">Create Project Group</button>
       </div>
-      <div class="control">
-        <button class="button is-text">Cancel</button>
-      </div>
+    </div>
+    <div v-if="createProjectGroupError" class="message is-danger">
+      <div class="message-body">{{ createProjectGroupError }}</div>
     </div>
   </div>
 </template>
@@ -26,8 +26,6 @@
 import { createProjectGroup } from "@/util/data.js";
 
 import { projectGroupLink } from "@/util/link.js";
-
-import remoterepos from "@/components/remoterepos.vue";
 
 export default {
   components: {},
@@ -39,18 +37,31 @@ export default {
   },
   data() {
     return {
+      createProjectGroupError: null,
       projectGroupName: null
     };
   },
   methods: {
+    resetErrors() {
+      this.createProjectGroupError = null;
+    },
     async createProjectGroup() {
+      this.resetErrors();
+
       let refArray = [this.ownertype, this.ownername];
       if (this.projectgroupref) {
         refArray = [...refArray, ...this.projectgroupref];
       }
       let parentref = refArray.join("/");
 
-      await createProjectGroup(parentref, this.projectGroupName);
+      let { error } = await createProjectGroup(
+        parentref,
+        this.projectGroupName
+      );
+      if (error) {
+        this.createProjectGroupError = error;
+        return;
+      }
 
       let projectgroupref = [this.projectGroupName];
       if (this.projectgroupref) {

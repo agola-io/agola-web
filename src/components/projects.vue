@@ -32,7 +32,11 @@
 </template>
 
 <script>
-import { apiurl, fetch } from "@/util/auth";
+import {
+  fetchProjectGroupProjects,
+  fetchProjectGroupSubgroups
+} from "@/util/data.js";
+
 import { projectLink, projectGroupLink } from "@/util/link.js";
 
 export default {
@@ -66,24 +70,33 @@ export default {
       return ref;
     },
     async fetchProjects(ownertype, ownername) {
-      let ref = [ownertype, ownername];
+      let projectgroupref = [ownertype, ownername];
       if (this.projectgroupref) {
-        ref.push(...this.projectgroupref);
+        projectgroupref.push(...this.projectgroupref);
       }
-      let path = "/projectgroups/" + encodeURIComponent(ref.join("/"));
-      path += "/projects";
-      let res = await (await fetch(apiurl(path))).json();
-      this.projects = res;
+
+      let { data, error } = await fetchProjectGroupProjects(
+        projectgroupref.join("/")
+      );
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.projects = data;
     },
     async fetchProjectGroups(ownertype, ownername) {
-      let ref = [ownertype, ownername];
+      let projectgroupref = [ownertype, ownername];
       if (this.projectgroupref) {
-        ref.push(...this.projectgroupref);
+        projectgroupref.push(...this.projectgroupref);
       }
-      let path = "/projectgroups/" + encodeURIComponent(ref.join("/"));
-      path += "/subgroups";
-      let res = await (await fetch(apiurl(path))).json();
-      this.projectgroups = res;
+      let { data, error } = await fetchProjectGroupSubgroups(
+        projectgroupref.join("/")
+      );
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.projectgroups = data;
     },
     projectLink: projectLink,
     projectGroupLink: projectGroupLink

@@ -134,7 +134,12 @@ export default {
   watch: {
     $route: async function(route) {
       if (route.params.runid) {
-        this.run = await fetchRun(route.params.runid);
+        let { data, error } = await fetchRun(route.params.runid);
+        if (error) {
+          this.$store.dispatch("setError", error);
+          return;
+        }
+        this.run = data;
       }
     }
   },
@@ -153,7 +158,12 @@ export default {
   },
   created: async function() {
     if (this.$route.params.runid) {
-      this.run = await fetchRun(this.$route.params.runid);
+      let { data, error } = await fetchRun(this.$route.params.runid);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.run = data;
     }
   }
 };

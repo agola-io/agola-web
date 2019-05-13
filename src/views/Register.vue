@@ -31,7 +31,9 @@ import { mapGetters } from "vuex";
 import LoginForm from "@/components/loginform";
 import RegisterForm from "@/components/registerform";
 
-import { apiurl, authorizeurl, registerurl, fetch, logout } from "@/util/auth";
+import { fetchRemoteSources } from "@/util/data";
+
+import { authorizeurl, registerurl, fetch, doLogout } from "@/util/auth";
 
 export default {
   name: "Register",
@@ -48,9 +50,13 @@ export default {
     ...mapGetters(["registeruser"])
   },
   methods: {
-    async getRemoteSources() {
-      let res = await (await fetch(apiurl("/remotesources"))).json();
-      this.remotesources = res;
+    async fetchRemoteSources() {
+      let { data, error } = await fetchRemoteSources();
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.remotesources = data;
     },
     async doAuthorize(rsName, username, password) {
       let u = authorizeurl();
@@ -99,8 +105,8 @@ export default {
     }
   },
   created: function() {
-    logout();
-    this.getRemoteSources();
+    doLogout();
+    this.fetchRemoteSources();
   }
 };
 </script>

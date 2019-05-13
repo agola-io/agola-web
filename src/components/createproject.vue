@@ -19,9 +19,9 @@
       <div class="control">
         <button class="button is-primary" @click="createProject()">Create Project</button>
       </div>
-      <div class="control">
-        <button class="button is-text">Cancel</button>
-      </div>
+    </div>
+    <div v-if="createProjectError" class="message is-danger">
+      <div class="message-body">{{ createProjectError }}</div>
     </div>
   </div>
 </template>
@@ -47,6 +47,7 @@ export default {
   },
   data() {
     return {
+      createProjectError: null,
       user: null,
       remoteSources: null,
       remoteRepos: [],
@@ -56,23 +57,32 @@ export default {
     };
   },
   methods: {
+    resetErrors() {
+      this.createProjectError = null;
+    },
     repoSelected(remoteSource, repoPath) {
       this.selectedRemoteSource = remoteSource;
       this.remoteRepoPath = repoPath;
     },
     async createProject() {
+      this.resetErrors();
+
       let refArray = [this.ownertype, this.ownername];
       if (this.projectgroupref) {
         refArray = [...refArray, ...this.projectgroupref];
       }
       let parentref = refArray.join("/");
 
-      await createProject(
+      let { error } = await createProject(
         parentref,
         this.projectName,
         this.selectedRemoteSource.name,
         this.remoteRepoPath
       );
+      if (error) {
+        this.createProjectError = error;
+        return;
+      }
 
       let projectref = [this.projectName];
       if (this.projectgroupref) {
@@ -84,9 +94,20 @@ export default {
     }
   },
   created: async function() {
-    this.user = await fetchCurrentUser();
+    let { data, error } = await fetchCurrentUser();
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.user = data;
+
     // TODO(sgotti) filter only remote source where the user has a linked account
-    this.remoteSources = await fetchRemoteSources();
+    ({ data, error } = await fetchRemoteSources());
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.remoteSources = data;
   }
 };
 </script>

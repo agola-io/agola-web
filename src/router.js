@@ -21,9 +21,11 @@ import Logout from "./views/Logout.vue";
 
 import { parseRef } from "@/util/link.js";
 
+import store from "./store";
+
 Vue.use(VueRouter);
 
-export default new VueRouter({
+const router = new VueRouter({
   mode: "history",
   routes: [
     {
@@ -327,3 +329,10 @@ export default new VueRouter({
     },
   ]
 });
+
+router.beforeEach((to, from, next) => {
+  store.dispatch("setError", null);
+  next()
+})
+
+export default router

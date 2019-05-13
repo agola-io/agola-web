@@ -7,13 +7,13 @@ const USER_KEY = 'user';
 let API_URL = window.CONFIG.API_URL;
 let API_BASE_PATH = window.CONFIG.API_BASE_PATH;
 
-export function login(token, user) {
+export function setLoggedUser(token, user) {
     setIdToken(token);
     setUser(user);
     store.dispatch('setUser', user)
 }
 
-export function logout() {
+export function doLogout() {
     unsetIdToken();
     unsetUser()
     store.dispatch('setUser', null)
@@ -48,6 +48,19 @@ export function oauth2callbackurl() {
     return new URL(API_URL + "/oauth2/callback");
 }
 
+export async function loginapi(init) {
+    if (init === undefined) {
+        init = {}
+    }
+
+    try {
+        let res = await window.fetch(loginurl(), init)
+        return res
+    } catch (e) {
+        throw e
+    }
+}
+
 export async function fetch(url, init) {
     if (init === undefined) {
         init = {}
@@ -60,10 +73,14 @@ export async function fetch(url, init) {
         init.headers["Authorization"] = "bearer " + idToken
     }
 
-    let res = await window.fetch(url, init)
-    if (res.status === 401) {
-        router.push({ name: "login" })
-    } else { return res }
+    try {
+        let res = await window.fetch(url, init)
+        if (res.status === 401) {
+            router.push({ name: "login" })
+        } else { return res }
+    } catch (e) {
+        throw e
+    }
 }
 
 export function setIdToken(idToken) {
