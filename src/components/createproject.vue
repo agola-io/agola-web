@@ -17,7 +17,12 @@
     </div>
     <div class="field is-grouped">
       <div class="control">
-        <button class="button is-primary" @click="createProject()">Create Project</button>
+        <button
+          class="button is-primary"
+          v-bind:class="{ 'is-loading': createProjectLoading }"
+          :disabled="!createProjectButtonEnabled"
+          @click="createProject()"
+        >Create Project</button>
       </div>
     </div>
     <div v-if="createProjectError" class="message is-danger">
@@ -48,17 +53,33 @@ export default {
   data() {
     return {
       createProjectError: null,
+      createProjectLoading: false,
+      createProjectLoadingTimeout: null,
       user: null,
       remoteSources: null,
       remoteRepos: [],
-      projectName: null,
+      projectName: "",
       remoteRepoPath: null,
       selectedRemoteSource: null
     };
   },
+  computed: {
+    createProjectButtonEnabled: function() {
+      return this.projectName.length && this.selectedRemoteSource;
+    }
+  },
   methods: {
     resetErrors() {
       this.createProjectError = null;
+    },
+    startProjectLoading() {
+      this.createProjectLoadingTimeout = setTimeout(() => {
+        this.createProjectLoading = true;
+      }, 300);
+    },
+    stopProjectLoading() {
+      clearTimeout(this.createProjectLoadingTimeout);
+      this.createProjectLoading = false;
     },
     repoSelected(remoteSource, repoPath) {
       this.selectedRemoteSource = remoteSource;
@@ -73,12 +94,14 @@ export default {
       }
       let parentref = refArray.join("/");
 
+      this.startProjectLoading();
       let { error } = await createProject(
         parentref,
         this.projectName,
         this.selectedRemoteSource.name,
         this.remoteRepoPath
       );
+      this.stopProjectLoading();
       if (error) {
         this.createProjectError = error;
         return;
