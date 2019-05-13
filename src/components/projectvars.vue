@@ -1,11 +1,13 @@
 <template>
   <div>
-    <h4 class="title is-4">Project variables</h4>
-    <vars :variables="variables"/>
+    <h5 class="title is-5">Local variables</h5>
+    <vars v-if="allvariables.length" :variables="variables"/>
+    <span v-else>No variables</span>
 
     <hr>
-    <h4 class="title is-4">All project variables</h4>
-    <vars :variables="allvariables" :showparentpath="true"/>
+    <h5 class="title is-5">All variables</h5>
+    <vars v-if="allvariables.length" :variables="allvariables" :showparentpath="true"/>
+    <span v-else>No variables</span>
   </div>
 </template>
 
