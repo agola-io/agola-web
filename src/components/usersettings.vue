@@ -1,5 +1,35 @@
 <template>
   <div>
+    <h4 class="title is-4">Linked Accounts</h4>
+    <div class="message is-danger">
+      <div
+        class="message-body"
+      >Removing a Linked Account will also block all the projects that uses this Linked Account to access their remote repository</div>
+    </div>
+    <div v-if="user.linked_accounts">
+      <div class="item-list" v-for="(la, index) in user.linked_accounts" v-bind:key="index">
+        <nav class="level item">
+          <div class="level-left">
+            <div class="level-item">
+              <div>
+                <span class="name">{{la.remote_user_name}}</span>
+                <span class="remotesource-name">( {{laRemoteSourceName(la)}} )</span>
+              </div>
+            </div>
+          </div>
+          <div class="level-right">
+            <div class="level-item">
+              <button class="button is-primary" @click="deleteLinkedAccount(la)">Delete</button>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div v-if="deleteLinkedAccountError" class="message is-danger">
+        <div class="message-body">{{ deleteLinkedAccountError }}</div>
+      </div>
+    </div>
+    <div v-else>No linked accounts</div>
+    <hr>
     <h4 class="title is-4">User Tokens</h4>
     <div v-if="user.tokens">
       <div class="item-list" v-for="token in user.tokens" v-bind:key="token">
@@ -38,7 +68,8 @@ import {
   fetchCurrentUser,
   fetchRemoteSources,
   createUserToken,
-  deleteUserToken
+  deleteUserToken,
+  deleteLinkedAccount
 } from "@/util/data.js";
 
 export default {
@@ -49,6 +80,7 @@ export default {
     return {
       createUserTokenError: null,
       deleteUserTokenError: null,
+      deleteLinkedAccountError: null,
       user: [],
       remotesources: [],
       token: null,
@@ -59,6 +91,7 @@ export default {
     resetErrors() {
       this.createUserTokenError = null;
       this.deleteUserTokenError = null;
+      this.deleteLinkedAccountError = null;
     },
     async fetchCurrentUser() {
       let { data, error } = await fetchCurrentUser();
@@ -76,6 +109,14 @@ export default {
       }
       this.remotesources = data;
     },
+    laRemoteSourceName(la) {
+      for (var i = 0; i < this.remotesources.length; i++) {
+        let rs = this.remotesources[i];
+        if (rs.id == la.remote_source_id) {
+          return rs.name;
+        }
+      }
+    },
     async createUserToken() {
       this.resetErrors();
 
@@ -91,6 +132,9 @@ export default {
       this.newtokenname = null;
       this.fetchCurrentUser();
     },
+    closeNewTokenNotification() {
+      this.token = null;
+    },
     async deleteUserToken(tokenname) {
       this.resetErrors();
 
@@ -101,8 +145,15 @@ export default {
       }
       this.fetchCurrentUser();
     },
-    closeNewTokenNotification() {
-      this.token = null;
+    async deleteLinkedAccount(la) {
+      this.resetErrors();
+
+      let { error } = await deleteLinkedAccount(this.user.username, la.id);
+      if (error) {
+        this.deleteLinkedAccountError = error;
+        return;
+      }
+      this.fetchCurrentUser();
     }
   },
   created: function() {
@@ -117,14 +168,14 @@ export default {
 
 .item-list {
   .item {
-    margin-bottom: 5px;
-    border: 1px solid $grey-lighter;
-    cursor: pointer;
-    display: flex;
+    border-bottom: 1px solid $grey-lighter;
     padding: 10px;
   }
   .name {
     font-weight: bold;
+  }
+  .remotesource-name {
+    margin-left: 1rem;
   }
 }
 </style>

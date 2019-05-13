@@ -124,6 +124,14 @@ export async function deleteUserToken(username, tokenname) {
     return await fetch(apiurl(path), init)
 }
 
+export async function deleteLinkedAccount(username, laid) {
+    let path = "/users/" + username + "/linkedaccounts/" + laid
+    let init = {
+        method: "DELETE",
+    }
+    return await fetch(apiurl(path), init)
+}
+
 export async function restartRun(runid, fromStart) {
     let path = "/runs/" + runid + "/actions"
     let init = {
