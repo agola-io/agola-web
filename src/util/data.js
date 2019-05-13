@@ -105,6 +105,18 @@ export async function fetchVariables(ownertype, ref, all) {
     return await fetch(apiurl(path));
 }
 
+export async function createOrganization(orgname, visibility) {
+    let path = "/orgs"
+    let init = {
+        method: "POST",
+        body: JSON.stringify({
+            name: orgname,
+            visibility: visibility,
+        })
+    }
+    return await fetch(apiurl(path), init)
+}
+
 export async function createUserToken(username, tokenname) {
     let path = "/users/" + username + "/tokens"
     let init = {

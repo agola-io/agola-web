@@ -11,6 +11,7 @@ import projectsettings from "./components/projectsettings.vue";
 import projectgroupsettings from "./components/projectgroupsettings.vue";
 import createproject from "./components/createproject.vue";
 import createprojectgroup from "./components/createprojectgroup.vue";
+import createorganization from "./components/createorganization.vue";
 import runs from "./components/runs.vue";
 import run from "./components/run.vue";
 import task from "./components/task.vue";
@@ -52,6 +53,10 @@ const router = new VueRouter({
       path: "/",
       name: "home",
       component: Home
+    },
+    {
+      path: "/neworganization",
+      component: createorganization,
     },
     {
       path: "/user/:username",

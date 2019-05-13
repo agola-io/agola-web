@@ -25,6 +25,18 @@
             <div
               v-if="user"
               class="navbar-item has-dropdown"
+              v-bind:class="{ 'is-active': createDropdownActive }"
+            >
+              <a class="navbar-link" @click="toggleCreateDropdown()">
+                <i class="mdi mdi-plus-box mdi-24px"/>
+              </a>
+              <div class="navbar-dropdown">
+                <router-link class="navbar-item" to="/neworganization">New Organization</router-link>
+              </div>
+            </div>
+            <div
+              v-if="user"
+              class="navbar-item has-dropdown"
               v-bind:class="{ 'is-active': userDropdownActive }"
             >
               <a class="navbar-link" @click="toggleUserDropdown()">{{user.username}}</a>
@@ -85,7 +97,8 @@ export default {
   data() {
     return {
       routerActive: true,
-      userDropdownActive: false
+      userDropdownActive: false,
+      createDropdownActive: false
     };
   },
   watch: {
@@ -99,6 +112,7 @@ export default {
     },
     $route: function() {
       this.userDropdownActive = false;
+      this.createDropdownActive = false;
     }
   },
   // method to reload current view from https://github.com/vuejs/vue-router/issues/296#issuecomment-356530037
@@ -110,6 +124,9 @@ export default {
     },
     toggleUserDropdown() {
       this.userDropdownActive = !this.userDropdownActive;
+    },
+    toggleCreateDropdown() {
+      this.createDropdownActive = !this.createDropdownActive;
     }
   }
 };
