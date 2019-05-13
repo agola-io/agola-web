@@ -1,18 +1,21 @@
 <template>
   <div>
     <div v-if="remoterepos.length > 0">
-      <div
-        class="item-list"
-        v-for="(repo, index) in remoterepos"
-        v-bind:key="repo.id"
-        @click="select(index)"
-      >
-        <span class="icon has-text-success">
-          <i v-if="selectedrepo == index" class="mdi mdi-radiobox-marked"></i>
-          <i v-else class="mdi mdi-radiobox-blank"></i>
-        </span>
-        <span class="name">{{repo.path}}</span>
-      </div>
+      <nav class="panel">
+        <p class="panel-heading">
+          repositories from
+          <strong>{{ remotesource.name }}</strong>
+        </p>
+        <label
+          class="panel-block"
+          v-for="(repo, index) in remoterepos"
+          v-bind:key="repo.id"
+          @click="select(index)"
+        >
+          <input type="radio" :checked="selectedrepo == index && selected">
+          {{repo.path}}
+        </label>
+      </nav>
     </div>
     <div v-else class="item-list">No remote repositories</div>
   </div>
@@ -25,7 +28,8 @@ export default {
   components: {},
   name: "remoterepos",
   props: {
-    remotesource: String
+    remotesource: Object,
+    selected: Boolean
   },
   data() {
     return {
@@ -38,12 +42,12 @@ export default {
       this.selectedrepo = index;
       this.$emit("reposelected", this.remoterepos[index].path);
     },
-    async fetchRemoteRepos(remotesource) {
-      this.remoterepos = await userRemoteRepos(remotesource);
+    async fetchRemoteRepos(remotesourceid) {
+      this.remoterepos = await userRemoteRepos(remotesourceid);
     }
   },
   created: function() {
-    this.fetchRemoteRepos(this.remotesource);
+    this.fetchRemoteRepos(this.remotesource.id);
   }
 };
 </script>
@@ -62,5 +66,9 @@ export default {
   .name {
     font-weight: bold;
   }
+}
+
+.panel-block input[type="radio"] {
+  margin-right: 0.75em;
 }
 </style>

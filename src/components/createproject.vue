@@ -8,9 +8,10 @@
     </div>
     <h4 class="title is-4">Available remote repositories</h4>
     <div v-for="remoteSource in remoteSources" v-bind:key="remoteSource.id">
-      <h5 class="title is-5">Remote source: {{remoteSource.name}}</h5>
       <remoterepos
-        :remotesource="remoteSource.id"
+        class="remoterepos"
+        :remotesource="remoteSource"
+        :selected="selectedRemoteSource && selectedRemoteSource.id == remoteSource.id"
         v-on:reposelected="repoSelected(remoteSource, $event)"
       />
     </div>
@@ -104,6 +105,10 @@ export default {
   .name {
     font-weight: bold;
   }
+}
+.remoterepos {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 </style>
 
