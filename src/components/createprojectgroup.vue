@@ -13,7 +13,12 @@
     </div>
     <div class="field is-grouped">
       <div class="control">
-        <button class="button is-primary" @click="createProjectGroup()">Create Project Group</button>
+        <button
+          class="button is-primary"
+          v-bind:class="{ 'is-loading': createProjectGroupLoading }"
+          :disabled="!createProjectGroupButtonEnabled"
+          @click="createProjectGroup()"
+        >Create Project Group</button>
       </div>
     </div>
     <div v-if="createProjectGroupError" class="message is-danger">
@@ -38,12 +43,28 @@ export default {
   data() {
     return {
       createProjectGroupError: null,
-      projectGroupName: null
+      createProjectGroupLoading: false,
+      createProjectGroupLoadingTimeout: null,
+      projectGroupName: ""
     };
+  },
+  computed: {
+    createProjectGroupButtonEnabled: function() {
+      return this.projectGroupName.length;
+    }
   },
   methods: {
     resetErrors() {
       this.createProjectGroupError = null;
+    },
+    startProjectGroupLoading() {
+      this.createProjectGroupLoadingTimeout = setTimeout(() => {
+        this.createProjectGroupLoading = true;
+      }, 300);
+    },
+    stopProjectGroupLoading() {
+      clearTimeout(this.createProjectGroupLoadingTimeout);
+      this.createProjectGroupLoading = false;
     },
     async createProjectGroup() {
       this.resetErrors();
@@ -54,10 +75,12 @@ export default {
       }
       let parentref = refArray.join("/");
 
+      this.startProjectGroupLoading();
       let { error } = await createProjectGroup(
         parentref,
         this.projectGroupName
       );
+      this.stopProjectGroupLoading();
       if (error) {
         this.createProjectGroupError = error;
         return;
