@@ -1,6 +1,31 @@
 <template>
   <div>
     <nav class="panel">
+      <p class="panel-heading">Project Settings</p>
+      <div class="panel-block is-block">
+        <div class="field">
+          <label class="label">Project Name</label>
+          <div class="control">
+            <input class="input" type="text" placeholder="Text input" v-model="project.name">
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <label class="checkbox">
+              <input type="checkbox" v-model="projectIsPrivate">
+              Private
+            </label>
+          </div>
+        </div>
+
+        <div class="field is-grouped">
+          <div class="control">
+            <button class="button is-primary" @click="updateProject()">Update</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <nav class="panel">
       <p class="panel-heading">Variables</p>
       <div class="panel-block is-block">
         <projectvars :variables="variables" :allvariables="allvariables"/>
@@ -46,7 +71,12 @@
 </template>
 
 <script>
-import { fetchVariables, deleteProject } from "@/util/data.js";
+import {
+  fetchProject,
+  fetchVariables,
+  updateProject,
+  deleteProject
+} from "@/util/data.js";
 
 import { projectGroupLink } from "@/util/link.js";
 
@@ -62,6 +92,8 @@ export default {
   },
   data() {
     return {
+      project: null,
+      projectIsPrivate: false,
       variables: [],
       allvariables: [],
       projectNameToDelete: ""
@@ -79,6 +111,19 @@ export default {
     }
   },
   methods: {
+    async updateProject() {
+      let projectref = [
+        this.ownertype,
+        this.ownername,
+        ...this.projectref
+      ].join("/");
+
+      let visibility = "public";
+      if (this.projectIsPrivate) {
+        visibility = "private";
+      }
+      let res = await updateProject(projectref, this.project.name, visibility);
+    },
     async deleteProject() {
       let projectref = [
         this.ownertype,
@@ -99,6 +144,13 @@ export default {
     }
   },
   created: async function() {
+    let projectref = [this.ownertype, this.ownername, ...this.projectref].join(
+      "/"
+    );
+
+    this.project = await fetchProject(projectref);
+    this.projectIsPrivate = this.project.visibility == "private";
+
     this.variables = await fetchVariables(
       "project",
       [this.ownertype, this.ownername, ...this.projectref].join("/"),

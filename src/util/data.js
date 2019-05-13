@@ -151,6 +151,19 @@ export async function createProject(parentref, name, remotesourcename, remoterep
     return res.json();
 }
 
+export async function updateProject(projectref, name, visibility) {
+    let path = "/projects/" + encodeURIComponent(projectref)
+    let init = {
+        method: "PUT",
+        body: JSON.stringify({
+            name: name,
+            visibility: visibility,
+        })
+    }
+    let res = await fetch(apiurl(path), init)
+    return res.json()
+}
+
 export async function deleteProject(projectref) {
     let path = "/projects/" + encodeURIComponent(projectref)
     let init = {
