@@ -1,38 +1,47 @@
 <template>
   <div>
-    <projectvars :variables="variables" :allvariables="allvariables"/>
-    <hr>
-    <div>
-      <h4 class="title is-4">Delete This Project</h4>
+    <nav class="panel">
+      <p class="panel-heading">Variables</p>
+      <div class="panel-block is-block">
+        <projectvars :variables="variables" :allvariables="allvariables"/>
+      </div>
+    </nav>
+    <nav class="panel is-danger">
+      <p class="panel-heading is-danger">Danger Zone</p>
+      <div class="panel-block is-block">
+        <div>
+          <h4 class="title is-4">Delete This Project</h4>
 
-      <div class="message is-danger">
-        <div class="message-body">
-          This operation
-          <strong>CANNOT</strong> be undone.
-          This operation will remove
-          <strong>{{projectPath}}</strong>
+          <div class="message is-danger">
+            <div class="message-body">
+              This operation
+              <strong>CANNOT</strong> be undone.
+              This operation will remove
+              <strong>{{projectPath}}</strong>
+            </div>
+          </div>
+          <label class="label">
+            Please type the project name for confirmation:
+            <span
+              class="has-text-danger"
+            >{{ projectName }}</span>
+          </label>
+          <div class="field">
+            <input
+              v-model="projectNameToDelete"
+              class="input"
+              type="email"
+              placeholder="Project name to delete"
+            >
+          </div>
+          <button
+            class="button is-danger"
+            @click="deleteProject()"
+            :disabled="!deleteButtonEnabled"
+          >Delete Project</button>
         </div>
       </div>
-      <label class="label">
-        Please type the project name for confirmation:
-        <span
-          class="has-text-danger"
-        >{{ projectName }}</span>
-      </label>
-      <div class="field">
-        <input
-          v-model="projectNameToDelete"
-          class="input"
-          type="email"
-          placeholder="Project name to delete"
-        >
-      </div>
-      <button
-        class="button is-danger"
-        @click="deleteProject()"
-        :disabled="!deleteButtonEnabled"
-      >Delete Project</button>
-    </div>
+    </nav>
   </div>
 </template>
 
@@ -106,4 +115,8 @@ export default {
 
 <style scoped lang="scss">
 @import "@/css/_variables.scss";
+
+.panel-heading {
+  font-weight: 700;
+}
 </style>
