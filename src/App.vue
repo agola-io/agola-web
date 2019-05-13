@@ -22,8 +22,12 @@
         <div class="navbar-menu">
           <div class="navbar-start"></div>
           <div class="navbar-end">
-            <div v-if="user" class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link">{{user.username}}</a>
+            <div
+              v-if="user"
+              class="navbar-item has-dropdown"
+              v-bind:class="{ 'is-active': userDropdownActive }"
+            >
+              <a class="navbar-link" @click="toggleUserDropdown()">{{user.username}}</a>
               <div class="navbar-dropdown">
                 <div class="navbar-item">
                   Logged as&nbsp;
@@ -80,7 +84,8 @@ export default {
   },
   data() {
     return {
-      routerActive: true
+      routerActive: true,
+      userDropdownActive: false
     };
   },
   watch: {
@@ -91,6 +96,9 @@ export default {
           params: { username: this.user.username }
         });
       }
+    },
+    $route: function() {
+      this.userDropdownActive = false;
     }
   },
   // method to reload current view from https://github.com/vuejs/vue-router/issues/296#issuecomment-356530037
@@ -99,6 +107,9 @@ export default {
       this.$store.dispatch("setError", null);
       this.routerActive = false;
       this.$nextTick(() => (this.routerActive = true));
+    },
+    toggleUserDropdown() {
+      this.userDropdownActive = !this.userDropdownActive;
     }
   }
 };
