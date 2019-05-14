@@ -44,16 +44,6 @@ export default {
     ownerLink: ownerLink,
     projectLink: projectLink,
     projectGroupLink: projectGroupLink
-  },
-  computed: {
-    // a computed getter
-    projectRef: function() {
-      // `this` points to the vm instance
-      return this.message
-        .split("")
-        .reverse()
-        .join("");
-    }
   }
 };
 </script>
