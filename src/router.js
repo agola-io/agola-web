@@ -231,6 +231,12 @@ const router = new VueRouter({
           component: orgmembers,
           props: (route) => ({ orgname: route.params.orgname })
         },
+        /*         {
+                  path: "settings",
+                  name: "org settings",
+                  component: orgsettings,
+                  props: (route) => ({ username: route.params.username }),
+                }, */
         {
           path: "createprojectgroup",
           name: "org create project group",

@@ -68,6 +68,9 @@ export default {
     projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
     projectGroupCreateProjectLink: projectGroupCreateProjectLink,
     projectGroupName() {
+      if (!this.projectgroupref.length) {
+        return "Root Project Group";
+      }
       return this.projectgroupref[this.projectgroupref.length - 1];
     },
     goToCreate(type) {

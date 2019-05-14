@@ -6,7 +6,7 @@
         <projectvars :variables="variables" :allvariables="allvariables"/>
       </div>
     </nav>
-    <nav class="panel is-danger">
+    <nav v-if="!isRootProjectGroup" class="panel is-danger">
       <p class="panel-heading is-danger">Danger Zone</p>
       <div class="panel-block is-block">
         <div>
@@ -84,6 +84,9 @@ export default {
     },
     deleteButtonEnabled: function() {
       return this.projectGroupNameToDelete == this.projectGroupName;
+    },
+    isRootProjectGroup() {
+      return this.projectgroupref.length == 0;
     }
   },
   methods: {

@@ -71,6 +71,14 @@
         </li>
       </ul>
       <ul class="is-right">
+        <li :class="[{ 'is-active': $route.name.endsWith('user project group settings') }]">
+          <router-link :to="projectGroupSettingsLink('user', username, [])">
+            <span class="icon is-small">
+              <i class="mdi mdi-settings"/>
+            </span>
+            <span>Root Project Group Settings</span>
+          </router-link>
+        </li>
         <li :class="[{ 'is-active': $route.name.endsWith('user settings') }]">
           <router-link :to="ownerSettingsLink('user', username)">
             <span class="icon is-small">
@@ -95,7 +103,8 @@ import {
   userLocalRunTaskLink,
   ownerSettingsLink,
   projectGroupCreateProjectGroupLink,
-  projectGroupCreateProjectLink
+  projectGroupCreateProjectLink,
+  projectGroupSettingsLink
 } from "@/util/link.js";
 
 import { fetchRun } from "@/util/data.js";
@@ -135,13 +144,16 @@ export default {
     ownerSettingsLink: ownerSettingsLink,
     projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
     projectGroupCreateProjectLink: projectGroupCreateProjectLink,
+    projectGroupSettingsLink: projectGroupSettingsLink,
     goToCreate(type) {
       if (type == "project") {
-        this.$router.push(projectGroupCreateProjectLink("user", this.username));
+        this.$router.push(
+          projectGroupCreateProjectLink("user", this.username, [])
+        );
         return;
       }
       this.$router.push(
-        projectGroupCreateProjectGroupLink("user", this.username)
+        projectGroupCreateProjectGroupLink("user", this.username, [])
       );
     }
   }

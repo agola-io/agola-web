@@ -1,5 +1,9 @@
 export function parseRef(ref) {
     ref = ref.replace(/\.proj/, "")
+    // return empty array or split return an array with the empty element
+    if (!ref) {
+        return []
+    }
     return ref.split("/")
 }
 
@@ -44,19 +48,16 @@ export function orgMembersLink(orgname) {
 // escape it
 export function projectGroupPath(ownertype, ownername, projectgroupref) {
     let path = `/${ownertype}/${ownername}`
-    if (Array.isArray(projectgroupref) && projectgroupref.length) {
-        let projectgrouppath = (projectgroupref.join("/") + ".proj")
-        path = `${path}/projectgroups/${projectgrouppath}`
-    }
+    // root project group will have a .proj without a name
+    let projectgrouppath = (projectgroupref.join("/") + ".proj")
+    path = `${path}/projectgroups/${projectgrouppath}`
     return path
 }
 
 export function projectPath(ownertype, ownername, projectref) {
     let path = `/${ownertype}/${ownername}`
-    if (Array.isArray(projectref) && projectref.length) {
-        let projectpath = (projectref.join("/") + ".proj")
-        path = `${path}/projects/${projectpath}`
-    }
+    let projectpath = (projectref.join("/") + ".proj")
+    path = `${path}/projects/${projectpath}`
     return path
 }
 
@@ -105,8 +106,8 @@ export function projectRunTaskLink(ownertype, ownername, projectref, runid, task
 }
 
 export function projectGroupSettingsLink(ownertype, ownername, projectgroupref) {
-    let projectgrouppath = (projectgroupref.join("/") + ".proj")
-    return { path: `/${ownertype}/${ownername}/projectgroups/${projectgrouppath}/settings` }
+    let path = projectGroupPath(ownertype, ownername, projectgroupref)
+    return { path: `${path}/settings` }
 }
 
 export function projectSettingsLink(ownertype, ownername, projectref) {

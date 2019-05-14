@@ -38,7 +38,15 @@
         </li>
       </ul>
       <ul class="is-right">
-        <li :class="[{ 'is-active': $route.name.endsWith('project group settings') }]">
+        <li :class="[{ 'is-active': $route.name.endsWith('org project group settings') }]">
+          <router-link :to="projectGroupSettingsLink('org', orgname, [])">
+            <span class="icon is-small">
+              <i class="mdi mdi-settings"/>
+            </span>
+            <span>Root Project Group Settings</span>
+          </router-link>
+        </li>
+        <li :class="[{ 'is-active': $route.name.endsWith('org settings') }]">
           <router-link :to="ownerSettingsLink('org', orgname)">
             <span class="icon is-small">
               <i class="mdi mdi-settings"/>
@@ -60,7 +68,8 @@ import {
   ownerSettingsLink,
   orgMembersLink,
   projectGroupCreateProjectGroupLink,
-  projectGroupCreateProjectLink
+  projectGroupCreateProjectLink,
+  projectGroupSettingsLink
 } from "@/util/link.js";
 
 import createprojectbutton from "@/components/createprojectbutton.vue";
@@ -78,13 +87,16 @@ export default {
     orgMembersLink: orgMembersLink,
     projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
     projectGroupCreateProjectLink: projectGroupCreateProjectLink,
+    projectGroupSettingsLink: projectGroupSettingsLink,
     goToCreate(type) {
       if (type == "project") {
-        this.$router.push(projectGroupCreateProjectLink("org", this.orgname));
+        this.$router.push(
+          projectGroupCreateProjectLink("org", this.orgname, [])
+        );
         return;
       }
       this.$router.push(
-        projectGroupCreateProjectGroupLink("org", this.orgname)
+        projectGroupCreateProjectGroupLink("org", this.orgname, [])
       );
     }
   }
