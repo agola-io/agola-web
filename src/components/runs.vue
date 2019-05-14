@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="item-list">
-      <div v-if="runs.length > 0">
-        <div class="item" v-for="run in runs" v-bind:key="run.id" :class="runResultClass(run)">
+    <div v-if="runs.length > 0">
+      <div class="item-list">
+        <div v-for="run in runs" v-bind:key="run.id" :class="runResultClass(run)">
           <div class="item-content">
             <router-link
               v-if="username"
@@ -61,8 +61,15 @@
           </div>
         </div>
       </div>
-      <div v-else class="item-list">No runs</div>
+      <div class="has-text-centered">
+        <button
+          v-if="hasMoreRuns"
+          class="button is-primary is-outlined is-fullwidth load-more-button"
+          @click="loadMoreRuns()"
+        >Load more...</button>
+      </div>
     </div>
+    <div v-else class="item-list">No runs</div>
   </div>
 </template>
 
@@ -83,6 +90,8 @@ export default {
   data() {
     return {
       runs: [],
+      wantedRunsNumber: 25,
+      hasMoreRuns: false,
       polling: null,
       project: null,
       user: null
@@ -151,6 +160,11 @@ export default {
 
       this.fetchRuns();
     },
+    loadMoreRuns() {
+      this.wantedRunsNumber += 25;
+      this.fetchRuns();
+    },
+    // TODO(sgotti) use run events instead of refetching all runs everytime
     async fetchRuns() {
       let group;
       let lastrun = false;
@@ -171,12 +185,29 @@ export default {
         group = "/user/" + this.user.id;
       }
 
-      let { data, error } = await fetchRuns(group, lastrun);
-      if (error) {
-        this.$store.dispatch("setError", error);
-        return;
+      let newRuns = [];
+      let hasMoreRuns = false;
+      let stopFetch = false;
+      let runCount = 0;
+      let startRunID = null;
+      while (!stopFetch) {
+        let { data, error } = await fetchRuns(group, startRunID, lastrun);
+        if (error) {
+          this.$store.dispatch("setError", error);
+          return;
+        }
+        runCount += data.length;
+        if (runCount >= this.wantedRunsNumber || data.length == 0) {
+          hasMoreRuns = data.length != 0;
+          stopFetch = true;
+        }
+        newRuns = newRuns.concat(data);
+        if (newRuns.length) {
+          startRunID = newRuns[newRuns.length - 1].id;
+        }
       }
-      this.runs = data;
+      this.runs = newRuns;
+      this.hasMoreRuns = hasMoreRuns;
     },
     pollData() {
       clearInterval(this.polling);
@@ -210,9 +241,6 @@ export default {
 }
 
 .item-list {
-  .item {
-  }
-
   .item-content {
     margin-bottom: 5px;
     border: 1px solid $grey-lighter;
@@ -276,5 +304,10 @@ export default {
     display: block;
     font-size: 0.8rem;
   }
+}
+
+.load-more-button {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
 }
 </style>

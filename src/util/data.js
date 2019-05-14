@@ -50,13 +50,17 @@ export async function fetchOrgMembers(orgref) {
     let path = "/orgs/" + orgref + "/members"
     return await fetch(apiurl(path));
 }
-export async function fetchRuns(group, lastrun) {
+
+export async function fetchRuns(group, startRunID, lastrun) {
     let u = apiurl("/runs");
     if (group) {
         u.searchParams.append("group", group)
     }
     if (lastrun) {
         u.searchParams.append("lastrun", true)
+    }
+    if (startRunID) {
+        u.searchParams.append("start", startRunID)
     }
     return await fetch(u)
 }
