@@ -5,10 +5,9 @@
       :class="stepClass(step)"
       role="tab"
       :aria-expanded="active ? 'true' : 'false'"
-      @click.prevent="toggle"
     >
       <div class="item-content">
-        <div class="header">
+        <div class="header" @click.prevent="toggle">
           <span class="icon">
             <i
               class="mdi mdi-arrow-right"
