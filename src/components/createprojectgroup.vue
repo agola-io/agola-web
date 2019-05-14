@@ -11,6 +11,15 @@
         >
       </div>
     </div>
+    <div class="field">
+      <div class="control">
+        <label class="checkbox">
+          <input type="checkbox" v-model="projectGroupIsPrivate">
+          Private
+        </label>
+      </div>
+    </div>
+
     <div class="field is-grouped">
       <div class="control">
         <button
@@ -45,7 +54,8 @@ export default {
       createProjectGroupError: null,
       createProjectGroupLoading: false,
       createProjectGroupLoadingTimeout: null,
-      projectGroupName: ""
+      projectGroupName: "",
+      projectGroupIsPrivate: false
     };
   },
   computed: {
@@ -75,10 +85,16 @@ export default {
       }
       let parentref = refArray.join("/");
 
+      let visibility = "public";
+      if (this.projectGroupIsPrivate) {
+        visibility = "private";
+      }
+
       this.startProjectGroupLoading();
       let { error } = await createProjectGroup(
         parentref,
-        this.projectGroupName
+        this.projectGroupName,
+        visibility
       );
       this.stopProjectGroupLoading();
       if (error) {

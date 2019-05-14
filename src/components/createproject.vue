@@ -6,6 +6,15 @@
         <input class="input" type="text" placeholder="Project name" v-model="projectName">
       </div>
     </div>
+    <div class="field">
+      <div class="control">
+        <label class="checkbox">
+          <input type="checkbox" v-model="projectIsPrivate">
+          Private
+        </label>
+      </div>
+    </div>
+
     <h4 class="title is-4">Available remote repositories</h4>
     <div v-for="remoteSource in remoteSources" v-bind:key="remoteSource.id">
       <remoterepos
@@ -59,6 +68,7 @@ export default {
       remoteSources: null,
       remoteRepos: [],
       projectName: "",
+      projectIsPrivate: false,
       remoteRepoPath: null,
       selectedRemoteSource: null
     };
@@ -94,10 +104,16 @@ export default {
       }
       let parentref = refArray.join("/");
 
+      let visibility = "public";
+      if (this.projectIsPrivate) {
+        visibility = "private";
+      }
+
       this.startProjectLoading();
       let { error } = await createProject(
         parentref,
         this.projectName,
+        visibility,
         this.selectedRemoteSource.name,
         this.remoteRepoPath
       );
