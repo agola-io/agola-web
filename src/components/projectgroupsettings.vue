@@ -1,6 +1,35 @@
 <template>
   <div>
     <nav class="panel">
+      <p class="panel-heading">Project Group Settings</p>
+      <div class="panel-block is-block">
+        <div v-if="!isRootProjectGroup" class="field">
+          <label class="label">Project Group Name</label>
+          <div class="control">
+            <input class="input" type="text" placeholder="Text input" v-model="projectGroup.name">
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <label class="checkbox">
+              <input type="checkbox" v-model="projectGroupIsPrivate">
+              Private
+            </label>
+          </div>
+        </div>
+
+        <div class="field is-grouped">
+          <div class="control">
+            <button class="button is-primary" @click="updateProjectGroup()">Update</button>
+          </div>
+        </div>
+
+        <div v-if="updateProjectGroupError" class="message is-danger">
+          <div class="message-body">{{ updateProjectGroupError }}</div>
+        </div>
+      </div>
+    </nav>
+    <nav class="panel">
       <p class="panel-heading">Variables</p>
       <div class="panel-block is-block">
         <projectvars :variables="variables" :allvariables="allvariables"/>
@@ -51,7 +80,12 @@
 </template>
 
 <script>
-import { fetchVariables, deleteProjectGroup } from "@/util/data.js";
+import {
+  fetchProjectGroup,
+  fetchVariables,
+  updateProjectGroup,
+  deleteProjectGroup
+} from "@/util/data.js";
 
 import { projectGroupLink } from "@/util/link.js";
 
@@ -67,7 +101,10 @@ export default {
   },
   data() {
     return {
+      updateProjectGroupError: null,
       deleteProjectGroupError: null,
+      projectGroup: null,
+      projectGroupIsPrivate: false,
       variables: [],
       allvariables: [],
       projectGroupNameToDelete: ""
@@ -91,7 +128,31 @@ export default {
   },
   methods: {
     resetErrors() {
+      this.updateProjectGroupError = null;
       this.deleteProjectGroupError = null;
+    },
+    async updateProjectGroup() {
+      this.resetErrors();
+
+      let projectgroupref = [
+        this.ownertype,
+        this.ownername,
+        ...this.projectgroupref
+      ].join("/");
+
+      let visibility = "public";
+      if (this.projectGroupIsPrivate) {
+        visibility = "private";
+      }
+      let { error } = await updateProjectGroup(
+        projectgroupref,
+        this.projectGroup.name,
+        visibility
+      );
+      if (error) {
+        this.updateProjectGroupError = error;
+        return;
+      }
     },
     async deleteProjectGroup() {
       let projectgroupref = [
@@ -123,11 +184,19 @@ export default {
       ...this.projectgroupref
     ].join("/");
 
-    let { data, error } = await fetchVariables(
+    let { data, error } = await fetchProjectGroup(projectgroupref);
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.projectGroup = data;
+    this.projectGroupIsPrivate = this.projectGroup.visibility == "private";
+
+    ({ data, error } = await fetchVariables(
       "projectgroup",
       projectgroupref,
       false
-    );
+    ));
     if (error) {
       this.$store.dispatch("setError", error);
       return;

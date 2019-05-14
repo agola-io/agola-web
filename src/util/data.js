@@ -78,6 +78,12 @@ export async function fetchUser(username) {
     return await fetch(apiurl(path));
 }
 
+export async function fetchProjectGroup(projectgroupref) {
+    let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
+
+    return await fetch(apiurl(path));
+}
+
 export async function fetchProjectGroupSubgroups(projectgroupref) {
     let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
     path += "/subgroups";
@@ -204,6 +210,18 @@ export async function createProjectGroup(parentref, name, visibility) {
             name: name,
             parent_ref: parentref,
             visibility: visibility
+        })
+    }
+    return await fetch(apiurl(path), init)
+}
+
+export async function updateProjectGroup(projectgroupref, name, visibility) {
+    let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
+    let init = {
+        method: "PUT",
+        body: JSON.stringify({
+            name: name,
+            visibility: visibility,
         })
     }
     return await fetch(apiurl(path), init)
