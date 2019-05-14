@@ -46,6 +46,10 @@ export async function fetchCurrentUser() {
     return await fetch(apiurl(path));
 }
 
+export async function fetchOrgMembers(orgref) {
+    let path = "/orgs/" + orgref + "/members"
+    return await fetch(apiurl(path));
+}
 export async function fetchRuns(group, lastrun) {
     let u = apiurl("/runs");
     if (group) {

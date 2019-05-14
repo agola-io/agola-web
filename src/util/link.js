@@ -35,6 +35,9 @@ export function userLocalRunTaskLink(username, runid, taskid) {
     return { name: "user local run task", params: { username: username, runid: runid, taskid: taskid } }
 }
 
+export function orgMembersLink(orgname) {
+    return { name: "org members", params: { orgname: orgname } }
+}
 
 // Note, when creating a router link containing a project/projectgroup ref (a
 // path), unfortunately, we cannot use route name and params since it will path

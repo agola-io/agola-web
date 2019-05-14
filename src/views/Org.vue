@@ -28,6 +28,14 @@
             <span>Projects</span>
           </router-link>
         </li>
+        <li :class="[{ 'is-active': $route.name === 'org members' }]">
+          <router-link :to="orgMembersLink(orgname)">
+            <span class="icon is-small">
+              <i class="mdi mdi-account-group"/>
+            </span>
+            <span>Members</span>
+          </router-link>
+        </li>
       </ul>
       <ul class="is-right">
         <li :class="[{ 'is-active': $route.name.endsWith('project group settings') }]">
@@ -50,6 +58,7 @@ import {
   ownerLink,
   ownerProjectsLink,
   ownerSettingsLink,
+  orgMembersLink,
   projectGroupCreateProjectGroupLink,
   projectGroupCreateProjectLink
 } from "@/util/link.js";
@@ -66,6 +75,7 @@ export default {
     ownerLink: ownerLink,
     ownerProjectsLink: ownerProjectsLink,
     ownerSettingsLink: ownerSettingsLink,
+    orgMembersLink: orgMembersLink,
     projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
     projectGroupCreateProjectLink: projectGroupCreateProjectLink,
     goToCreate(type) {

@@ -8,9 +8,9 @@
             class="message-body"
           >Removing a Linked Account will also block all the projects that uses this Linked Account to access their remote repository</div>
         </div>
-        <div v-if="user.linked_accounts">
-          <div class="item-list" v-for="(la, index) in user.linked_accounts" v-bind:key="index">
-            <nav class="level item">
+        <ul v-if="user.linked_accounts">
+          <li class="item-list" v-for="(la, index) in user.linked_accounts" v-bind:key="index">
+            <div class="level item">
               <div class="level-left">
                 <div class="level-item">
                   <div>
@@ -24,12 +24,12 @@
                   <button class="button is-primary" @click="deleteLinkedAccount(la)">Delete</button>
                 </div>
               </div>
-            </nav>
-          </div>
+            </div>
+          </li>
           <div v-if="deleteLinkedAccountError" class="message is-danger">
             <div class="message-body">{{ deleteLinkedAccountError }}</div>
           </div>
-        </div>
+        </ul>
         <div v-else>No linked accounts</div>
       </div>
     </nav>

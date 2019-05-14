@@ -12,6 +12,7 @@ import projectgroupsettings from "./components/projectgroupsettings.vue";
 import createproject from "./components/createproject.vue";
 import createprojectgroup from "./components/createprojectgroup.vue";
 import createorganization from "./components/createorganization.vue";
+import orgmembers from "./components/orgmembers.vue";
 import runs from "./components/runs.vue";
 import run from "./components/run.vue";
 import task from "./components/task.vue";
@@ -223,6 +224,12 @@ const router = new VueRouter({
           name: "org projects",
           component: projects,
           props: (route) => ({ ownertype: "org", ownername: route.params.orgname })
+        },
+        {
+          path: "members",
+          name: "org members",
+          component: orgmembers,
+          props: (route) => ({ orgname: route.params.orgname })
         },
         {
           path: "createprojectgroup",
