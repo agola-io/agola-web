@@ -21,7 +21,8 @@ import Register from "./views/Register.vue";
 import Login from "./views/Login.vue";
 import Logout from "./views/Logout.vue";
 
-import { parseRef } from "@/util/link.js";
+import { parseRef, projectRunLink } from "@/util/link.js";
+import { fetchProject } from "@/util/data.js";
 
 import store from "./store";
 
@@ -348,8 +349,30 @@ const router = new VueRouter({
   ]
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   store.dispatch("setError", null);
+
+  const { path, query } = to
+
+  if (path == "/run") {
+    // generic run handler by projectref and runid
+    let projectref = query.projectref
+    let runid = query.runid
+
+    let { data, error } = await fetchProject(projectref);
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+
+    let project = data;
+
+    let parts = project.path.split("/")
+    let nextPath = projectRunLink(parts[0], parts[1], parts.slice(2), runid)
+
+    next({ path: nextPath.path, replace: true })
+  }
+
   next()
 })
 
