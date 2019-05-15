@@ -51,6 +51,7 @@
                 <button
                   class="button is-danger"
                   v-if="run.phase == 'running'"
+                  :disabled="run.stopping"
                   @click="stopRun(run.id)"
                 >Stop</button>
               </div>
@@ -145,7 +146,10 @@ export default {
       if (task.status == "running") return "running";
       return "unknown";
     },
-    stopRun: stopRun,
+    stopRun(runid) {
+      this.run.stopping = true;
+      stopRun(runid);
+    },
     cancelRun: cancelRun,
     restartRun(runid, fromStart) {
       this.dropdownActive = false;
