@@ -95,6 +95,12 @@
           </div>
         </div>
       </div>
+      <div v-if="stopRunError" class="message is-danger">
+        <div class="message-body">{{ stopRunError }}</div>
+      </div>
+      <div v-if="cancelRunError" class="message is-danger">
+        <div class="message-body">{{ cancelRunError }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -109,10 +115,16 @@ export default {
   },
   data() {
     return {
+      stopRunError: null,
+      cancelRunError: null,
       dropdownActive: false
     };
   },
   methods: {
+    resetErrors() {
+      this.stopRunError = null;
+      this.cancelRunError = null;
+    },
     toggleDropdown() {
       this.dropdownActive = !this.dropdownActive;
     },
@@ -146,13 +158,27 @@ export default {
       if (task.status == "running") return "running";
       return "unknown";
     },
-    stopRun(runid) {
+    async stopRun(runid) {
+      this.resetErrors();
+
+      let { error } = await stopRun(runid);
+      if (error) {
+        this.cancelRunError = error;
+        return;
+      }
+
       this.run.stopping = true;
-      stopRun(runid);
     },
-    cancelRun(runid) {
+    async cancelRun(runid) {
+      this.resetErrors();
+
+      let { error } = await cancelRun(runid);
+      if (error) {
+        this.cancelRunError = error;
+        return;
+      }
+
       this.run.phase = "cancelled";
-      cancelRun(runid);
     },
     restartRun(runid, fromStart) {
       this.dropdownActive = false;
