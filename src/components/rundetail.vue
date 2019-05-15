@@ -150,7 +150,10 @@ export default {
       this.run.stopping = true;
       stopRun(runid);
     },
-    cancelRun: cancelRun,
+    cancelRun(runid) {
+      this.run.phase = "cancelled";
+      cancelRun(runid);
+    },
     restartRun(runid, fromStart) {
       this.dropdownActive = false;
       restartRun(runid, fromStart);
