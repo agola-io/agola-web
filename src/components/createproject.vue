@@ -146,7 +146,19 @@ export default {
       this.$store.dispatch("setError", error);
       return;
     }
-    this.remoteSources = data;
+
+    let allRemoteSources = data;
+    let remoteSources = [];
+    for (var i = 0; i < allRemoteSources.length; i++) {
+      for (var j = 0; j < this.user.linked_accounts.length; j++) {
+        let remotesource = allRemoteSources[i];
+        let la = this.user.linked_accounts[j];
+        if (la.remote_source_id == remotesource.id) {
+          remoteSources.push(remotesource);
+        }
+      }
+      this.remoteSources = remoteSources;
+    }
   }
 };
 </script>
