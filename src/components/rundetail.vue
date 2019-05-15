@@ -45,6 +45,11 @@
                 </div>￼
                 <button
                   class="button is-danger"
+                  v-if="run.phase == 'queued'"
+                  @click="cancelRun(run.id)"
+                >Cancel</button>
+                <button
+                  class="button is-danger"
                   v-if="run.phase == 'running'"
                   @click="stopRun(run.id)"
                 >Stop</button>
@@ -94,7 +99,7 @@
 </template>
 
 <script>
-import { stopRun, restartRun } from "@/util/data.js";
+import { cancelRun, stopRun, restartRun } from "@/util/data.js";
 
 export default {
   name: "RunDetail",
@@ -141,6 +146,7 @@ export default {
       return "unknown";
     },
     stopRun: stopRun,
+    cancelRun: cancelRun,
     restartRun(runid, fromStart) {
       this.dropdownActive = false;
       restartRun(runid, fromStart);

@@ -170,6 +170,17 @@ export async function restartRun(runid, fromStart) {
     return await fetch(apiurl(path), init)
 }
 
+export async function cancelRun(runid) {
+    let path = "/runs/" + runid + "/actions"
+    let init = {
+        method: "PUT",
+        body: JSON.stringify({
+            action_type: "cancel"
+        })
+    }
+    return await fetch(apiurl(path), init)
+}
+
 export async function stopRun(runid) {
     let path = "/runs/" + runid + "/actions"
     let init = {
