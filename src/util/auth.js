@@ -33,19 +33,19 @@ export function apiurl(path) {
 }
 
 export function loginurl() {
-    return new URL(API_URL + "/login");
+    return new URL(API_URL + "/api/login");
 }
 
 export function authorizeurl() {
-    return new URL(API_URL + "/authorize");
+    return new URL(API_URL + "/api/authorize");
 }
 
 export function registerurl() {
-    return new URL(API_URL + "/register");
+    return new URL(API_URL + "/api/register");
 }
 
 export function oauth2callbackurl() {
-    return new URL(API_URL + "/oauth2/callback");
+    return new URL(API_URL + "/api/oauth2/callback");
 }
 
 export async function loginapi(init) {
