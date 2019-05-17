@@ -5,6 +5,7 @@ import User from "./views/User.vue";
 import Org from "./views/Org.vue";
 import Project from "./views/Project.vue";
 import ProjectGroup from "./views/ProjectGroup.vue";
+import AddLinkedAccount from "./views/AddLinkedAccount.vue";
 import usersettings from "./components/usersettings.vue";
 import projects from "./components/projects.vue";
 import projectsettings from "./components/projectsettings.vue";
@@ -100,6 +101,12 @@ const router = new VueRouter({
           name: "user settings",
           component: usersettings,
           props: (route) => ({ username: route.params.username }),
+        },
+        {
+          path: "linkedaccounts/add/:remotesource",
+          name: "user add linked account",
+          component: AddLinkedAccount,
+          props: (route) => ({ username: route.params.username, remoteSourceName: route.params.remotesource })
         },
         {
           path: "createprojectgroup",

@@ -45,6 +45,11 @@ export default {
       } else if (data.request_type === "authorize") {
         this.$store.dispatch("setRegisterUser", data.response);
         this.$router.push("/register");
+      } else if (data.request_type === "createuserla") {
+        this.$router.push({
+          name: "user settings",
+          params: { username: this.username }
+        });
       }
     }
   },

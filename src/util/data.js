@@ -150,6 +150,19 @@ export async function deleteUserToken(username, tokenname) {
     return await fetch(apiurl(path), init)
 }
 
+export async function createUserLinkedAccount(username, remotesourcename, loginname, password) {
+    let path = "/users/" + username + "/linkedaccounts"
+    let init = {
+        method: "POST",
+        body: JSON.stringify({
+            remote_source_name: remotesourcename,
+            remote_source_login_name: loginname,
+            remote_source_login_password: password,
+        })
+    }
+    return await fetch(apiurl(path), init)
+}
+
 export async function deleteLinkedAccount(username, laid) {
     let path = "/users/" + username + "/linkedaccounts/" + laid
     let init = {

@@ -39,6 +39,10 @@ export function userLocalRunTaskLink(username, runid, taskid) {
     return { name: "user local run task", params: { username: username, runid: runid, taskid: taskid } }
 }
 
+export function userAddLinkedAccountLink(username, remotesourcename) {
+    return { name: "user add linked account", params: { username: username, remotesource: remotesourcename } }
+}
+
 export function orgMembersLink(orgname) {
     return { name: "org members", params: { orgname: orgname } }
 }

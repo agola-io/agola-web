@@ -15,7 +15,7 @@
                 <div class="level-item">
                   <div>
                     <span class="name">{{la.remote_user_name}}</span>
-                    <span class="remotesource-name">( {{laRemoteSourceName(la)}} )</span>
+                    <span class="remotesource-name">(on remote source {{laRemoteSourceName(la)}})</span>
                   </div>
                 </div>
               </div>
@@ -31,6 +31,19 @@
           </div>
         </ul>
         <div v-else>No linked accounts</div>
+      </div>
+      <div v-if="remotesources.length" class="panel-block is-block">
+        <h5 class="title is-5">Add new linked account</h5>
+        <div class="field is-grouped">
+          <div class="control">
+            <div class="select">
+              <select v-model="selectedRemoteSourceName">
+                <option v-for="rs in remotesources" v-bind:key="rs.id">{{ rs.name }}</option>
+              </select>
+            </div>
+          </div>
+          <button class="button is-primary" @click="addLinkedAccount()">Add Linked Account</button>
+        </div>
       </div>
     </nav>
 
@@ -101,6 +114,8 @@ import {
   deleteLinkedAccount
 } from "@/util/data.js";
 
+import { userAddLinkedAccountLink } from "@/util/link.js";
+
 export default {
   components: {},
   name: "usersettings",
@@ -113,7 +128,8 @@ export default {
       user: [],
       remotesources: [],
       token: null,
-      newtokenname: null
+      newtokenname: null,
+      selectedRemoteSourceName: null
     };
   },
   methods: {
@@ -137,6 +153,9 @@ export default {
         return;
       }
       this.remotesources = data;
+      if (this.remotesources.length) {
+        this.selectedRemoteSourceName = this.remotesources[0].name;
+      }
     },
     laRemoteSourceName(la) {
       for (var i = 0; i < this.remotesources.length; i++) {
@@ -145,6 +164,13 @@ export default {
           return rs.name;
         }
       }
+    },
+    addLinkedAccount() {
+      let path = userAddLinkedAccountLink(
+        this.user.username,
+        this.selectedRemoteSourceName
+      );
+      this.$router.push(path);
     },
     async createUserToken() {
       this.resetErrors();
@@ -203,7 +229,7 @@ export default {
     font-weight: bold;
   }
   .remotesource-name {
-    margin-left: 1rem;
+    margin-left: 0.5rem;
   }
 }
 </style>
