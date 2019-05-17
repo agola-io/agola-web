@@ -1,6 +1,6 @@
 <template>
   <div>
-    <RunDetail :run="run"/>
+    <RunDetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
     <div v-if="run">
       <div v-if="run.phase != 'setuperror'">
         <div class="tabs">

@@ -102,6 +102,9 @@
       <div v-if="cancelRunError" class="message is-danger">
         <div class="message-body">{{ cancelRunError }}</div>
       </div>
+      <div v-if="cancelRunError" class="message is-danger">
+        <div class="message-body">{{ cancelRunError }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -111,18 +114,24 @@ import vClickOutside from "v-click-outside";
 
 import { cancelRun, stopRun, restartRun } from "@/util/data.js";
 
+import { userLocalRunLink, projectRunLink } from "@/util/link.js";
+
 export default {
   name: "RunDetail",
   directives: {
     clickOutside: vClickOutside.directive
   },
   props: {
+    ownertype: String,
+    ownername: String,
+    projectref: Array,
     run: Object
   },
   data() {
     return {
       stopRunError: null,
       cancelRunError: null,
+      restartRunError: null,
       dropdownActive: false
     };
   },
@@ -130,6 +139,7 @@ export default {
     resetErrors() {
       this.stopRunError = null;
       this.cancelRunError = null;
+      this.restartRunError = null;
     },
     toggleDropdown() {
       this.dropdownActive = !this.dropdownActive;
@@ -169,7 +179,7 @@ export default {
 
       let { error } = await stopRun(runid);
       if (error) {
-        this.cancelRunError = error;
+        this.stopRunError = error;
         return;
       }
 
@@ -186,9 +196,26 @@ export default {
 
       this.run.phase = "cancelled";
     },
-    restartRun(runid, fromStart) {
+    async restartRun(runid, fromStart) {
       this.dropdownActive = false;
-      restartRun(runid, fromStart);
+      let { data, error } = await restartRun(runid, fromStart);
+      if (error) {
+        this.restartRunError = error;
+        return;
+      }
+
+      let runLink;
+      if (this.projectref) {
+        runLink = projectRunLink(
+          this.ownertype,
+          this.ownername,
+          this.projectref,
+          data.id
+        );
+      } else {
+        runLink = userLocalRunLink(this.ownername, data.id);
+      }
+      this.$router.push(runLink);
     }
   }
 };
