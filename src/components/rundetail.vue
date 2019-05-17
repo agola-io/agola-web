@@ -18,6 +18,7 @@
                 <div
                   v-if="run.can_restart_from_scratch || run.can_restart_from_failed_tasks"
                   class="dropdown is-right"
+                  v-click-outside="() => dropdownActive = false"
                   v-bind:class="{ 'is-active': dropdownActive }"
                 >
                   <div class="dropdown-trigger">
@@ -106,10 +107,15 @@
 </template>
 
 <script>
+import vClickOutside from "v-click-outside";
+
 import { cancelRun, stopRun, restartRun } from "@/util/data.js";
 
 export default {
   name: "RunDetail",
+  directives: {
+    clickOutside: vClickOutside.directive
+  },
   props: {
     run: Object
   },

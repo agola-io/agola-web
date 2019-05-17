@@ -5,9 +5,13 @@
         <button class="button" @click="clicked">{{ buttonValue }}</button>
       </p>
       <div class="control">
-        <div class="dropdown is-right" v-bind:class="{ 'is-active': dropdownActive }">
+        <div
+          class="dropdown is-right"
+          v-click-outside="() => dropdownActive = false"
+          v-bind:class="{ 'is-active': dropdownActive }"
+        >
           <div class="dropdown-trigger">
-            <button class="button" @click="toggleDropdown()">
+            <button class="button" @click="toggleDropdown">
               <span class="icon is-small">
                 <i class="mdi mdi-chevron-down"></i>
               </span>
@@ -26,8 +30,13 @@
 </template>
 
 <script>
+import vClickOutside from "v-click-outside";
+
 export default {
   components: {},
+  directives: {
+    clickOutside: vClickOutside.directive
+  },
   name: "createprojectbutton",
   props: {},
   data() {

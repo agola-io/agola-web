@@ -25,6 +25,7 @@
             <div
               v-if="user"
               class="navbar-item has-dropdown"
+              v-click-outside="() => createDropdownActive = false"
               v-bind:class="{ 'is-active': createDropdownActive }"
             >
               <a class="navbar-link" @click="toggleCreateDropdown()">
@@ -37,6 +38,7 @@
             <div
               v-if="user"
               class="navbar-item has-dropdown"
+              v-click-outside="() => userDropdownActive = false"
               v-bind:class="{ 'is-active': userDropdownActive }"
             >
               <a class="navbar-link" @click="toggleUserDropdown()">{{user.username}}</a>
@@ -86,10 +88,15 @@
 
 
 <script>
+import vClickOutside from "v-click-outside";
+
 import { mapGetters } from "vuex";
 
 export default {
   name: "App",
+  directives: {
+    clickOutside: vClickOutside.directive
+  },
   components: {},
   computed: {
     ...mapGetters(["error", "user"])
