@@ -5,19 +5,14 @@
         <div v-for="run in runs" v-bind:key="run.id" :class="runResultClass(run)">
           <div class="item-content">
             <router-link
-              v-if="username"
-              tag="div"
-              class="name"
-              :to="userLocalRunLink(username, run.id)"
-            >
-              <span>{{run.name}}</span>
-            </router-link>
-            <router-link
-              v-else
+              v-if="projectref"
               tag="div"
               class="name"
               :to="projectRunLink(ownertype, ownername, projectref, run.id)"
             >
+              <span>{{run.name}}</span>
+            </router-link>
+            <router-link v-else tag="div" class="name" :to="userLocalRunLink(ownername, run.id)">
               <span>{{run.name}}</span>
             </router-link>
             <div class="commitmessage">{{run.annotations.message}}</div>
@@ -83,7 +78,6 @@ export default {
   props: {
     ownertype: String,
     ownername: String,
-    username: String,
     projectref: Array,
     query: String
   },
@@ -127,10 +121,8 @@ export default {
       clearInterval(this.polling);
       if (this.projectref !== undefined) {
         this.fetchProject();
-      } else if (this.username !== undefined) {
-        this.fetchUser();
       } else {
-        this.fetchRuns();
+        this.fetchUser();
       }
       this.pollData();
     },
@@ -151,7 +143,7 @@ export default {
       this.fetchRuns();
     },
     async fetchUser() {
-      let { data, error } = await fetchUser(this.username);
+      let { data, error } = await fetchUser(this.ownername);
       if (error) {
         this.$store.dispatch("setError", error);
         return;

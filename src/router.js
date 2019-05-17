@@ -81,7 +81,7 @@ const router = new VueRouter({
           path: "runs",
           name: "user local runs",
           component: runs,
-          props: (route) => ({ ownertype: "user", username: route.params.username })
+          props: (route) => ({ ownertype: "user", ownername: route.params.username })
         },
         {
           path: "runs/:runid",
