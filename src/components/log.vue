@@ -89,7 +89,7 @@ export default {
             return;
           }
 
-          let data = String.fromCharCode.apply(null, value);
+          let data = new TextDecoder("utf-8").decode(value);
 
           let lines = data.split("\n");
           lines.forEach(line => {
