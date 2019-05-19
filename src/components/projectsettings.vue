@@ -74,6 +74,21 @@
           </div>
         </div>
       </div>
+      <div class="panel-block is-block">
+        <div>
+          <h4 class="title is-4">Change remote repository linked account</h4>
+          <div class="message is-danger">
+            <div
+              class="message-body"
+            >This operation will change the linked account associated with the project remote repository to the current user linked account</div>
+          </div>
+          <button class="button is-danger" @click="updateRepoLinkedAccount()">Change</button>
+
+          <div v-if="updateRepoLinkedAccountError" class="message is-danger">
+            <div class="message-body">{{ updateRepoLinkedAccountError }}</div>
+          </div>
+        </div>
+      </div>
     </nav>
   </div>
 </template>
@@ -83,7 +98,8 @@ import {
   fetchProject,
   fetchVariables,
   updateProject,
-  deleteProject
+  deleteProject,
+  projectUpdateRepoLinkedAccount
 } from "@/util/data.js";
 
 import { projectGroupLink } from "@/util/link.js";
@@ -102,6 +118,7 @@ export default {
     return {
       updateProjectError: null,
       deleteProjectError: null,
+      updateRepoLinkedAccountError: null,
       project: null,
       projectIsPrivate: false,
       variables: [],
@@ -124,6 +141,7 @@ export default {
     resetErrors() {
       this.updateProjectError = null;
       this.deleteProjectError = null;
+      this.updateRepoLinkedAccountError = null;
     },
     async updateProject() {
       this.resetErrors();
@@ -170,6 +188,21 @@ export default {
             this.projectref.slice(0, -1)
           )
         );
+      }
+    },
+    async updateRepoLinkedAccount() {
+      this.resetErrors();
+
+      let projectref = [
+        this.ownertype,
+        this.ownername,
+        ...this.projectref
+      ].join("/");
+
+      let { error } = await projectUpdateRepoLinkedAccount(projectref);
+      if (error) {
+        this.updateRepoLinkedAccountError = error;
+        return;
       }
     }
   },

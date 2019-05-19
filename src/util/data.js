@@ -286,6 +286,14 @@ export async function deleteProject(projectref) {
     return await fetch(apiurl(path), init)
 }
 
+export async function projectUpdateRepoLinkedAccount(projectref) {
+    let path = "/projects/" + encodeURIComponent(projectref) + "/updaterepolinkedaccount"
+    let init = {
+        method: "PUT",
+    }
+    return await fetch(apiurl(path), init)
+}
+
 export async function deleteProjectGroup(projectgroupref) {
     let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
     let init = {
