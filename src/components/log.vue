@@ -4,12 +4,15 @@
       <div class="stream-line" v-for="(item, index) in items" :key="index">
         <div v-html="item"/>
       </div>
+      <div v-if="lastitem" class="stream-line">
+        <div v-html="lastitem"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { apiurl, apiurlwithtoken, fetch } from "@/util/auth";
+import { apiurl, fetch } from "@/util/auth";
 import AnsiUp from "ansi_up";
 
 export default {
@@ -29,6 +32,7 @@ export default {
 
     return {
       items: [],
+      lastitem: "",
       lines: [],
       formatter: formatter,
       es: null,
@@ -40,61 +44,71 @@ export default {
       if (this.fetching) {
         return;
       }
-      this.fetching = true;
+
+      let follow = false;
       if (this.stepphase == "running") {
-        this.streamLogs();
+        follow = true;
       }
 
-      if (this.stepphase == "success" || this.stepphase == "failed") {
-        this.getLogs();
-      }
+      this.getLogs(follow);
     },
-    streamLogs() {
+    async getLogs(follow) {
+      this.items = [];
       let path = "/logs?runID=" + this.runid + "&taskID=" + this.taskid;
       if (this.setup) {
         path += "&setup";
       } else {
         path += "&step=" + this.step;
       }
-      path += "&follow&stream";
-
-      this.es = new EventSource(apiurlwithtoken(path));
-      this.es.onmessage = event => {
-        var data = event.data;
-        // TODO(sgotti) ansi_up doesn't handle carriage return (\r), find a way to also handle it
-        this.items.push(this.formatter.ansi_to_html(data));
-      };
-      // don't reconnect on error
-      this.es.onerror = () => {
-        this.es.close();
-      };
-    },
-    async getLogs() {
-      let path = "/logs?runID=" + this.runid + "&taskID=" + this.taskid;
-      if (this.setup) {
-        path += "&setup";
-      } else {
-        path += "&step=" + this.step;
+      if (follow) {
+        path += "&follow";
       }
+
       let res = await fetch(apiurl(path));
       if (res.status == 200) {
         const reader = res.body.getReader();
 
-        let items = this.items;
-        let formatter = this.formatter;
-
+        let lastline = "";
+        let j = 0;
         for (;;) {
           let { done, value } = await reader.read();
           if (done) {
             return;
           }
 
-          let data = new TextDecoder("utf-8").decode(value);
+          let data = new TextDecoder("utf-8").decode(value, { stream: true });
 
-          let lines = data.split("\n");
-          lines.forEach(line => {
-            items.push(formatter.ansi_to_html(line));
-          });
+          let part = "";
+          for (var i = 0; i < data.length; i++) {
+            let c = data.charAt(i);
+            if (c == "\r") {
+              // replace lastline from start, simulating line feed (go to start of line)
+              // this isn't perfect since the previous line contents could have
+              // been written using different colors and this will lose them but
+              // in practically all cases this won't happen
+              lastline =
+                lastline.slice(0, j) + part + lastline.slice(j + part.length);
+              j = 0;
+              this.lastitem = this.formatter.ansi_to_html(lastline);
+              part = "";
+            } else if (c == "\n") {
+              lastline =
+                lastline.slice(0, j) + part + lastline.slice(j + part.length);
+              j += part.length;
+              this.lastitem = this.formatter.ansi_to_html(lastline);
+              this.items.push(this.lastitem);
+              this.lastitem = "";
+              lastline = "";
+              j = 0;
+              part = "";
+            } else {
+              part += c;
+            }
+          }
+          lastline =
+            lastline.slice(0, j) + part + lastline.slice(j + part.length);
+          j += part.length;
+          this.lastitem = this.formatter.ansi_to_html(lastline);
         }
       }
     }
@@ -107,14 +121,9 @@ export default {
     },
     stepphase: function(post, pre) {
       if (pre == "notstarted" && post == "running") {
-        this.streamLogs();
-      }
-      if (pre == "notstarted" && (post == "success" || post == "failed")) {
-        this.getLogs();
-      }
-
-      if (pre == "running" && (post == "success" || post == "failed")) {
-        // TODO(sgotti)
+        this.getLogs(true);
+      } else {
+        this.getLogs(false);
       }
     }
   },
@@ -135,7 +144,7 @@ export default {
 .log {
   background-color: #222;
   color: #f1f1f1;
-  font-family: Cousine, monospace;
+  font-family: Cousine, monospace, "Noto Color Emoji";
   font-size: 12px;
   line-height: 19px;
   white-space: pre-wrap;
