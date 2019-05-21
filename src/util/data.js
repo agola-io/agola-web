@@ -1,4 +1,4 @@
-import { apiurl, loginapi } from "@/util/auth";
+import { apiurl, loginapi, registerapi } from "@/util/auth";
 import { fetch as authfetch } from "@/util/auth";
 
 export async function fetch(url, init) {
@@ -30,6 +30,30 @@ export async function login(username, password, remotesourcename) {
 
     try {
         let res = await loginapi(init)
+        if (!res.ok) {
+            let data = await res.json()
+            return { data: null, error: data.message }
+        } else {
+            return { data: await res.json(), error: null }
+        }
+    } catch (e) {
+        return { data: null, error: "api call failed: " + e }
+    }
+}
+
+export async function register(username, remotesourcename, remoteloginname, remotepassword) {
+    let init = {
+        method: "POST",
+        body: JSON.stringify({
+            username: username,
+            remote_source_name: remotesourcename,
+            remote_source_login_name: remoteloginname,
+            remote_source_login_password: remotepassword
+        })
+    }
+
+    try {
+        let res = await registerapi(init)
         if (!res.ok) {
             let data = await res.json()
             return { data: null, error: data.message }

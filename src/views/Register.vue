@@ -31,7 +31,7 @@ import { mapGetters } from "vuex";
 import LoginForm from "@/components/loginform";
 import RegisterForm from "@/components/registerform";
 
-import { fetchRemoteSources } from "@/util/data";
+import { fetchRemoteSources, register } from "@/util/data";
 
 import { authorizeurl, registerurl, fetch, doLogout } from "@/util/auth";
 
@@ -43,6 +43,7 @@ export default {
   },
   data: function() {
     return {
+      error: null,
       remotesources: null
     };
   },
@@ -58,12 +59,12 @@ export default {
       }
       this.remotesources = data;
     },
-    async doAuthorize(rsName, username, password) {
+    async doAuthorize(remotesourcename, username, password) {
       let u = authorizeurl();
       let res = await (await fetch(u, {
         method: "POST",
         body: JSON.stringify({
-          remote_source_name: rsName,
+          remote_source_name: remotesourcename,
           login_name: username,
           password: password
         })
@@ -81,24 +82,26 @@ export default {
       });
     },
     async doRegister(
-      rsName,
+      remotesourcename,
       username,
       remote_login_name,
       remote_login_password
     ) {
-      let u = registerurl();
-      let res = await (await fetch(u, {
-        method: "POST",
-        body: JSON.stringify({
-          username: username,
-          remote_source_name: rsName,
-          remote_source_login_name: remote_login_name,
-          remote_source_login_password: remote_login_password
-        })
-      })).json();
+      this.error = null;
 
-      if (res.oauth2_redirect) {
-        window.location = res.oauth2_redirect;
+      let { data, error } = await register(
+        username,
+        remotesourcename,
+        remote_login_name,
+        remote_login_password
+      );
+      if (error) {
+        // set local login error on failed login.
+        this.error = error;
+        return;
+      }
+      if (data.oauth2_redirect) {
+        window.location = data.oauth2_redirect;
         return;
       }
       this.$router.push({ name: "home" });

@@ -61,6 +61,19 @@ export async function loginapi(init) {
     }
 }
 
+export async function registerapi(init) {
+    if (init === undefined) {
+        init = {}
+    }
+
+    try {
+        let res = await window.fetch(registerurl(), init)
+        return res
+    } catch (e) {
+        throw e
+    }
+}
+
 export async function fetch(url, init) {
     if (init === undefined) {
         init = {}
