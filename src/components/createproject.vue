@@ -15,27 +15,49 @@
       </label>
     </div>
 
-    <h4 class="text-xl">Available remote repositories</h4>
-    <div v-for="remoteSource in remoteSources" v-bind:key="remoteSource.id">
-      <remoterepos
-        class="remoterepos"
-        :remotesource="remoteSource"
-        :selected="selectedRemoteSource && selectedRemoteSource.id == remoteSource.id"
-        v-on:reposelected="repoSelected(remoteSource, $event)"
-      />
+    <div class="mb-3 flex items-center">
+      <div class="flex relative w-64">
+        <select
+          class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+          v-model="selectedRemoteSourceIndex"
+        >
+          <option :value="null" disabled>Select the remote source</option>
+          <option
+            v-for="(rs, index) in remoteSources"
+            v-bind:key="rs.id"
+            :value="index"
+          >{{ rs.name }}</option>
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+          </svg>
+        </div>
+      </div>
+      <button
+        class="ml-3 btn btn-blue"
+        v-bind:class="{ 'spinner': fetchRemoteReposLoading }"
+        :disabled="selectedRemoteSourceIndex == null"
+        @click="fetchRemoteRepos()"
+      >Fetch remote repositories</button>
     </div>
-    <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      v-bind:class="{ 'spinner': createProjectLoading }"
-      :disabled="!createProjectButtonEnabled"
-      @click="createProject()"
-    >Create Project</button>
-    <div
-      v-if="createProjectError"
-      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-      role="alert"
-    >
-      <span class="block sm:inline">{{ createProjectError }}</span>
+
+    <div v-if="remoteRepos.length">
+      <h4 class="text-xl">Available remote repositories</h4>
+      <remoterepos :remoterepos="remoteRepos" v-on:reposelected="repoSelected($event)"/>
+      <button
+        class="btn btn-blue"
+        v-bind:class="{ 'spinner': createProjectLoading }"
+        :disabled="!createProjectButtonEnabled"
+        @click="createProject()"
+      >Create Project</button>
+      <div
+        v-if="createProjectError"
+        class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        role="alert"
+      >
+        <span class="block sm:inline">{{ createProjectError }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -44,7 +66,8 @@
 import {
   fetchCurrentUser,
   fetchRemoteSources,
-  createProject
+  createProject,
+  userRemoteRepos
 } from "@/util/data.js";
 
 import { projectLink } from "@/util/link.js";
@@ -62,25 +85,37 @@ export default {
   data() {
     return {
       createProjectError: null,
+      fetchRemoteReposLoading: false,
+      fetchRemoteReposLoadingTimeout: false,
       createProjectLoading: false,
       createProjectLoadingTimeout: null,
       user: null,
       remoteSources: null,
       remoteRepos: [],
+      selectedRemoteSourceIndex: null,
       projectName: "",
       projectIsPrivate: false,
-      remoteRepoPath: null,
-      selectedRemoteSource: null
+      remoteRepoPath: null
     };
   },
   computed: {
     createProjectButtonEnabled: function() {
-      return this.projectName.length && this.selectedRemoteSource;
+      return this.projectName.length && this.remoteRepoPath;
     }
   },
+  watch: {},
   methods: {
     resetErrors() {
       this.createProjectError = null;
+    },
+    startFetchRemoteReposLoading() {
+      this.fetchRemoteReposLoadingTimeout = setTimeout(() => {
+        this.fetchRemoteReposLoading = true;
+      }, 300);
+    },
+    stopFetchRemoteReposLoading() {
+      clearTimeout(this.fetchRemoteReposLoadingTimeout);
+      this.fetchRemoteReposLoading = false;
     },
     startProjectLoading() {
       this.createProjectLoadingTimeout = setTimeout(() => {
@@ -91,9 +126,22 @@ export default {
       clearTimeout(this.createProjectLoadingTimeout);
       this.createProjectLoading = false;
     },
-    repoSelected(remoteSource, repoPath) {
-      this.selectedRemoteSource = remoteSource;
+    repoSelected(repoPath) {
       this.remoteRepoPath = repoPath;
+    },
+    async fetchRemoteRepos() {
+      this.remoteRepos = [];
+      this.remoteRepoPath = null;
+
+      this.startFetchRemoteReposLoading();
+      let remoteSource = this.remoteSources[this.selectedRemoteSourceIndex];
+      let { data, error } = await userRemoteRepos(remoteSource.id);
+      this.stopFetchRemoteReposLoading();
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.remoteRepos = data;
     },
     async createProject() {
       this.resetErrors();
@@ -109,12 +157,14 @@ export default {
         visibility = "private";
       }
 
+      let remoteSource = this.remoteSources[this.selectedRemoteSourceIndex];
+
       this.startProjectLoading();
       let { error } = await createProject(
         parentref,
         this.projectName,
         visibility,
-        this.selectedRemoteSource.name,
+        remoteSource.name,
         this.remoteRepoPath
       );
       this.stopProjectLoading();
