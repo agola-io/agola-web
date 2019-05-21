@@ -81,6 +81,7 @@
 <script>
 import { fetchUser, fetchProject, fetchRuns } from "@/util/data.js";
 import { userLocalRunLink, projectRunLink } from "@/util/link.js";
+import { runResultClass } from "@/util/run.js";
 
 export default {
   components: {},
@@ -109,23 +110,12 @@ export default {
   methods: {
     projectRunLink: projectRunLink,
     userLocalRunLink: userLocalRunLink,
+    runResultClass: runResultClass,
     stillRunning(run) {
       return run.result != "unknown" && run.phase == "running";
     },
     waitingApproval(run) {
       return run.tasks_waiting_approval.length > 0;
-    },
-    runResultClass(run) {
-      if (run.result == "unknown") {
-        if (run.phase == "setuperror") return "setuperror";
-        if (run.phase == "queued") return "unknown";
-        if (run.phase == "cancelled") return "failed";
-        if (run.phase == "running") return "running";
-      }
-      if (run.result == "success") return "success";
-      if (run.result == "failed") return "failed";
-      if (run.result == "stopped") return "failed";
-      return "unknown";
     },
     update() {
       clearInterval(this.polling);

@@ -131,8 +131,8 @@
 import vClickOutside from "v-click-outside";
 
 import { cancelRun, stopRun, restartRun } from "@/util/data.js";
-
 import { userLocalRunLink, projectRunLink } from "@/util/link.js";
+import { runStatus, runResultClass } from "@/util/run.js";
 
 export default {
   name: "RunDetail",
@@ -154,6 +154,8 @@ export default {
     };
   },
   methods: {
+    runStatus: runStatus,
+    runResultClass: runResultClass, 
     resetErrors() {
       this.stopRunError = null;
       this.cancelRunError = null;
@@ -161,26 +163,6 @@ export default {
     },
     stillRunning(run) {
       return run.result != "unknown" && run.phase == "running";
-    },
-    runStatus(run) {
-      if (run.phase != "finished") return run.phase;
-      if (run.result != "unknown") return run.result;
-      if (run.stopping) return "stopping";
-
-      return run.result;
-    },
-    runResultClass(run) {
-      let status = this.runStatus(run);
-
-      if (status == "setuperror") return "setuperror";
-      if (status == "queued") return "unknown";
-      if (status == "cancelled") return "failed";
-      if (status == "running") return "running";
-      if (status == "stopping") return "failed";
-      if (status == "stopped") return "failed";
-      if (status == "success") return "success";
-      if (status == "failed") return "failed";
-      return "unknown";
     },
     taskClass(task) {
       if (task.status == "success") return "success";
