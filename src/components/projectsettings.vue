@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="project">
     <div class="panel">
       <p class="panel-title">Project Settings</p>
       <div class="p-4">

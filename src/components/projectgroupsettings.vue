@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="projectGroup">
     <div class="panel">
       <p class="panel-title">Project Group Settings</p>
       <div class="p-4">

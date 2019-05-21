@@ -44,7 +44,7 @@
                 v-click-outside="() => dropdownActive = false"
               >
                 <div class="flex items-center">
-                  <button class="btn btn-blue" @click="toggleDropdown()">
+                  <button class="btn btn-blue" @click="dropdownActive = !dropdownActive">
                     <span>Restart</span>
                     <i class="ml-3 mdi mdi-restart" aria-hidden="true"></i>
                   </button>
@@ -158,9 +158,6 @@ export default {
       this.stopRunError = null;
       this.cancelRunError = null;
       this.restartRunError = null;
-    },
-    toggleDropdown() {
-      this.dropdownActive = !this.dropdownActive;
     },
     stillRunning(run) {
       return run.result != "unknown" && run.phase == "running";

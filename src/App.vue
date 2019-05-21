@@ -14,7 +14,7 @@
         <div class="block lg:hidden">
           <button
             class="flex items-center px-3 py-2 border rounded text-blue-200 border-blue-400 hover:text-white hover:border-white"
-            @click="toggleNav()"
+            @click="navActive = !navActive"
           >
             <svg
               class="fill-current h-3 w-3"
@@ -34,7 +34,7 @@
           <div v-if="user" class="relative mr-3">
             <button
               v-click-outside="() => createDropdownActive = false"
-              @click="toggleCreateDropdown()"
+              @click="createDropdownActive = !createDropdownActive"
               class="relative flex items-center focus:outline-none"
             >
               <i class="mdi mdi-plus-box mdi-24px"/>
@@ -58,7 +58,7 @@
             <div class="flex">
               <button
                 v-click-outside="() => userDropdownActive = false"
-                @click="toggleUserDropdown()"
+                @click="userDropdownActive = !userDropdownActive"
                 class="relative flex items-center focus:outline-none"
               >
                 {{user.username}}
@@ -159,15 +159,6 @@ export default {
       this.$store.dispatch("setError", null);
       this.routerActive = false;
       this.$nextTick(() => (this.routerActive = true));
-    },
-    toggleNav() {
-      this.navActive = !this.navActive;
-    },
-    toggleUserDropdown() {
-      this.userDropdownActive = !this.userDropdownActive;
-    },
-    toggleCreateDropdown() {
-      this.createDropdownActive = !this.createDropdownActive;
     }
   }
 };
