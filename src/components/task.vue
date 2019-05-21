@@ -1,6 +1,6 @@
 <template>
   <div>
-    <RunDetail :run="run"/>
+    <RunDetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
     <div v-if="task != null">
       <div class="mt-8 mb-4 flex justify-between items-center">
         <div class="flex items-center">
@@ -47,12 +47,17 @@ export default {
     RunDetail
   },
   name: "task",
+  props: {
+    ownertype: String,
+    ownername: String,
+    projectref: Array,
+    runid: String,
+    taskid: String
+  },
   data() {
     return {
       run: null,
       task: null,
-      runid: this.$route.params.runid,
-      taskid: this.$route.params.taskid,
       polling: null
     };
   },
