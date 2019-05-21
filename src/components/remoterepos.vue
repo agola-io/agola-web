@@ -1,23 +1,21 @@
 <template>
-  <div>
+  <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm">
+    <p class="bg-gray-200 px-4 py-3 border-solid border-gray-300 border-b">
+      repositories from
+      <strong>{{ remotesource.name }}</strong>
+    </p>
     <div v-if="remoterepos.length > 0">
-      <nav class="panel">
-        <p class="panel-heading">
-          repositories from
-          <strong>{{ remotesource.name }}</strong>
-        </p>
-        <label
-          class="panel-block"
-          v-for="(repo, index) in remoterepos"
-          v-bind:key="repo.id"
-          @click="select(index)"
-        >
-          <input type="radio" :checked="selectedrepo == index && selected">
-          {{repo.path}}
-        </label>
-      </nav>
+      <label
+        class="block px-4 py-2 border-b"
+        v-for="(repo, index) in remoterepos"
+        v-bind:key="repo.id"
+        @click="select(index)"
+      >
+        <input type="radio" :checked="selectedrepo == index && selected">
+        {{repo.path}}
+      </label>
     </div>
-    <div v-else class="item-list">No remote repositories</div>
+    <div v-else class="block px-4 py-2 border-b">No remote repositories</div>
   </div>
 </template>
 
@@ -58,22 +56,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.item-list {
-  .item {
-    margin-bottom: 5px;
-    border: 1px solid $grey-lighter;
-    cursor: pointer;
-    display: flex;
-    padding: 10px;
-  }
-  .name {
-    font-weight: bold;
-  }
-}
-
-.panel-block input[type="radio"] {
-  margin-right: 0.75em;
-}
 </style>

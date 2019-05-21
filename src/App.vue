@@ -1,87 +1,117 @@
 <template>
   <div id="app">
-    <nav class="navbar is-light has-shadow" role="navigation" aria-label="main navigation">
-      <div class="container">
-        <div class="navbar-brand">
-          <a class="navbar-item" href="/">
-            <h1>Agola</h1>
-          </a>
-
-          <a
-            role="button"
-            class="navbar-burger burger"
-            aria-label="menu"
-            aria-expanded="false"
-            data-target="navbarBasicExample"
+    <nav class="bg-gray-800 p-3 text-white">
+      <div class="container flex items-center justify-between flex-wrap bg-gray-800">
+        <div class="mr-6">
+          <router-link
+            class="font-semibold flex items-center flex-shrink-0 text-xl tracking-tight"
+            to="/"
           >
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-          </a>
+            <img class="w-10 mr-2" src="/img/agola-logo-circle.svg">
+            Agola
+          </router-link>
         </div>
-        <div class="navbar-menu">
-          <div class="navbar-start"></div>
-          <div class="navbar-end">
-            <div
-              v-if="user"
-              class="navbar-item has-dropdown"
-              v-click-outside="() => createDropdownActive = false"
-              v-bind:class="{ 'is-active': createDropdownActive }"
+        <div class="block lg:hidden">
+          <button
+            class="flex items-center px-3 py-2 border rounded text-blue-200 border-blue-400 hover:text-white hover:border-white"
+            @click="toggleNav()"
+          >
+            <svg
+              class="fill-current h-3 w-3"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <a class="navbar-link" @click="toggleCreateDropdown()">
-                <i class="mdi mdi-plus-box mdi-24px"/>
-              </a>
-              <div class="navbar-dropdown">
-                <router-link class="navbar-item" to="/neworganization">New Organization</router-link>
-              </div>
+              <title>Menu</title>
+              <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
+            </svg>
+          </button>
+        </div>
+        <div
+          class="w-full block flex-grow lg:flex lg:items-center lg:w-auto"
+          :class="{'hidden' : !navActive}"
+        >
+          <div class="text-sm lg:flex-grow"></div>
+          <div v-if="user" class="relative mr-3">
+            <button
+              v-click-outside="() => createDropdownActive = false"
+              @click="toggleCreateDropdown()"
+              class="relative flex items-center focus:outline-none"
+            >
+              <i class="mdi mdi-plus-box mdi-24px"/>
+              <i class="mdi mdi-chevron-down"></i>
+            </button>
+            <div
+              v-if="createDropdownActive"
+              class="z-10 origin-top-right absolute right-0 mt-2 w-64 bg-white rounded-lg border shadow-md py-2 text-dark"
+            >
+              <ul>
+                <li>
+                  <router-link
+                    class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+                    to="/neworganization"
+                  >New Organization</router-link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div v-if="user" class="relative">
+            <div class="flex">
+              <button
+                v-click-outside="() => userDropdownActive = false"
+                @click="toggleUserDropdown()"
+                class="relative flex items-center focus:outline-none"
+              >
+                {{user.username}}
+                <i class="mdi mdi-chevron-down"></i>
+              </button>
             </div>
             <div
-              v-if="user"
-              class="navbar-item has-dropdown"
-              v-click-outside="() => userDropdownActive = false"
-              v-bind:class="{ 'is-active': userDropdownActive }"
+              v-if="userDropdownActive"
+              class="z-10 origin-top-right absolute right-0 mt-2 w-64 bg-white rounded-lg border shadow-md py-2 text-dark"
             >
-              <a class="navbar-link" @click="toggleUserDropdown()">{{user.username}}</a>
-              <div class="navbar-dropdown">
-                <div class="navbar-item">
+              <ul>
+                <li class="block px-4 py-2 border-b">
                   Logged as&nbsp;
                   <b>{{user.username}}</b>
-                </div>
-                <hr class="navbar-divider">
-                <router-link class="navbar-item" to="/logout">
-                  <i class="mdi mdi-logout"></i>Logout
-                </router-link>
-              </div>
+                </li>
+                <li>
+                  <hr class="navbar-divider">
+                </li>
+                <li>
+                  <router-link
+                    class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+                    to="/logout"
+                  >
+                    <i class="mdi mdi-logout"></i>Logout
+                  </router-link>
+                </li>
+              </ul>
             </div>
-            <div v-else class="navbar-item">
-              <router-link class="button" to="/register">Sign up</router-link>
-              <router-link class="button" to="/login">Login</router-link>
-            </div>
+          </div>
+          <div v-else class="navbar-item">
+            <router-link class="btn btn-blue" to="/register">Sign up</router-link>
+            <router-link class="ml-2 btn btn-blue" to="/login">Login</router-link>
           </div>
         </div>
       </div>
     </nav>
 
-    <div v-if="error" class="container">
-      <div class="message is-danger global-error-message">
-        <div class="message-body">
-          <nav class="level">
-            <div class="level-left">
-              <div class="level-item">
-                <p>Failed to fetch data: {{ error }}</p>
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="level-item">
-                <button class="button is-danger" @click="reload()">Retry</button>
-              </div>
-            </div>
-          </nav>
+    <div v-if="error" class="container h-screen" role="alert">
+      <div v-if="error" class="h-full flex justify-center items-center" role="alert">
+        <div v-if="error" class="w-full" role="alert">
+          <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">Error</div>
+          <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+            <p class="mb-8">Failed to fetch data: {{ error }}</p>
+            <button class="btn btn-red" @click="reload()">Retry</button>
+          </div>
         </div>
       </div>
     </div>
-    <div v-else class="main-container container">
-      <router-view v-if="routerActive"></router-view>
+
+    <div v-else class="container mt-6 flex">
+      <div class="flex-grow">
+        <router-view v-if="routerActive"></router-view>
+      </div>
     </div>
   </div>
 </template>
@@ -104,6 +134,7 @@ export default {
   data() {
     return {
       routerActive: true,
+      navActive: false,
       userDropdownActive: false,
       createDropdownActive: false
     };
@@ -129,6 +160,9 @@ export default {
       this.routerActive = false;
       this.$nextTick(() => (this.routerActive = true));
     },
+    toggleNav() {
+      this.navActive = !this.navActive;
+    },
     toggleUserDropdown() {
       this.userDropdownActive = !this.userDropdownActive;
     },
@@ -140,13 +174,4 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/css/main.scss";
-
-.main-container {
-  margin-top: 2rem;
-}
-
-.global-error-message {
-  margin-top: 10rem;
-}
 </style>

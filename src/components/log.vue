@@ -1,10 +1,10 @@
 <template>
   <div class="dark">
-    <div class="log">
-      <div class="stream-line" v-for="(item, index) in items" :key="index">
+    <div class="p-3 rounded bg-gray-900 text-white">
+      <div class="font-mono leading-normal text-xs" v-for="(item, index) in items" :key="index">
         <div v-html="item"/>
       </div>
-      <div v-if="lastitem" class="stream-line">
+      <div v-if="lastitem" class="font-mono leading-snug text-xs">
         <div v-html="lastitem"/>
       </div>
     </div>
@@ -141,22 +141,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.log {
-  background-color: #222;
-  color: #f1f1f1;
-  font-family: Cousine, monospace, "Noto Color Emoji";
-  font-size: 12px;
-  line-height: 19px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  text-align: left;
-  font-size: 12px;
-  padding: 5px;
-
-  .stream-line {
-    pre {
-      line-height: 1.2;
-    }
-  }
-}
 </style>

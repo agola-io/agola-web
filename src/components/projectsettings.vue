@@ -1,95 +1,103 @@
 <template>
   <div>
-    <nav class="panel">
-      <p class="panel-heading">Project Settings</p>
-      <div class="panel-block is-block">
-        <div class="field">
-          <label class="label">Project Name</label>
-          <div class="control">
-            <input class="input" type="text" placeholder="Text input" v-model="project.name">
-          </div>
+    <div class="panel">
+      <p class="panel-title">Project Settings</p>
+      <div class="p-4">
+        <div class="mb-4">
+          <label class="block font-bold mb-2">Project Name</label>
+          <input
+            class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+            type="text"
+            placeholder="Project Name"
+            v-model="project.name"
+          >
         </div>
-        <div class="field">
-          <div class="control">
-            <label class="checkbox">
-              <input type="checkbox" v-model="projectIsPrivate">
-              Private
-            </label>
-          </div>
+        <div class="mb-4">
+          <label class="checkbox">
+            <input type="checkbox" v-model="projectIsPrivate">
+            Private
+          </label>
         </div>
-
-        <div class="field is-grouped">
-          <div class="control">
-            <button class="button is-primary" @click="updateProject()">Update</button>
-          </div>
-        </div>
-
-        <div v-if="updateProjectError" class="message is-danger">
-          <div class="message-body">{{ updateProjectError }}</div>
+        <button class="btn btn-blue" @click="updateProject()">Update</button>
+        <div
+          v-if="updateProjectError"
+          class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <span class="block sm:inline">{{ updateProjectError }}</span>
         </div>
       </div>
-    </nav>
-    <nav class="panel">
-      <p class="panel-heading">Variables</p>
-      <div class="panel-block is-block">
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Variables</p>
+      <div class="p-4">
         <projectvars :variables="variables" :allvariables="allvariables"/>
       </div>
-    </nav>
-    <nav class="panel is-danger">
-      <p class="panel-heading is-danger">Danger Zone</p>
-      <div class="panel-block is-block">
-        <div>
-          <h4 class="title is-4">Delete This Project</h4>
+    </div>
 
-          <div class="message is-danger">
-            <div class="message-body">
-              This operation
-              <strong>CANNOT</strong> be undone.
-              This operation will remove
-              <strong>{{projectPath}}</strong>
-            </div>
-          </div>
-          <label class="label">
-            Please type the project name for confirmation:
-            <span
-              class="has-text-danger"
-            >{{ projectName }}</span>
-          </label>
-          <div class="field">
-            <input
-              v-model="projectNameToDelete"
-              class="input"
-              type="email"
-              placeholder="Project name to delete"
-            >
-          </div>
-          <button
-            class="button is-danger"
-            @click="deleteProject()"
-            :disabled="!deleteButtonEnabled"
-          >Delete Project</button>
+    <div class="panel">
+      <p class="panel-title">Danger Zone</p>
+      <div class="p-4">
+        <h4 class="mb-4 title text-xl">Delete This Project</h4>
+        <div
+          class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
+          role="alert"
+        >
+          <p>
+            This operation
+            <strong>CANNOT</strong> be undone.
+            This operation will remove
+            <strong>{{projectPath}}</strong>
+          </p>
+        </div>
+        <label class="block mb-2">
+          Please type the project name for confirmation:
+          <span
+            class="text-red-500 font-bold"
+          >{{ projectName }}</span>
+        </label>
+        <div class="mb-4">
+          <input
+            class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+            v-model="projectNameToDelete"
+            type="email"
+            placeholder="Project name to delete"
+          >
+        </div>
+        <button
+          class="btn btn-red"
+          @click="deleteProject()"
+          :disabled="!deleteButtonEnabled"
+        >Delete Project</button>
 
-          <div v-if="deleteProjectError" class="message is-danger">
-            <div class="message-body">{{ deleteProjectError }}</div>
-          </div>
+        <div
+          v-if="deleteProjectError"
+          class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <span class="block sm:inline">{{ deleteProjectError }}</span>
         </div>
       </div>
-      <div class="panel-block is-block">
-        <div>
-          <h4 class="title is-4">Change remote repository linked account</h4>
-          <div class="message is-danger">
-            <div
-              class="message-body"
-            >This operation will change the linked account associated with the project remote repository to the current user linked account</div>
-          </div>
-          <button class="button is-danger" @click="updateRepoLinkedAccount()">Change</button>
+      <div class="p-4 border-t">
+        <h4 class="mb-4 title text-xl">Change remote repository linked account</h4>
+        <div
+          class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
+          role="alert"
+        >
+          <p>This operation will change the linked account associated with the project remote repository to the current user linked account</p>
+        </div>
+        <button class="btn btn-red" @click="updateRepoLinkedAccount()">Change</button>
 
-          <div v-if="updateRepoLinkedAccountError" class="message is-danger">
-            <div class="message-body">{{ updateRepoLinkedAccountError }}</div>
-          </div>
+        <div
+          v-if="updateRepoLinkedAccountError"
+          class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <span class="block sm:inline">{{ updateRepoLinkedAccountError }}</span>
         </div>
       </div>
-    </nav>
+    </div>
   </div>
 </template>
 
@@ -237,9 +245,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.panel-heading {
-  font-weight: 700;
-}
 </style>

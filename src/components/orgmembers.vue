@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h4 class="title is-4">Organization Members</h4>
-    <ul v-if="members.length" class="item-list">
-      <li class="item" v-for="member in members" v-bind:key="member.user.id">
-        <span class="name">{{member.user.username}}</span>
-        <span class="role">{{member.role}}</span>
+    <h4 class="mb-3 text-xl">Organization Members</h4>
+    <ul v-if="members.length">
+      <li class="flex" v-for="member in members" v-bind:key="member.user.id">
+        <span class="w-1/2 font-bold">{{member.user.username}}</span>
+        <span class="w-1/2">{{member.role}}</span>
       </li>
     </ul>
-    <div v-else class="item-list">No Members</div>
+    <div v-else>No Members</div>
   </div>
 </template>
 
@@ -47,54 +47,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.item-list {
-  .item {
-    border: 1px solid $grey-lighter;
-    border-bottom: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-  }
-
-  .item:last-child {
-    border-bottom: 1px solid $grey-lighter;
-  }
-
-  .name {
-    flex: 0 0 30%;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .role {
-    flex: 0 0 40%;
-  }
-
-  .stillrunning {
-    flex: 0 0 10%;
-  }
-
-  .waitingapproval {
-    flex: 0 0 10%;
-  }
-
-  .source-info {
-    flex: 0 0 10%;
-    overflow: hidden;
-    white-space: nowrap;
-
-    a {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .commit {
-    display: block;
-    font-size: 0.8rem;
-  }
-}
 </style>

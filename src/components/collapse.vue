@@ -1,32 +1,30 @@
 <template>
-  <div class="item">
-    <div
-      class="touchable"
-      :class="stepClass(step)"
-      role="tab"
-      :aria-expanded="active ? 'true' : 'false'"
-    >
-      <div class="item-content">
-        <div class="header" @click.prevent="toggle">
-          <span class="icon">
-            <i
-              class="mdi mdi-arrow-right"
-              :class="{ 'arrow-down': active, 'arrow-right': !active }"
-            ></i>
-          </span>
-          <span class="name">{{step.name}}</span>
-          <span class="duration">{{duration}}</span>
+  <div
+    class="mb-2 border-l-5 rounded-l"
+    :class="stepClass(step)"
+    role="tab"
+    :aria-expanded="active ? 'true' : 'false'"
+  >
+    <div class="px-4 py-4 border border-l-0 rounded-r">
+      <div class="cursor-pointer flex justify-between" @click.prevent="toggle">
+        <div>
+          <i
+            class="inline-block mr-1 mdi mdi-arrow-right"
+            :class="{ 'arrow-down': active, 'arrow-right': !active }"
+          ></i>
+          <span class="w-1/3 font-bold">{{step.name}}</span>
         </div>
-        <div class="log-container" v-show="active">
-          <Log
-            v-bind:runid="runid"
-            v-bind:taskid="taskid"
-            v-bind:setup="setup"
-            v-bind:step="stepnum"
-            v-bind:stepphase="step.phase"
-            v-bind:show="active"
-          />
-        </div>
+        <span class>{{duration}}</span>
+      </div>
+      <div class="p-1 log-container" v-show="active">
+        <Log
+          v-bind:runid="runid"
+          v-bind:taskid="taskid"
+          v-bind:setup="setup"
+          v-bind:step="stepnum"
+          v-bind:stepphase="step.phase"
+          v-bind:show="active"
+        />
       </div>
     </div>
   </div>
@@ -98,54 +96,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.item {
-}
-
-.item-content {
-  margin-bottom: 5px;
-  border: 1px solid $grey-lighter;
-  border-left: 0 solid;
-  padding: 10px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.success {
-  border-left: 5px solid $green;
-}
-
-.failed {
-  border-left: 5px solid $red;
-}
-
-.running {
-  border-left: 5px solid $blue;
-}
-
-.unknown {
-  border-left: 5px solid $grey-lighter;
-}
-
-.name {
-  flex: 0 0 30%;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.duration {
-  margin-left: auto;
-}
-
-.log-container {
-  padding: 10px;
-}
-
 .arrow-right {
   transition: transform 0.2s ease-in-out;
 }

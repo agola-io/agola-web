@@ -1,10 +1,11 @@
 <template>
   <div>
-    <div v-if="error" class="message is-danger">
-      <div class="message-header">
-        <p>Error</p>
-      </div>
-      <div class="message-body">{{ error }}</div>
+    <div
+      v-if="error"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <span class="block sm:inline">{{ error }}</span>
     </div>
   </div>
 </template>

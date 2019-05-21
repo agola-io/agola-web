@@ -1,109 +1,127 @@
 <template>
   <div>
     <div v-if="run != null">
-      <div class="run">
-        <div :class="runResultClass(run)">
-          <div class="run-content">
-            <div class="item-content columns">
-              <div class="run-title column is-10">
-                <span class="run-name">{{run.name}}</span>
-                <span
-                  class="tag"
-                  :class="'is-'+runResultClass(run)"
-                >{{ runStatus(run) | capitalize }}</span>
-                <span v-if="stillRunning(run)" class="stillrunning tag">Still running</span>
-                <span v-if="!stillRunning(run)" class="stillrunning"></span>
-              </div>
-              <div class="run-actions column is-2 is-pulled-right">
-                <div
-                  v-if="run.can_restart_from_scratch || run.can_restart_from_failed_tasks"
-                  class="dropdown is-right"
-                  v-click-outside="() => dropdownActive = false"
-                  v-bind:class="{ 'is-active': dropdownActive }"
-                >
-                  <div class="dropdown-trigger">
-                    <button class="button" @click="toggleDropdown()">
-                      <span>Restart</span>
-                      <span class="icon is-small">
-                        <i class="mdi mdi-restart" aria-hidden="true"></i>
-                      </span>
-                    </button>
-                  </div>
-                  <div class="dropdown-menu" role="menu">
-                    <div class="dropdown-content">
-                      <a
-                        v-if="run.can_restart_from_scratch"
-                        class="dropdown-item"
-                        @click="restartRun(run.id, true)"
-                      >From start</a>
-                      <a
-                        v-if="run.can_restart_from_failed_tasks"
-                        class="dropdown-item"
-                        @click="restartRun(run.id)"
-                      >From failed tasks</a>
-                    </div>
-                  </div>
-                </div>￼
-                <button
-                  class="button is-danger"
-                  v-if="run.phase == 'queued'"
-                  @click="cancelRun(run.id)"
-                >Cancel</button>
-                <button
-                  class="button is-danger"
-                  v-if="run.phase == 'running'"
-                  :disabled="run.stopping"
-                  @click="stopRun(run.id)"
-                >Stop</button>
-              </div>
+      <div
+        v-if="stopRunError"
+        class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        role="alert"
+      >
+        <span class="block sm:inline">{{ stopRunError }}</span>
+      </div>
+      <div
+        v-if="cancelRunError"
+        class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        role="alert"
+      >
+        <span class="block sm:inline">{{ cancelRunError }}</span>
+      </div>
+      <div
+        v-if="restartRunError"
+        class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+        role="alert"
+      >
+        <span class="block sm:inline">{{ restartRunError }}</span>
+      </div>
+
+      <div class="mb-2 border-l-5 rounded shadow" :class="runResultClass(run)">
+        <div class="p-4 border border-l-0 rounded-r">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center">
+              <span class="text-2xl mr-3">{{run.name}}</span>
+              <span
+                class="mr-3 rounded px-2 py-1 text-xs"
+                :class="'is-' + runResultClass(run)"
+              >{{ runStatus(run) | capitalize }}</span>
+              <span
+                v-if="stillRunning(run)"
+                class="rounded bg-gray-500 text-white px-2 py-1 text-xs"
+              >Still running</span>
             </div>
-            <div class="item-content columns">
-              <div class="commitmessage column">{{run.annotations.message}}</div>
-              <div class="source-info column">
-                <a :href="run.annotations.commit_link" class="commit" target="_blank">
-                  <i class="mdi mdi-source-commit mdi-rotate-90"></i>
-                  <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
-                </a>
-                <a
-                  v-if="run.annotations.event_type == 'push'"
-                  :href="run.annotations.branch_link"
-                  class="commit"
-                  target="_blank"
-                >
-                  <i class="mdi mdi-source-branch"></i>
-                  <span>{{run.annotations.branch}}</span>
-                </a>
-                <a
-                  v-else-if="run.annotations.event_type == 'tag'"
-                  :href="run.annotations.tag_link"
-                  class="commit"
-                  target="_blank"
-                >
-                  <i class="mdi mdi-tag"></i>
-                  <span>{{run.annotations.tag}}</span>
-                </a>
-                <a
-                  v-else-if="run.annotations.event_type == 'pull_request'"
-                  :href="run.annotations.pull_request_link"
-                  class="commit"
-                  target="_blank"
-                >
-                  <i class="mdi mdi-source-pull"></i>
-                  <span>PR #{{run.annotations.pull_request_id}}</span>
-                </a>
+            <div class="relative mr-3">
+              <div
+                v-if="run.can_restart_from_scratch || run.can_restart_from_failed_tasks"
+                class="flex"
+                v-click-outside="() => dropdownActive = false"
+              >
+                <div class="flex items-center">
+                  <button class="btn btn-blue" @click="toggleDropdown()">
+                    <span>Restart</span>
+                    <i class="ml-3 mdi mdi-restart" aria-hidden="true"></i>
+                  </button>
+                </div>
               </div>
+
+              <div
+                v-if="dropdownActive"
+                class="z-10 origin-top-right absolute right-0 mt-2 w-64 bg-white rounded-lg border shadow-md py-2"
+              >
+                <ul>
+                  <li>
+                    <a
+                      v-if="run.can_restart_from_scratch"
+                      class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+                      @click="restartRun(run.id, true)"
+                    >From start</a>
+                  </li>
+                  <li>
+                    <a
+                      v-if="run.can_restart_from_failed_tasks"
+                      class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+                      @click="restartRun(run.id)"
+                    >From failed tasks</a>
+                  </li>
+                </ul>
+              </div>
+              <button
+                class="btn btn-red"
+                v-if="run.phase == 'queued'"
+                @click="cancelRun(run.id)"
+              >Cancel</button>
+              <button
+                class="btn btn-red"
+                v-if="run.phase == 'running'"
+                :disabled="run.stopping"
+                @click="stopRun(run.id)"
+              >Stop</button>
+            </div>
+          </div>
+          <div class="flex">
+            <div class="w-1/2">{{run.annotations.message}}</div>
+            <div class="w-1/2">
+              <a :href="run.annotations.commit_link" class="block" target="_blank">
+                <i class="mdi mdi-source-commit mdi-rotate-90"></i>
+                <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
+              </a>
+              <a
+                v-if="run.annotations.event_type == 'push'"
+                :href="run.annotations.branch_link"
+                class="block"
+                target="_blank"
+              >
+                <i class="mdi mdi-source-branch"></i>
+                <span>{{run.annotations.branch}}</span>
+              </a>
+              <a
+                v-else-if="run.annotations.event_type == 'tag'"
+                :href="run.annotations.tag_link"
+                class="block"
+                target="_blank"
+              >
+                <i class="mdi mdi-tag"></i>
+                <span>{{run.annotations.tag}}</span>
+              </a>
+              <a
+                v-else-if="run.annotations.event_type == 'pull_request'"
+                :href="run.annotations.pull_request_link"
+                class="block"
+                target="_blank"
+              >
+                <i class="mdi mdi-source-pull"></i>
+                <span>PR #{{run.annotations.pull_request_id}}</span>
+              </a>
             </div>
           </div>
         </div>
-      </div>
-      <div v-if="stopRunError" class="message is-danger">
-        <div class="message-body">{{ stopRunError }}</div>
-      </div>
-      <div v-if="cancelRunError" class="message is-danger">
-        <div class="message-body">{{ cancelRunError }}</div>
-      </div>
-      <div v-if="cancelRunError" class="message is-danger">
-        <div class="message-body">{{ cancelRunError }}</div>
       </div>
     </div>
   </div>
@@ -222,100 +240,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.run {
-  margin-bottom: 2rem;
-
-  .run-content {
-    margin-bottom: 5px;
-    border: 1px solid $grey-lighter;
-    border-left: 0 solid;
-    display: block;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-  }
-
-  .run-title {
-    align-items: center;
-    padding-left: 5px;
-    margin-bottom: 25px;
-
-    .run-name {
-      padding-left: 5px;
-      font-size: 1.5rem;
-      padding-right: 1rem;
-    }
-
-    .success {
-      border-left: 0px solid $green;
-    }
-
-    .failed {
-      border-left: 5px solid $red;
-    }
-
-    .running {
-      border-left: 5px solid $blue;
-    }
-
-    .unknown {
-      border-left: 5px solid $grey-lighter;
-    }
-  }
-
-  .run-actions {
-    text-align: right;
-  }
-
-  .item-content {
-  }
-
-  .success {
-    border-left: 5px solid $green;
-  }
-
-  .failed {
-    border-left: 5px solid $red;
-  }
-
-  .running {
-    border-left: 5px solid $blue;
-  }
-
-  .unknown {
-    border-left: 5px solid $grey-lighter;
-  }
-
-  .setuperror {
-    border-left: 5px solid $yellow;
-  }
-
-  .name {
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .commitmessage {
-  }
-
-  .stillrunning {
-  }
-
-  .source-info {
-    overflow: hidden;
-    white-space: nowrap;
-
-    a {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .commit {
-    display: block;
-    font-size: 0.8rem;
-  }
-}
 </style>

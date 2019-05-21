@@ -1,13 +1,17 @@
 <template>
-  <nav class="breadcrumb" aria-label="breadcrumbs">
-    <ul>
+  <nav class="mb-4 bg-grey-light rounded font-sans w-full">
+    <ol class="list-reset flex text-grey-dark">
       <li>
         <a>{{ownertype}}</a>
+      </li>
+      <li>
+        <span class="mx-2">/</span>
       </li>
       <li>
         <router-link :to="ownerLink(ownertype, ownername)">{{ownername}}</router-link>
       </li>
       <li v-for="(ref, i) in projectref" v-bind:key="i">
+        <span class="mx-2">/</span>
         <router-link
           v-if="i+1 < projectref.length"
           :to="projectGroupLink(ownertype, ownername, projectref.slice(0, i+1))"
@@ -19,11 +23,12 @@
       </li>
 
       <li v-for="(ref, i) in projectgroupref" v-bind:key="i">
+        <span class="mx-2">/</span>
         <router-link
           :to="projectGroupLink(ownertype, ownername, projectgroupref.slice(0, i+1))"
         >{{ref}}</router-link>
       </li>
-    </ul>
+    </ol>
   </nav>
 </template>
 
@@ -50,5 +55,4 @@ export default {
 
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
 </style>

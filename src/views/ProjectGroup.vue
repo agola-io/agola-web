@@ -7,38 +7,36 @@
       :projectgroupref="projectgroupref"
     />
 
-    <div class="name">
-      <span class="is-size-3">{{projectGroupName()}}</span>
-      <div class="is-pulled-right">
-        <createprojectbutton v-on:click="goToCreate($event)"/>
-      </div>
+    <div class="mb-8 flex justify-between">
+      <span class="text-3xl">{{projectGroupName()}}</span>
+      <createprojectbutton v-on:click="goToCreate($event)"/>
     </div>
 
-    <div class="tabs">
-      <ul>
+    <div class="flex justify-between">
+      <ul class="flex-grow tab">
         <li
-          :class="[{ 'is-active': $route.name.match('project group project') || $route.name.endsWith('project group') }]"
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.match('project group project') || $route.name.endsWith('project group') }]"
         >
           <router-link :to="projectGroupProjectsLink(ownertype, ownername, projectgroupref)">
-            <span class="icon is-small">
-              <i class="mdi mdi-home"/>
-            </span>
+            <i class="mdi mdi-home"/>
             <span>Projects</span>
           </router-link>
         </li>
       </ul>
-      <ul class="is-right">
-        <li :class="[{ 'is-active': $route.name.endsWith('project group settings') }]">
+      <ul class="flex tab">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.endsWith('project group settings') }]"
+        >
           <router-link :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)">
-            <span class="icon is-small">
-              <i class="mdi mdi-settings"/>
-            </span>
+            <i class="mdi mdi-settings"/>
             <span>Project Group Settings</span>
           </router-link>
         </li>
       </ul>
     </div>
-    <router-view></router-view>
+    <router-view class="mt-8"></router-view>
   </div>
 </template>
 
@@ -97,10 +95,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.name {
-  padding-left: 5px;
-  margin-bottom: 25px;
-}
 </style>

@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+
+@import "@/css/_ansi.scss";
+
+.btn {
+  @apply font-bold py-2 px-4 rounded;
+}
+
+.btn-blue {
+  @apply bg-blue-500 text-white;
+}
+.btn-blue:hover {
+  @apply bg-blue-700;
+}
+.btn-blue:disabled {
+  @apply bg-blue-500 opacity-50 cursor-not-allowed;
+}
+.btn-blue:focus {
+  @apply bg-blue-500 outline-none shadow-outline;
+}
+
+.btn-red {
+  @apply bg-red-500 text-white;
+}
+.btn-red:hover {
+  @apply bg-red-700;
+}
+.btn-red:disabled {
+  @apply bg-red-500 opacity-50 cursor-not-allowed;
+}
+.btn-red:focus {
+  @apply bg-red-500 outline-none shadow-outline;
+}
+
+.tab {
+  @apply flex border-b-2;
+}
+
+.tab-element {
+  @apply px-4 -m-2px border-b-2;
+}
+
+.tab-element:hover {
+  @apply border-blue-300 text-blue-500;
+}
+
+.tab-element-selected {
+  @apply border-b-2 border-blue-300 text-blue-500;
+}
+
+.panel {
+  @apply mb-2 border-solid border-gray-300 rounded border shadow;
+}
+
+.panel-title {
+  @apply bg-gray-200 px-4 py-3 border-solid border-gray-300 border-b text-xl font-bold;
+}
+
+.success {
+  @apply border-green-400;
+}
+
+.is-success {
+  @apply bg-green-400 text-white;
+}
+
+.failed {
+  @apply border-red-600;
+}
+
+.is-failed {
+  @apply bg-red-600 text-white;
+}
+
+.running {
+  @apply border-blue-500;
+}
+
+.is-running {
+  @apply bg-blue-500 text-white;
+}
+
+.unknown {
+  @apply border-gray-400;
+}
+
+.is-unknown {
+  @apply bg-gray-400 text-white;
+}
+
+.setuperror {
+  @apply border-yellow-500;
+}
+
+.is-setuperror {
+  @apply bg-yellow-500 text-white;
+}
+
+.spinner {
+  color: transparent !important;
+  pointer-events: none;
+  position: relative;
+  &:after {
+    animation: spinAround 500ms infinite linear;
+    border: 2px solid #dae1e7;
+    border-radius: 290486px;
+    border-right-color: transparent;
+    border-top-color: transparent;
+    content: "";
+    display: block;
+    width: 1em;
+    height: 1em;
+    left: calc(50% - (1em / 2));
+    top: calc(50% - (1em / 2));
+    position: absolute !important;
+  }
+}
+
+@keyframes spinAround {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+@tailwind utilities;
+
+html {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+body {
+  @apply text-dark;
+}

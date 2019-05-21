@@ -1,95 +1,99 @@
 <template>
   <div>
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
+    <nav class="mb-4 bg-grey-light rounded font-sans w-full">
+      <ol class="list-reset flex text-grey-dark">
         <li>
           <a>user</a>
         </li>
         <li>
+          <span class="mx-2">/</span>
+        </li>
+        <li>
           <router-link :to="ownerLink('user', username)">{{username}}</router-link>
         </li>
-      </ul>
+      </ol>
     </nav>
 
-    <div class="name">
-      <span class="is-size-3">{{username}}</span>
-      <div class="is-pulled-right">
-        <createprojectbutton v-on:click="goToCreate($event)"/>
-      </div>
+    <div class="mb-8 flex justify-between">
+      <span class="text-3xl">{{username}}</span>
+      <createprojectbutton v-on:click="goToCreate($event)"/>
     </div>
 
-    <div class="tabs">
-      <ul>
-        <li :class="[{ 'is-active': $route.name === 'user projects' || $route.name === 'user' }]">
+    <div class="flex justify-between">
+      <ul class="flex-grow tab">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name === 'user projects' || $route.name === 'user' }]"
+        >
           <router-link :to="ownerProjectsLink('user', username)">
-            <span class="icon is-small">
-              <i class="mdi mdi-home"/>
-            </span>
+            <i class="mr-1 mdi mdi-home"/>
             <span>Projects</span>
           </router-link>
         </li>
-        <li :class="[{ 'is-active': $route.name === 'user local runs' }]">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name === 'user local runs' }]"
+        >
           <router-link :to="userLocalRunsLink(username)">
-            <span class="icon is-small">
-              <i class="mdi mdi-run-fast"/>
-            </span>
+            <i class="mr-1 mdi mdi-run-fast"/>
             <span>Local Runs</span>
           </router-link>
         </li>
-        <li
-          v-if="$route.name === 'user local run' || $route.name == 'user local run task'"
-          :class="[{ 'is-active': $route.name === 'user local run' }]"
-        >
+        <li v-if="$route.name === 'user local run' || $route.name == 'user local run task'">
           <tabarrow/>
         </li>
         <li
+          class="tab-element"
           v-if="$route.name === 'user local run' || $route.name == 'user local run task'"
-          :class="[{ 'is-active': $route.name === 'user local run' }]"
+          :class="[{ 'tab-element-selected': $route.name === 'user local run' }]"
         >
           <router-link :to="userLocalRunLink(username, $route.params.runid)">
-            <p v-if="run">
+            <span v-if="run">
               Run
               <strong>#{{run.counter}}</strong>
-            </p>
+            </span>
           </router-link>
         </li>
-        <li
-          v-if="$route.name === 'user local run task'"
-          :class="[{ 'is-active': $route.name === 'user local run' }]"
-        >
+        <li v-if="$route.name === 'user local run task'">
           <tabarrow/>
         </li>
-        <li v-if="$route.name == 'user local run task'" class="is-active">
+        <li
+          class="tab-element"
+          v-if="$route.name == 'user local run task'"
+          :class="[{ 'tab-element-selected': $route.name === 'user local run task' }]"
+        >
           <router-link
             :to="userLocalRunTaskLink(username, $route.params.runid, $route.params.taskid)"
           >
-            <p v-if="run">
+            <span v-if="run">
               Task
               <strong>{{run.tasks[$route.params.taskid].name}}</strong>
-            </p>
+            </span>
           </router-link>
         </li>
       </ul>
-      <ul class="is-right">
-        <li :class="[{ 'is-active': $route.name.endsWith('user project group settings') }]">
+      <ul class="flex tab">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.endsWith('user project group settings') }]"
+        >
           <router-link :to="projectGroupSettingsLink('user', username, [])">
-            <span class="icon is-small">
-              <i class="mdi mdi-settings"/>
-            </span>
+            <i class="mr-1 mdi mdi-settings"/>
             <span>Root Project Group Settings</span>
           </router-link>
         </li>
-        <li :class="[{ 'is-active': $route.name.endsWith('user settings') }]">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.endsWith('user settings') }]"
+        >
           <router-link :to="ownerSettingsLink('user', username)">
-            <span class="icon is-small">
-              <i class="mdi mdi-settings"/>
-            </span>
+            <i class="mr-1 mdi mdi-settings"/>
             <span>User Settings</span>
           </router-link>
         </li>
       </ul>
     </div>
-    <router-view></router-view>
+    <router-view class="mt-8"></router-view>
   </div>
 </template>
 
@@ -161,10 +165,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.name {
-  padding-left: 5px;
-  margin-bottom: 25px;
-}
 </style>

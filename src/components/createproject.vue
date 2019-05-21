@@ -1,21 +1,21 @@
 <template>
   <div>
-    <h4 class="title is-4">Create Project</h4>
-    <div class="field">
-      <div class="control">
-        <input class="input" type="text" placeholder="Project name" v-model="projectName">
-      </div>
-    </div>
-    <div class="field">
-      <div class="control">
-        <label class="checkbox">
-          <input type="checkbox" v-model="projectIsPrivate">
-          Private
-        </label>
-      </div>
+    <h4 class="mb-4 text-xl font-bold">Create Project</h4>
+
+    <input
+      class="mb-4 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+      type="text"
+      placeholder="Project Name"
+      v-model="projectName"
+    >
+    <div class="mb-4">
+      <label>
+        <input type="checkbox" v-model="projectIsPrivate">
+        Private
+      </label>
     </div>
 
-    <h4 class="title is-4">Available remote repositories</h4>
+    <h4 class="text-xl">Available remote repositories</h4>
     <div v-for="remoteSource in remoteSources" v-bind:key="remoteSource.id">
       <remoterepos
         class="remoterepos"
@@ -24,18 +24,18 @@
         v-on:reposelected="repoSelected(remoteSource, $event)"
       />
     </div>
-    <div class="field is-grouped">
-      <div class="control">
-        <button
-          class="button is-primary"
-          v-bind:class="{ 'is-loading': createProjectLoading }"
-          :disabled="!createProjectButtonEnabled"
-          @click="createProject()"
-        >Create Project</button>
-      </div>
-    </div>
-    <div v-if="createProjectError" class="message is-danger">
-      <div class="message-body">{{ createProjectError }}</div>
+    <button
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      v-bind:class="{ 'spinner': createProjectLoading }"
+      :disabled="!createProjectButtonEnabled"
+      @click="createProject()"
+    >Create Project</button>
+    <div
+      v-if="createProjectError"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <span class="block sm:inline">{{ createProjectError }}</span>
     </div>
   </div>
 </template>
@@ -164,23 +164,5 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.item-list {
-  .item {
-    margin-bottom: 5px;
-    border: 1px solid $grey-lighter;
-    cursor: pointer;
-    display: flex;
-    padding: 10px;
-  }
-  .name {
-    font-weight: bold;
-  }
-}
-.remoterepos {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
 </style>
 

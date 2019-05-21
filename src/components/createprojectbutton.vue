@@ -1,29 +1,37 @@
 <template>
   <div>
-    <div class="field has-addons is-pulled-rigth">
-      <p class="control">
-        <button class="button" @click="clicked">{{ buttonValue }}</button>
-      </p>
-      <div class="control">
-        <div
-          class="dropdown is-right"
+    <div class="relative mr-3">
+      <div class="flex">
+        <button
+          @click="clicked"
+          class="relative flex items-center focus:outline-none bg-transparent bg-green-500 hover:bg-green-600 text-white font-semibold hover:text-white py-2 px-4 border border-green-700 rounded rounded-r-none"
+        >{{ buttonValue }}</button>
+        <button
           v-click-outside="() => dropdownActive = false"
-          v-bind:class="{ 'is-active': dropdownActive }"
+          @click="toggleDropdown"
+          class="relative flex items-center focus:outline-none bg-transparent bg-green-500 hover:bg-green-600 text-white font-semibold hover:text-white py-2 px-4 border border-l-0 border-green-700 rounded rounded-l-none"
         >
-          <div class="dropdown-trigger">
-            <button class="button" @click="toggleDropdown">
-              <span class="icon is-small">
-                <i class="mdi mdi-chevron-down"></i>
-              </span>
-            </button>
-          </div>
-          <div class="dropdown-menu" role="menu">
-            <div class="dropdown-content">
-              <a href="#" class="dropdown-item" @click="setButton('project')">New Project</a>
-              <a href="#" class="dropdown-item" @click="setButton('projectgroup')">New Project Group</a>
-            </div>
-          </div>
-        </div>
+          <i class="mdi mdi-chevron-down"></i>
+        </button>
+      </div>
+      <div
+        v-if="dropdownActive"
+        class="z-10 origin-top-right absolute right-0 mt-2 w-64 bg-white rounded-lg border shadow-md py-2"
+      >
+        <ul>
+          <li>
+            <a
+              href="#"
+              class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+              @click="setButton('project')"
+            >New Project</a>
+            <a
+              href="#"
+              class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+              @click="setButton('projectgroup')"
+            >New Project Group</a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

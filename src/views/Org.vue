@@ -1,62 +1,67 @@
 <template>
   <div>
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
+    <nav class="mb-4 bg-grey-light rounded font-sans w-full">
+      <ol class="list-reset flex text-grey-dark">
         <li>
           <a>org</a>
         </li>
         <li>
+          <span class="mx-2">/</span>
+        </li>
+        <li>
           <router-link :to="ownerLink('org', orgname)">{{orgname}}</router-link>
         </li>
-      </ul>
+      </ol>
     </nav>
 
-    <div class="name">
-      <span class="is-size-3">{{orgname}}</span>
-      <div class="is-pulled-right">
-        <createprojectbutton v-on:click="goToCreate($event)"/>
-      </div>
+    <div class="mb-8 flex justify-between">
+      <span class="text-3xl">{{orgname}}</span>
+      <createprojectbutton v-on:click="goToCreate($event)"/>
     </div>
 
-    <div class="tabs">
-      <ul>
-        <li :class="[{ 'is-active': $route.name === 'org projects' || $route.name === 'org' }]">
+    <div class="flex justify-between">
+      <ul class="flex-grow tab">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name === 'org projects' || $route.name === 'org' }]"
+        >
           <router-link :to="ownerProjectsLink('org', orgname)">
-            <span class="icon is-small">
-              <i class="mdi mdi-home"/>
-            </span>
+            <i class="mr-1 mdi mdi-home"/>
             <span>Projects</span>
           </router-link>
         </li>
-        <li :class="[{ 'is-active': $route.name === 'org members' }]">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name === 'org members' }]"
+        >
           <router-link :to="orgMembersLink(orgname)">
-            <span class="icon is-small">
-              <i class="mdi mdi-account-group"/>
-            </span>
+            <i class="mr-1 mdi mdi-account-group"/>
             <span>Members</span>
           </router-link>
         </li>
       </ul>
-      <ul class="is-right">
-        <li :class="[{ 'is-active': $route.name.endsWith('org project group settings') }]">
+      <ul class="flex tab">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.endsWith('org project group settings') }]"
+        >
           <router-link :to="projectGroupSettingsLink('org', orgname, [])">
-            <span class="icon is-small">
-              <i class="mdi mdi-settings"/>
-            </span>
+            <i class="mr-1 mdi mdi-settings"/>
             <span>Root Project Group Settings</span>
           </router-link>
         </li>
-        <li :class="[{ 'is-active': $route.name.endsWith('org settings') }]">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.endsWith('org settings') }]"
+        >
           <router-link :to="ownerSettingsLink('org', orgname)">
-            <span class="icon is-small">
-              <i class="mdi mdi-settings"/>
-            </span>
+            <i class="mr-1 mdi mdi-settings"/>
             <span>Organization Settings</span>
           </router-link>
         </li>
       </ul>
     </div>
-    <router-view></router-view>
+    <router-view class="mt-8"></router-view>
   </div>
 </template>
 
@@ -104,10 +109,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.name {
-  padding-left: 5px;
-  margin-bottom: 25px;
-}
 </style>

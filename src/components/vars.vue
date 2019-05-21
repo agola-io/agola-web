@@ -1,64 +1,54 @@
 <template>
   <div>
-    <div class="columns has-text-weight-bold">
-      <div class="column is-2">Name</div>
-      <div class="column is-10">
-        <div class="columns">
-          <div class="column is-2">Secret Name</div>
-          <div class="column is-2">Secret Value</div>
-          <div class="column">
-            <div class="columns">
-              <div class="column">Conditions</div>
-              <div class="column">Include</div>
-              <div class="column">Exclude</div>
+    <div class="my-3 flex font-bold">
+      <div class="w-1/3">Name</div>
+      <div class="w-2/3">
+        <div class="flex">
+          <div class="w-1/3">Secret Name</div>
+          <div class="w-1/3">Secret Value</div>
+          <div class="w-1/3">
+            <div class="flex">
+              <div class="w-1/3 mr-2">Conditions</div>
+              <div class="w-1/3 mr-2">Include</div>
+              <div class="w-1/3 mr-2">Exclude</div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="columns" v-for="variable in variables" v-bind:key="variable.id">
-      <div class="column is-2">
+    <div class="flex" v-for="variable in variables" v-bind:key="variable.id">
+      <div class="w-1/3">
         <span class="name">{{variable.name}}</span>
-        <div v-if="showparentpath" class="var-parent-path">from {{variable.parent_path}}</div>
+        <div v-if="showparentpath" class="text-sm font-light">from {{variable.parent_path}}</div>
       </div>
-      <div class="column is-10">
-        <div class="item-list" v-for="val in variable.values" v-bind:key="val.id">
-          <div class="columns">
-            <div class="column is-2">
-              <span class="secret-name">{{val.secret_name}}</span>
-              <div
-                v-if="val.matching_secret_parent_path"
-                class="matching-secret"
-              >using secret from {{val.matching_secret_parent_path}}</div>
-              <div v-else class="no-matching-secret">no matching secret</div>
-            </div>
-            <div class="column is-2">
-              <span class="secret-var">{{val.secret_var}}</span>
-            </div>
-            <div class="column">
-              <div v-if="val.when">
-                <div v-if="val.when.branch">
-                  <div class="columns">
-                    <div class="column">
-                      <span>branch</span>
+      <div class="w-2/3">
+        <div class="flex" v-for="val in variable.values" v-bind:key="val.id">
+          <div class="w-1/3">
+            <span>{{val.secret_name}}</span>
+            <div
+              v-if="val.matching_secret_parent_path"
+              class="text-sm"
+            >using secret from {{val.matching_secret_parent_path}}</div>
+            <div v-else class="text-sm text-red-600">no matching secret</div>
+          </div>
+          <div class="w-1/3">
+            <span>{{val.secret_var}}</span>
+          </div>
+          <div class="w-1/3">
+            <div v-if="val.when">
+              <div v-if="val.when.branch">
+                <div class="flex">
+                  <div class="w-1/3">
+                    <span>branch</span>
+                  </div>
+                  <div class="w-1/3">
+                    <div v-for="include in val.when.branch.include" v-bind:key="include.match">
+                      <span>{{include.match}}</span>
                     </div>
-                    <div class="column">
-                      <div
-                        class="item-list"
-                        v-for="include in val.when.branch.include"
-                        v-bind:key="include.match"
-                      >
-                        <span class="secret-name">{{include.match}}</span>
-                      </div>
-                    </div>
-                    <div class="column">
-                      <div
-                        class="item-list"
-                        v-for="exclude in val.when.branch.exclude"
-                        v-bind:key="exclude.match"
-                      >
-                        <span class="secret-name">{{exclude.match}}</span>
-                      </div>
+                  </div>
+                  <div class="w-1/3">
+                    <div v-for="exclude in val.when.branch.exclude" v-bind:key="exclude.match">
+                      <span>{{exclude.match}}</span>
                     </div>
                   </div>
                 </div>
@@ -83,30 +73,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-@import "~bulma/bulma.sass";
-
-.name {
-}
-
-.secret-name {
-  font-weight: bold;
-}
-
-.var-parent-path {
-  @extend .has-text-weight-light;
-  @extend .is-size-7;
-}
-
-.matching-secret {
-  @extend .has-text-weight-light;
-  @extend .is-size-7;
-}
-
-.no-matching-secret {
-  @extend .has-text-danger;
-  @extend .is-size-7;
-}
 </style>
 
 

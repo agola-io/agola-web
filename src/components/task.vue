@@ -2,18 +2,20 @@
   <div>
     <RunDetail :run="run"/>
     <div v-if="task != null">
-      <div class="columns">
-        <div class="task-title column is-10">
-          <span class="task-name" v-html="task.name"/>
-          <span class="tag" :class="taskClass(task)">{{ task.status | capitalize }}</span>
+      <div class="mt-8 mb-4 flex justify-between items-center">
+        <div class="flex items-center">
+          <span class="text-2xl mr-3">{{task.name}}</span>
+
+          <span
+            class="mr-3 rounded px-2 py-1 text-xs"
+            :class="taskClass(task)"
+          >{{ task.status | capitalize }}</span>
         </div>
-        <div class="task-actions column is-2 is-pulled-right">
-          <button
-            class="button is-primary"
-            v-if="task.waiting_approval"
-            @click="approveTask(run.id, task.id)"
-          >Approve</button>
-        </div>
+        <button
+          v-if="task.waiting_approval"
+          class="btn btn-blue"
+          @click="approveTask(run.id, task.id)"
+        >Approve</button>
       </div>
       <Collapse
         v-bind:runid="runid"
@@ -98,20 +100,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.task-title {
-  display: flex;
-  align-items: center;
-  padding-left: 5px;
-  margin-bottom: 25px;
-
-  .task-name {
-    padding-left: 5px;
-    font-size: 1.5rem;
-    padding-right: 1rem;
-  }
-}
-
-.task-actions {
-  text-align: right;
-}
 </style>

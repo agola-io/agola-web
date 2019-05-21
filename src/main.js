@@ -1,3 +1,4 @@
+import '@/css/tailwind.scss'
 import "@mdi/font/css/materialdesignicons.css";
 
 import Vue from "vue";

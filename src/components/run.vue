@@ -3,50 +3,49 @@
     <RunDetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
     <div v-if="run">
       <div v-if="run.phase != 'setuperror'">
-        <div class="tabs">
-          <ul>
-            <li>
-              <a>Tasks</a>
-            </li>
-          </ul>
-        </div>
+        <div class="m-4 text-xl font-bold">Tasks</div>
 
-        <div v-if="run" class="tasks-list">
-          <div v-for="task in run.sortedTasks" v-bind:key="task.id" :class="taskClass(task)">
-            <div class="task-content">
-              <div class="columns">
-                <router-link class="column is-10" tag="a" :to="runTaskLink(task)">
-                  <span class="name">{{task.name}}</span>
-                </router-link>
-                <div class="column">
-                  <span
-                    class="tag"
-                    v-if="run.tasks_waiting_approval.includes(task.id)"
-                  >Waiting approval</span>
-                </div>
-                <div class="parents column">
-                  <span v-if="parents(task).length > 0">depends on: &nbsp;</span>
-                  <span class="parent" v-for="dep in parents(task)" v-bind:key="dep">{{dep}}</span>
-                </div>
+        <ul v-if="run">
+          <li
+            class="mb-2 border-l-5 rounded-l"
+            v-for="task in run.sortedTasks"
+            v-bind:key="task.id"
+            :class="taskClass(task)"
+          >
+            <div class="pl-4 py-4 flex justify-between items-center border border-l-0 rounded-r">
+              <router-link class="w-1/3 font-bold" tag="a" :to="runTaskLink(task)">
+                <span class="w-1/3 font-bold">{{task.name}}</span>
+              </router-link>
+              <div class="column">
+                <span
+                  class="tag"
+                  v-if="run.tasks_waiting_approval.includes(task.id)"
+                >Waiting approval</span>
+              </div>
+              <div class="w-40">
+                <span class="block" v-if="parents(task).length > 0">depends on: &nbsp;</span>
+                <span
+                  class="font-thin text-gray-600"
+                  v-for="dep in parents(task)"
+                  v-bind:key="dep"
+                >{{dep}}</span>
               </div>
               <!--               <span
                 class="duration"
                 v-if="duration && (step.Phase == 'success' || step.Phase == 'failed') "
               >{{duration}}</span>-->
             </div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
       <div v-else>
-        <div class="tabs">
-          <ul>
-            <li>
-              <a>Setup Errors</a>
-            </li>
-          </ul>
-        </div>
-        <div class="setuperrors">
-          <span class="error-line" v-for="(error, i) in run.setup_errors" v-bind:key="i">{{error}}</span>
+        <h2 class="my-4 text-2xl">Setup Errors</h2>
+        <div class="p-3 rounded bg-gray-800 text-white">
+          <pre
+            class="font-mono leading-snug text-xs"
+            v-for="(error, i) in run.setup_errors"
+            v-bind:key="i"
+          >{{error}}</pre>
         </div>
       </div>
     </div>
@@ -138,65 +137,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.tasks-list {
-  .task-content {
-    margin-bottom: 5px;
-    border: 1px solid $grey-lighter;
-    border-left: 0 solid;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-  }
-
-  .success {
-    border-left: 5px solid $green;
-  }
-
-  .failed {
-    border-left: 5px solid $red;
-  }
-
-  .running {
-    border-left: 5px solid $blue;
-  }
-
-  .unknown {
-    border-left: 5px solid $grey-lighter;
-  }
-
-  .name {
-    font-weight: bold;
-  }
-
-  .parents {
-    margin-left: 1rem;
-    margin-right: 0rem;
-    font-weight: lighter;
-    font-size: 0.8rem;
-    .parent {
-      font-weight: normal;
-    }
-  }
-}
-
-.setuperrors {
-  background-color: #222;
-  color: #f1f1f1;
-  font-family: Cousine, monospace;
-  font-size: 12px;
-  line-height: 19px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  text-align: left;
-  font-size: 12px;
-  padding: 5px;
-
-  .error-line {
-    pre {
-      line-height: 1.2;
-    }
-  }
-}
 </style>

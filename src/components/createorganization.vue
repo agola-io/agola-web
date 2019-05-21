@@ -1,26 +1,32 @@
 <template>
   <div>
-    <h4 class="title is-4">New Organization</h4>
+    <h4 class="mb-4 text-xl font-bold">New Organization</h4>
     <div class="field">
       <div class="control">
-        <input class="input" type="text" placeholder="Organization name" v-model="orgName">
+        <input
+          class="mb-4 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+          type="text"
+          placeholder="Organization name"
+          v-model="orgName"
+        >
       </div>
     </div>
-    <div class="field">
-      <div class="control">
-        <label class="checkbox">
-          <input type="checkbox" v-model="orgIsPrivate">
-          Private
-        </label>
-      </div>
+    <div class="mb-4">
+      <label>
+        <input type="checkbox" v-model="orgIsPrivate">
+        Private
+      </label>
     </div>
-    <div class="field is-grouped">
-      <div class="control">
-        <button class="button is-primary" @click="createOrg()">Create Organization</button>
-      </div>
-    </div>
-    <div v-if="createOrgError" class="message is-danger">
-      <div class="message-body">{{ createOrgError }}</div>
+    <button
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      @click="createOrg()"
+    >Create Organization</button>
+    <div
+      v-if="createOrgError"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <span class="block sm:inline">{{ createOrgError }}</span>
     </div>
   </div>
 </template>
@@ -67,7 +73,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
 </style>
 
 

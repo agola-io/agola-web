@@ -1,81 +1,87 @@
 <template>
   <div>
-    <nav class="panel">
-      <p class="panel-heading">Project Group Settings</p>
-      <div class="panel-block is-block">
-        <div v-if="!isRootProjectGroup" class="field">
-          <label class="label">Project Group Name</label>
+    <div class="panel">
+      <p class="panel-title">Project Group Settings</p>
+      <div class="p-4">
+        <div v-if="!isRootProjectGroup" class="mb-4">
+          <label class="block font-bold mb-2">Project Group Name</label>
           <div class="control">
-            <input class="input" type="text" placeholder="Text input" v-model="projectGroup.name">
+            <input
+              class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              type="text"
+              placeholder="Project Group Name"
+              v-model="projectGroup.name"
+            >
           </div>
         </div>
-        <div class="field">
-          <div class="control">
-            <label class="checkbox">
-              <input type="checkbox" v-model="projectGroupIsPrivate">
-              Private
-            </label>
-          </div>
+        <div class="mb-4">
+          <label class="checkbox">
+            <input type="checkbox" v-model="projectGroupIsPrivate">
+            Private
+          </label>
         </div>
+        <button class="btn btn-blue" @click="updateProjectGroup()">Update</button>
 
-        <div class="field is-grouped">
-          <div class="control">
-            <button class="button is-primary" @click="updateProjectGroup()">Update</button>
-          </div>
-        </div>
-
-        <div v-if="updateProjectGroupError" class="message is-danger">
-          <div class="message-body">{{ updateProjectGroupError }}</div>
+        <div
+          v-if="updateProjectGroupError"
+          class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <span class="block sm:inline">{{ updateProjectGroupError }}</span>
         </div>
       </div>
-    </nav>
-    <nav class="panel">
-      <p class="panel-heading">Variables</p>
-      <div class="panel-block is-block">
+    </div>
+
+    <div class="panel">
+      <p class="panel-title">Variables</p>
+      <div class="p-4">
         <projectvars :variables="variables" :allvariables="allvariables"/>
       </div>
-    </nav>
-    <nav v-if="!isRootProjectGroup" class="panel is-danger">
-      <p class="panel-heading is-danger">Danger Zone</p>
-      <div class="panel-block is-block">
-        <div>
-          <div>
-            <h4 class="title is-4">Delete This Project Group</h4>
+    </div>
 
-            <div class="message is-danger">
-              <div class="message-body">
-                This operation
-                <strong>CANNOT</strong> be undone.
-                This operation will remove
-                <strong>{{projectGroupPath}}</strong>
-              </div>
-            </div>
-            <label class="label">
-              Please type the project group name for confirmation:
-              <span
-                class="has-text-danger"
-              >{{ projectGroupName }}</span>
-            </label>
-            <div class="field">
-              <input
-                v-model="projectGroupNameToDelete"
-                class="input"
-                type="email"
-                placeholder="Project Group name to delete"
-              >
-            </div>
-            <button
-              class="button is-danger"
-              @click="deleteProjectGroup()"
-              :disabled="!deleteButtonEnabled"
-            >Delete Project Group</button>
-          </div>
+    <div v-if="!isRootProjectGroup" class="panel">
+      <p class="panel-title">Danger Zone</p>
+      <div class="p-4">
+        <h4 class="mb-4 title text-xl">Delete This Project Group</h4>
+        <div
+          class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
+          role="alert"
+        >
+          <p>
+            This operation
+            <strong>CANNOT</strong> be undone.
+            This operation will remove
+            <strong>{{projectGroupPath}}</strong>
+          </p>
         </div>
-        <div v-if="deleteProjectGroupError" class="message is-danger">
-          <div class="message-body">{{ deleteProjectGroupError }}</div>
+        <label class="block mb-2">
+          Please type the project group name for confirmation:
+          <span
+            class="text-red-500 font-bold"
+          >{{ projectGroupName }}</span>
+        </label>
+        <div class="mb-4">
+          <input
+            class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+            v-model="projectGroupNameToDelete"
+            type="email"
+            placeholder="Project Group name to delete"
+          >
         </div>
+        <button
+          class="btn btn-red"
+          @click="deleteProjectGroup()"
+          :disabled="!deleteButtonEnabled"
+        >Delete Project Group</button>
       </div>
-    </nav>
+    </div>
+    <div
+      v-if="deleteProjectGroupError"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <span class="block sm:inline">{{ deleteProjectGroupError }}</span>
+    </div>
   </div>
 </template>
 
@@ -218,10 +224,5 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.panel-heading {
-  font-weight: 700;
-}
 </style>
 

@@ -2,64 +2,62 @@
   <div>
     <projbreadcrumbs :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
 
-    <div class="name">
-      <span class="is-size-3">{{projectName()}}</span>
+    <div class="mb-8">
+      <span class="text-3xl">{{projectName()}}</span>
     </div>
 
-    <div class="tabs">
-      <ul>
-        <li>
-          <span class="icon is-small">
-            <i class="mdi mdi-run-fast"/>
-          </span>
+    <div class="flex justify-between">
+      <ul class="flex-grow tab">
+        <li class="tab-element">
+          <i class="mr-1 mdi mdi-run-fast"/>
           <span>Runs</span>
         </li>
         <li>
           <tabarrow/>
         </li>
         <li
-          :class="[{ 'is-active': $route.name.match('project runs') || $route.name.endsWith('project') }]"
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.match('project runs') || $route.name.endsWith('project') }]"
         >
           <router-link :to="projectRunsLink(ownertype, ownername, projectref)">
-            <span class="icon is-small">
-              <i class="mdi mdi-asterisk"/>
-            </span>
+            <i class="mr-1 mdi mdi-asterisk"/>
             <span>All</span>
           </router-link>
         </li>
-        <li :class="[{ 'is-active': $route.name.match('project branches runs') }]">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.match('project branches runs') }]"
+        >
           <router-link :to="projectBranchesRunsLink(ownertype, ownername, projectref)">
-            <span class="icon is-small">
-              <i class="mdi mdi-source-branch"/>
-            </span>
+            <i class="mr-1 mdi mdi-source-branch"/>
             <span>Branches</span>
           </router-link>
         </li>
-        <li :class="[{ 'is-active': $route.name.match('project tags runs') }]">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.match('project tags runs') }]"
+        >
           <router-link :to="projectTagsRunsLink(ownertype, ownername, projectref)">
-            <span class="icon is-small">
-              <i class="mdi mdi-tag"/>
-            </span>
+            <i class="mr-1 mdi mdi-tag"/>
             <span>Tags</span>
           </router-link>
         </li>
-        <li :class="[{ 'is-active': $route.name.match('project pull requests runs') }]">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.match('project pull requests runs') }]"
+        >
           <router-link :to="projectPRsRunsLink(ownertype, ownername, projectref)">
-            <span class="icon is-small">
-              <i class="mdi mdi-source-pull"/>
-            </span>
+            <i class="mr-1 mdi mdi-source-pull"/>
             <span>Pull Requests</span>
           </router-link>
         </li>
-        <li
-          v-if="$route.name.endsWith('project run') || $route.name.endsWith('project run task')"
-          :class="[{ 'is-active': $route.name.endsWith('project run') }]"
-        >
+        <li v-if="$route.name.endsWith('project run') || $route.name.endsWith('project run task')">
           <tabarrow/>
         </li>
         <li
+          class="tab-element"
           v-if="$route.name.endsWith('project run') || $route.name.endsWith('project run task')"
-          :class="[{ 'is-active': $route.name.endsWith('project run') }]"
+          :class="[{ 'tab-element-selected': $route.name.endsWith('project run') }]"
         >
           <router-link :to="projectRunLink(ownertype, ownername, projectref, $route.params.runid)">
             <p v-if="run">
@@ -68,13 +66,10 @@
             </p>
           </router-link>
         </li>
-        <li
-          v-if="$route.name.endsWith('project run task')"
-          :class="[{ 'is-active': $route.name.endsWith('project run') }]"
-        >
+        <li v-if="$route.name.endsWith('project run task')">
           <tabarrow/>
         </li>
-        <li v-if="$route.name.endsWith('project run task')" class="is-active">
+        <li class="tab-element" v-if="$route.name.endsWith('project run task')">
           <router-link
             :to="projectRunTaskLink(ownertype, ownername, projectref, $route.params.runid, $route.params.taskid)"
           >
@@ -85,18 +80,19 @@
           </router-link>
         </li>
       </ul>
-      <ul class="is-right">
-        <li :class="[{ 'is-active': $route.name.endsWith('project settings') }]">
+      <ul class="flex tab">
+        <li
+          class="tab-element"
+          :class="[{ 'tab-element-selected': $route.name.endsWith('project settings') }]"
+        >
           <router-link :to="projectSettingsLink(ownertype, ownername, projectref)">
-            <span class="icon is-small">
-              <i class="mdi mdi-settings"/>
-            </span>
+            <i class="mr-1 mdi mdi-settings"/>
             <span>Project Settings</span>
           </router-link>
         </li>
       </ul>
     </div>
-    <router-view></router-view>
+    <router-view class="mt-8"></router-view>
   </div>
 </template>
 
@@ -170,10 +166,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.name {
-  padding-left: 5px;
-  margin-bottom: 25px;
-}
 </style>

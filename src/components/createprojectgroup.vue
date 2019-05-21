@@ -1,37 +1,32 @@
 <template>
   <div>
-    <h4 class="title is-4">Create Project Group</h4>
-    <div class="field">
-      <div class="control">
-        <input
-          class="input"
-          type="text"
-          placeholder="Project Group Name"
-          v-model="projectGroupName"
-        >
-      </div>
-    </div>
-    <div class="field">
-      <div class="control">
-        <label class="checkbox">
-          <input type="checkbox" v-model="projectGroupIsPrivate">
-          Private
-        </label>
-      </div>
+    <h4 class="mb-4 text-xl font-bold">Create Project Group</h4>
+
+    <input
+      class="mb-4 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+      type="text"
+      placeholder="Project Group Name"
+      v-model="projectGroupName"
+    >
+    <div class="mb-4">
+      <label>
+        <input type="checkbox" v-model="projectGroupIsPrivate">
+        Private
+      </label>
     </div>
 
-    <div class="field is-grouped">
-      <div class="control">
-        <button
-          class="button is-primary"
-          v-bind:class="{ 'is-loading': createProjectGroupLoading }"
-          :disabled="!createProjectGroupButtonEnabled"
-          @click="createProjectGroup()"
-        >Create Project Group</button>
-      </div>
-    </div>
-    <div v-if="createProjectGroupError" class="message is-danger">
-      <div class="message-body">{{ createProjectGroupError }}</div>
+    <button
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      v-bind:class="{ 'spinner': createProjectGroupLoading }"
+      :disabled="!createProjectGroupButtonEnabled"
+      @click="createProjectGroup()"
+    >Create ProjectGroup</button>
+    <div
+      v-if="createProjectGroupError"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <span class="block sm:inline">{{ createProjectGroupError }}</span>
     </div>
   </div>
 </template>
@@ -115,20 +110,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.item-list {
-  .item {
-    margin-bottom: 5px;
-    border: 1px solid $grey-lighter;
-    cursor: pointer;
-    display: flex;
-    padding: 10px;
-  }
-  .name {
-    font-weight: bold;
-  }
-}
 </style>
 
 

@@ -1,34 +1,44 @@
 <template>
   <div>
     <div v-if="runs.length > 0">
-      <div class="item-list">
-        <div v-for="run in runs" v-bind:key="run.id" :class="runResultClass(run)">
-          <div class="item-content">
+      <ul>
+        <li
+          class="mb-2 border-l-5 rounded-l"
+          v-for="run in runs"
+          v-bind:key="run.id"
+          :class="runResultClass(run)"
+        >
+          <div class="pl-4 flex items-center border border-l-0 rounded-r">
             <router-link
               v-if="projectref"
-              tag="div"
-              class="name"
+              class="w-1/3 font-bold"
               :to="projectRunLink(ownertype, ownername, projectref, run.id)"
             >
+              <span class>{{run.name}}</span>
+            </router-link>
+            <router-link v-else class="w-1/3 font-bold" :to="userLocalRunLink(ownername, run.id)">
               <span>{{run.name}}</span>
             </router-link>
-            <router-link v-else tag="div" class="name" :to="userLocalRunLink(ownername, run.id)">
-              <span>{{run.name}}</span>
-            </router-link>
-            <div class="commitmessage">{{run.annotations.message}}</div>
-            <span v-if="waitingApproval(run)" class="waitingapproval tag">Waiting Approval</span>
-            <span v-if="!waitingApproval(run)" class="waitingapproval"></span>
-            <span v-if="stillRunning(run)" class="stillrunning tag">Still running</span>
-            <span v-if="!stillRunning(run)" class="stillrunning"></span>
-            <div class="source-info">
-              <a :href="run.annotations.commit_link" class="commit" target="_blank">
+            <div class="w-1/3">{{run.annotations.message}}</div>
+            <span
+              v-if="waitingApproval(run)"
+              class="w-1/5 inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold mr-2"
+            >Waiting Approval</span>
+            <span v-if="!waitingApproval(run)" class="w-1/5"></span>
+            <span
+              v-if="stillRunning(run)"
+              class="w-1/5 inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold mr-2"
+            >Still running</span>
+            <span v-if="!stillRunning(run)" class="w-1/5"></span>
+            <div class="w-32">
+              <a :href="run.annotations.commit_link" class="block" target="_blank">
                 <i class="mdi mdi-source-commit mdi-rotate-90"></i>
                 <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
               </a>
               <a
                 v-if="run.annotations.event_type == 'push'"
                 :href="run.annotations.branch_link"
-                class="commit"
+                class="block whitespace-no-wrap overflow-x-hidden"
                 target="_blank"
               >
                 <i class="mdi mdi-source-branch"></i>
@@ -37,7 +47,7 @@
               <a
                 v-else-if="run.annotations.event_type == 'tag'"
                 :href="run.annotations.tag_link"
-                class="commit"
+                class="block"
                 target="_blank"
               >
                 <i class="mdi mdi-tag"></i>
@@ -46,7 +56,7 @@
               <a
                 v-else-if="run.annotations.event_type == 'pull_request'"
                 :href="run.annotations.pull_request_link"
-                class="commit"
+                class="block"
                 target="_blank"
               >
                 <i class="mdi mdi-source-pull"></i>
@@ -54,17 +64,17 @@
               </a>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="has-text-centered">
+        </li>
+      </ul>
+      <div class="flex justify-center my-3">
         <button
           v-if="hasMoreRuns"
-          class="button is-primary is-outlined is-fullwidth load-more-button"
+          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
           @click="loadMoreRuns()"
         >Load more...</button>
       </div>
     </div>
-    <div v-else class="item-list">No runs</div>
+    <div v-else class>No runs</div>
   </div>
 </template>
 
@@ -218,88 +228,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/css/_variables.scss";
-
-.project-title {
-  display: flex;
-  align-items: center;
-  padding-left: 5px;
-  margin-bottom: 25px;
-  .project-name {
-    padding-left: 5px;
-    font-size: 1.5rem;
-    padding-right: 1rem;
-  }
-}
-
-.item-list {
-  .item-content {
-    margin-bottom: 5px;
-    border: 1px solid $grey-lighter;
-    border-left: 0 solid;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-  }
-
-  .success {
-    border-left: 5px solid $green;
-  }
-
-  .failed {
-    border-left: 5px solid $red;
-  }
-
-  .running {
-    border-left: 5px solid $blue;
-  }
-
-  .unknown {
-    border-left: 5px solid $grey-lighter;
-  }
-
-  .setuperror {
-    border-left: 5px solid $yellow;
-  }
-
-  .name {
-    flex: 0 0 30%;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .commitmessage {
-    flex: 0 0 40%;
-  }
-
-  .stillrunning {
-    flex: 0 0 10%;
-  }
-
-  .waitingapproval {
-    flex: 0 0 10%;
-  }
-
-  .source-info {
-    flex: 0 0 10%;
-    overflow: hidden;
-    white-space: nowrap;
-
-    a {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .commit {
-    display: block;
-    font-size: 0.8rem;
-  }
-}
-
-.load-more-button {
-  margin-top: 1rem;
-  margin-bottom: 2rem;
-}
 </style>

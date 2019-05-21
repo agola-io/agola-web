@@ -1,6 +1,19 @@
-// **
-// black
-// **
+$ansi-black: #222;
+$ansi-black-bright: #222;
+$ansi-red: #c0392b;
+$ansi-red-bright: #e74c3c;
+$ansi-green: #27af60;
+$ansi-green-bright: #2ecc71;
+$ansi-yellow: #f39c12;
+$ansi-yellow-bright: #f1c40f;
+$ansi-blue: #2e8dcd;
+$ansi-blue-bright: #3498db;
+$ansi-magenta: #8e44ad;
+$ansi-magenta-bright: #9b59b6;
+$ansi-cyan: #0097a4;
+$ansi-cyan-bright: #02c8d9;
+$ansi-white: #bdc3c7;
+$ansi-white-bright: #ffffff;
 
 .ansi-black-fg {
   color: $ansi-black;
@@ -16,10 +29,6 @@
   background-color: $ansi-black-bright;
 }
 
-// **
-// red
-// **
-
 .ansi-red-fg {
   color: $ansi-red;
 }
@@ -33,10 +42,6 @@
 .ansi-bright-red-bg {
   background-color: $ansi-red-bright;
 }
-
-// **
-// green
-// **
 
 .ansi-green-fg {
   color: $ansi-green;
@@ -52,10 +57,6 @@
   background-color: $ansi-green-bright;
 }
 
-// **
-// yellow
-// **
-
 .ansi-yellow-fg {
   color: $ansi-yellow;
 }
@@ -69,10 +70,6 @@
 .ansi-bright-yellow-bg {
   background-color: $ansi-yellow-bright;
 }
-
-// **
-// blue
-// **
 
 .ansi-blue-fg {
   color: $ansi-blue;
@@ -88,10 +85,6 @@
   background-color: $ansi-blue-bright;
 }
 
-// **
-// magenta
-// **
-
 .ansi-magenta-fg {
   color: $ansi-magenta;
 }
@@ -106,10 +99,6 @@
   background-color: $ansi-magenta-bright;
 }
 
-// **
-// cyan
-// **
-
 .ansi-cyan-fg {
   color: $ansi-cyan;
 }
@@ -123,10 +112,6 @@
 .ansi-bright-cyan-bg {
   background-color: $ansi-cyan-bright;
 }
-
-// **
-// white
-// **
 
 .ansi-white-fg {
   color: $ansi-white;
