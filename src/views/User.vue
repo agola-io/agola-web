@@ -121,15 +121,6 @@
                     <span>Root Project Group Settings</span>
                   </router-link>
                 </li>
-                <li>
-                  <router-link
-                    class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
-                    :to="ownerSettingsLink('user', username)"
-                  >
-                    <i class="mr-1 mdi mdi-settings"/>
-                    <span>User Settings</span>
-                  </router-link>
-                </li>
               </ul>
             </div>
           </div>
