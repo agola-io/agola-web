@@ -14,7 +14,7 @@ export async function fetch(url, init) {
             return { data: await res.json(), error: null }
         }
     } catch (e) {
-        return { data: null, error: "api call failed: " + e }
+        return { data: null, error: "api call failed: " + e.message }
     }
 }
 
@@ -37,7 +37,7 @@ export async function login(username, password, remotesourcename) {
             return { data: await res.json(), error: null }
         }
     } catch (e) {
-        return { data: null, error: "api call failed: " + e }
+        return { data: null, error: "api call failed: " + e.message }
     }
 }
 
@@ -61,7 +61,7 @@ export async function register(username, remotesourcename, remoteloginname, remo
             return { data: await res.json(), error: null }
         }
     } catch (e) {
-        return { data: null, error: "api call failed: " + e }
+        return { data: null, error: "api call failed: " + e.message }
     }
 }
 
