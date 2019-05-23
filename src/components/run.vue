@@ -1,5 +1,12 @@
 <template>
   <div>
+    <div
+      v-if="fetchRunError"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <div>{{ fetchRunError }}</div>
+    </div>
     <RunDetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
     <div v-if="run">
       <div v-if="run.phase != 'setuperror'">
@@ -69,6 +76,7 @@ export default {
   },
   data() {
     return {
+      fetchRunError: null,
       run: null,
       polling: null
     };
@@ -102,9 +110,10 @@ export default {
     async fetchRun() {
       let { data, error } = await fetchRun(this.runid);
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.fetchRunError = error;
         return;
       }
+      this.fetchRunError = null;
       this.run = data;
 
       // sort tasks by level

@@ -1,5 +1,13 @@
 <template>
   <div>
+    <div
+      v-if="fetchRunError || fetchTaskError"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <div>Error fetching Run: {{ fetchRunError }}</div>
+      <div>Error fetching Task: {{ fetchTaskError }}</div>
+    </div>
     <RunDetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
     <div v-if="task != null">
       <div class="mt-8 mb-4 flex justify-between items-center">
@@ -56,6 +64,8 @@ export default {
   },
   data() {
     return {
+      fetchRunError: null,
+      fetchTaskError: null,
       run: null,
       task: null,
       polling: null
@@ -72,17 +82,19 @@ export default {
     async fetchRun() {
       let { data, error } = await fetchRun(this.runid);
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.fetchRunError = error;
         return;
       }
+      this.fetchRunError = error;
       this.run = data;
     },
     async fetchTask() {
       let { data, error } = await fetchTask(this.runid, this.taskid);
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.fetchTaskError = error;
         return;
       }
+      this.fetchTaskError = error;
       this.task = data;
     },
     pollData() {

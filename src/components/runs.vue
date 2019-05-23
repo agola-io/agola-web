@@ -1,5 +1,12 @@
 <template>
   <div>
+    <div
+      v-if="fetchRunsError"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <div>{{ fetchRunsError }}</div>
+    </div>
     <div v-if="runs.length > 0">
       <ul>
         <li
@@ -94,6 +101,7 @@ export default {
   },
   data() {
     return {
+      fetchRunsError: null,
       runs: [],
       wantedRunsNumber: 25,
       hasMoreRuns: false,
@@ -185,9 +193,10 @@ export default {
       while (!stopFetch) {
         let { data, error } = await fetchRuns(group, startRunID, lastrun);
         if (error) {
-          this.$store.dispatch("setError", error);
+          this.fetchRunsError = error;
           return;
         }
+        this.fetchRunsError = null;
         runCount += data.length;
         if (runCount >= this.wantedRunsNumber || data.length == 0) {
           hasMoreRuns = data.length != 0;
