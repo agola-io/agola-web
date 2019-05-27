@@ -15,8 +15,8 @@ import createprojectgroup from "./components/createprojectgroup.vue";
 import createorganization from "./components/createorganization.vue";
 import orgmembers from "./components/orgmembers.vue";
 import runs from "./components/runs.vue";
-import run from "./components/run.vue";
-import task from "./components/task.vue";
+import runsummary from "./components/runsummary.vue";
+import tasksummary from "./components/tasksummary.vue";
 import Oauth2 from "./views/Oauth2.vue";
 import Register from "./views/Register.vue";
 import Login from "./views/Login.vue";
@@ -87,13 +87,13 @@ const router = new VueRouter({
         {
           path: "runs/:runid",
           name: "user local run",
-          component: run,
+          component: runsummary,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, runid: route.params.runid })
         },
         {
           path: "runs/:runid/tasks/:taskid",
           name: "user local run task",
-          component: task,
+          component: tasksummary,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, runid: route.params.runid, taskid: route.params.taskid })
         },
         {
@@ -160,13 +160,13 @@ const router = new VueRouter({
         {
           path: "runs/:runid",
           name: "user project run",
-          component: run,
+          component: runsummary,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref), runid: route.params.runid })
         },
         {
           path: "runs/:runid/tasks/:taskid",
           name: "user project run task",
-          component: task,
+          component: tasksummary,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, projectref: parseRef(route.params.projectref), runid: route.params.runid, taskid: route.params.taskid })
         },
         {
@@ -298,13 +298,13 @@ const router = new VueRouter({
         {
           path: "runs/:runid",
           name: "org project run",
-          component: run,
+          component: runsummary,
           props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref), runid: route.params.runid })
         },
         {
           path: "runs/:runid/tasks/:taskid",
           name: "org project run task",
-          component: task,
+          component: tasksummary,
           props: (route) => ({ ownertype: "org", ownername: route.params.orgname, projectref: parseRef(route.params.projectref), runid: route.params.runid, taskid: route.params.taskid })
         },
         {

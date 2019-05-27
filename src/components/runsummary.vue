@@ -7,41 +7,19 @@
     >
       <div>{{ fetchRunError }}</div>
     </div>
-    <RunDetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
+    <rundetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
     <div v-if="run">
       <div v-if="run.phase != 'setuperror'">
         <div class="m-4 text-xl font-bold">Tasks</div>
 
         <ul v-if="run">
-          <li
-            class="mb-2 border-l-5 rounded-l"
-            v-for="task in run.sortedTasks"
-            v-bind:key="task.id"
-            :class="taskClass(task)"
-          >
-            <div class="pl-4 py-4 flex justify-between items-center border border-l-0 rounded-r">
-              <router-link class="w-1/3 font-bold" tag="a" :to="runTaskLink(task)">
-                <span class="w-1/3 font-bold">{{task.name}}</span>
-              </router-link>
-              <div class="column">
-                <span
-                  class="tag"
-                  v-if="run.tasks_waiting_approval.includes(task.id)"
-                >Waiting approval</span>
-              </div>
-              <div class="w-40">
-                <span class="block" v-if="parents(task).length > 0">depends on: &nbsp;</span>
-                <span
-                  class="font-thin text-gray-600"
-                  v-for="dep in parents(task)"
-                  v-bind:key="dep"
-                >{{dep}}</span>
-              </div>
-              <!--               <span
-                class="duration"
-                v-if="duration && (step.Phase == 'success' || step.Phase == 'failed') "
-              >{{duration}}</span>-->
-            </div>
+          <li v-for="task in run.sortedTasks" v-bind:key="task.id">
+            <task
+              v-bind:task="task"
+              v-bind:link="runTaskLink(task)"
+              v-bind:waiting-approval="run.tasks_waiting_approval.includes(task.id)"
+              v-bind:parents="parents(task)"
+            />
           </li>
         </ul>
       </div>
@@ -63,11 +41,12 @@
 import { fetchRun } from "@/util/data.js";
 import { userLocalRunTaskLink, projectRunTaskLink } from "@/util/link.js";
 
-import RunDetail from "@/components/rundetail.vue";
+import rundetail from "@/components/rundetail.vue";
+import task from "@/components/task.vue";
 
 export default {
-  name: "run",
-  components: { RunDetail },
+  name: "runsummary",
+  components: { rundetail, task },
   props: {
     ownertype: String,
     ownername: String,

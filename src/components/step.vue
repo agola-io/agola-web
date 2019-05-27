@@ -1,7 +1,7 @@
 <template>
   <div
     class="mb-2 border-l-5 rounded-l"
-    :class="stepClass(step)"
+    :class="stepClass"
     role="tab"
     :aria-expanded="active ? 'true' : 'false'"
   >
@@ -14,7 +14,7 @@
           ></i>
           <span class="w-1/3 font-bold">{{step.name}}</span>
         </div>
-        <span class>{{duration}}</span>
+        <span class>{{ duration }}</span>
       </div>
       <div class="p-1 log-container" v-show="active">
         <Log
@@ -38,14 +38,14 @@ import Log from "@/components/log.vue";
 momentDurationFormatSetup(moment);
 
 export default {
-  name: "Collapse",
+  name: "step",
   components: {
     Log
   },
   data() {
     return {
       active: false,
-      duration: null
+      now: moment()
     };
   },
   props: {
@@ -55,42 +55,43 @@ export default {
     stepnum: Number,
     step: Object
   },
-  created() {
-    this.updateDuration(this.step);
-  },
-  ready() {
-    if (this.active) {
-      this.$emit("collapse-open", this.index);
-    }
-  },
-  watch: {
-    step: function(step) {
-      this.updateDuration(step);
+  computed: {
+    duration() {
+      let formatString = "h:mm:ss[s]";
+      let start = moment(this.step.start_time);
+      let end = moment(this.step.end_time);
+
+      if (this.step.start_time === null) {
+        return moment.duration(0).format(formatString);
+      }
+      if (this.step.end_time === null) {
+        return moment.duration(this.now.diff(start)).format(formatString);
+      }
+      return moment.duration(end.diff(start)).format(formatString);
+    },
+    stepClass() {
+      if (this.step.phase == "success") return "success";
+      if (this.step.phase == "failed") return "failed";
+      if (this.step.phase == "stopped") return "failed";
+      if (this.step.phase == "running") return "running";
+      return "unknown";
     }
   },
   methods: {
-    stepClass(step) {
-      if (step.phase == "success") return "success";
-      if (step.phase == "failed") return "failed";
-      if (step.phase == "stopped") return "failed";
-      if (step.phase == "running") return "running";
-      return "unknown";
-    },
-    updateDuration(step) {
-      let start = moment(step.start_time);
-      let end = moment(step.end_time);
-      if (start === null || end === null) {
-        this.duration = null;
-        return;
-      }
-      this.duration = moment.duration(end.diff(start)).format("h:mm:ss[s]");
-    },
     toggle() {
       this.active = !this.active;
       if (this.active) {
-        this.$emit("collapse-open", this.index);
+        this.$emit("step-open", this.index);
       }
     }
+  },
+  created() {
+    if (this.active) {
+      this.$emit("step-open", this.index);
+    }
+    window.setInterval(() => {
+      this.now = moment();
+    }, 500);
   }
 };
 </script>

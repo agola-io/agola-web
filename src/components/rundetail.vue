@@ -135,7 +135,7 @@ import { userLocalRunLink, projectRunLink } from "@/util/link.js";
 import { runStatus, runResultClass } from "@/util/run.js";
 
 export default {
-  name: "RunDetail",
+  name: "rundetail",
   directives: {
     clickOutside: vClickOutside.directive
   },
@@ -155,7 +155,7 @@ export default {
   },
   methods: {
     runStatus: runStatus,
-    runResultClass: runResultClass, 
+    runResultClass: runResultClass,
     resetErrors() {
       this.stopRunError = null;
       this.cancelRunError = null;

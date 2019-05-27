@@ -1,117 +1,69 @@
 <template>
-  <div>
-    <div
-      v-if="fetchRunError || fetchTaskError"
-      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-      role="alert"
-    >
-      <div>Error fetching Run: {{ fetchRunError }}</div>
-      <div>Error fetching Task: {{ fetchTaskError }}</div>
-    </div>
-    <RunDetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref"/>
-    <div v-if="task != null">
-      <div class="mt-8 mb-4 flex justify-between items-center">
-        <div class="flex items-center">
-          <span class="text-2xl mr-3">{{task.name}}</span>
-
-          <span
-            class="mr-3 rounded px-2 py-1 text-xs"
-            :class="taskClass(task)"
-          >{{ task.status | capitalize }}</span>
-        </div>
-        <button
-          v-if="task.waiting_approval"
-          class="btn btn-blue"
-          @click="approveTask(run.id, task.id)"
-        >Approve</button>
+  <div class="mb-2 border-l-5 rounded-l" :class="taskClass(task)">
+    <div class="px-4 py-4 flex justify-between items-center border border-l-0 rounded-r">
+      <router-link class="w-1/3 font-bold" tag="a" :to="link">
+        <span class="w-1/3 font-bold">{{task.name}}</span>
+      </router-link>
+      <div class="w-1/4">
+        <span class="tag" v-if="waitingApproval">Waiting approval</span>
       </div>
-      <Collapse
-        v-bind:runid="runid"
-        v-bind:taskid="taskid"
-        v-bind:setup="true"
-        v-bind:step="task.setup_step"
-      />
-      <div v-for="(step, index) in task.steps" v-bind:key="index">
-        <Collapse
-          v-bind:runid="runid"
-          v-bind:taskid="taskid"
-          v-bind:stepnum="index"
-          v-bind:step="step"
-        />
+      <div class="w-1/4">
+        <span class="block" v-if="parents.length > 0">depends on: &nbsp;</span>
+        <span class="font-thin text-gray-600" v-for="dep in parents" v-bind:key="dep">{{dep}}</span>
       </div>
+      <span class="w-16 text-right">{{ duration }}</span>
     </div>
   </div>
 </template>
 
 <script>
-import { fetchRun, fetchTask, approveTask } from "@/util/data.js";
+import * as moment from "moment";
+import momentDurationFormatSetup from "moment-duration-format";
 
-import Collapse from "@/components/collapse.vue";
-import RunDetail from "@/components/rundetail.vue";
+momentDurationFormatSetup(moment);
 
 export default {
-  components: {
-    Collapse,
-    RunDetail
-  },
   name: "task",
-  props: {
-    ownertype: String,
-    ownername: String,
-    projectref: Array,
-    runid: String,
-    taskid: String
-  },
+  components: {},
   data() {
     return {
-      fetchRunError: null,
-      fetchTaskError: null,
-      run: null,
-      task: null,
-      polling: null
+      now: moment()
     };
+  },
+  props: {
+    task: Object,
+    link: Object,
+    waitingApproval: Boolean,
+    parents: Array
+  },
+  computed: {
+    duration() {
+      let formatString = "h:mm:ss[s]";
+      let start = moment(this.task.start_time);
+      let end = moment(this.task.end_time);
+
+      if (this.task.start_time === null) {
+        return moment.duration(0).format(formatString);
+      }
+      if (this.task.end_time === null) {
+        return moment.duration(this.now.diff(start)).format(formatString);
+      }
+      return moment.duration(end.diff(start)).format(formatString);
+    }
   },
   methods: {
     taskClass(task) {
-      if (task.status == "success") return "is-success";
-      if (task.status == "failed") return "is-failed";
-      if (task.status == "stopped") return "is-failed";
-      if (task.status == "running") return "is-running";
+      if (task.status == "success") return "success";
+      if (task.status == "failed") return "failed";
+      if (task.status == "stopped") return "failed";
+      if (task.status == "running") return "running";
       return "unknown";
-    },
-    async fetchRun() {
-      let { data, error } = await fetchRun(this.runid);
-      if (error) {
-        this.fetchRunError = error;
-        return;
-      }
-      this.fetchRunError = error;
-      this.run = data;
-    },
-    async fetchTask() {
-      let { data, error } = await fetchTask(this.runid, this.taskid);
-      if (error) {
-        this.fetchTaskError = error;
-        return;
-      }
-      this.fetchTaskError = error;
-      this.task = data;
-    },
-    pollData() {
-      this.polling = setInterval(() => {
-        this.fetchTask();
-        this.fetchRun();
-      }, 2000);
-    },
-    approveTask: approveTask
+    }
   },
-  created: function() {
-    this.fetchRun();
-    this.fetchTask();
-    this.pollData();
-  },
-  beforeDestroy() {
-    clearInterval(this.polling);
+  created() {
+    window.setInterval(() => {
+      this.now = moment();
+    }, 500);
   }
 };
 </script>
