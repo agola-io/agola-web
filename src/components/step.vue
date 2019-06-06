@@ -16,7 +16,7 @@
         </div>
         <span class>{{ duration }}</span>
       </div>
-      <div class="p-1 log-container" v-show="active">
+      <div class="p-1" v-show="active">
         <Log
           v-bind:runid="runid"
           v-bind:taskid="taskid"

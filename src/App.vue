@@ -117,10 +117,8 @@
       </div>
     </div>
 
-    <div v-else class="container mt-6 flex">
-      <div class="flex-grow">
-        <router-view v-if="routerActive"></router-view>
-      </div>
+    <div v-else class="container mt-6">
+      <router-view v-if="routerActive"></router-view>
     </div>
   </div>
 </template>

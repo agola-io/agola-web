@@ -1,8 +1,8 @@
 <template>
   <div class="dark">
-    <div class="p-3 rounded bg-gray-900 text-white">
-      <div class="font-mono leading-normal text-xs" v-for="(item, index) in items" :key="index">
-        <div v-html="item"/>
+    <div class="p-3 rounded bg-gray-900 text-white overflow-x-auto">
+      <div v-for="(item, index) in items" :key="index">
+        <div class="font-mono leading-normal text-xs whitespace-no-wrap" v-html="item"/>
       </div>
       <div v-if="lastitem" class="font-mono leading-snug text-xs">
         <div v-html="lastitem"/>
