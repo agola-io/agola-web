@@ -9,7 +9,6 @@
     </div>
     <div v-if="registeruser" class="my-6 flex justify-center items-center">
       <div>
-        <div>{{registeruser.remote_user_info.LoginName}}</div>
         <RegisterForm
           :remote-username="registeruser.remote_user_info.LoginName"
           :username="registeruser.remote_user_info.LoginName"
