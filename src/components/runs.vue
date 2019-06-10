@@ -43,7 +43,7 @@
                 <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
               </a>
               <a
-                v-if="run.annotations.event_type == 'push'"
+                v-if="run.annotations.ref_type == 'branch'"
                 :href="run.annotations.branch_link"
                 class="block whitespace-no-wrap overflow-x-hidden"
                 target="_blank"
@@ -52,7 +52,7 @@
                 <span>{{run.annotations.branch}}</span>
               </a>
               <a
-                v-else-if="run.annotations.event_type == 'tag'"
+                v-else-if="run.annotations.ref_type == 'tag'"
                 :href="run.annotations.tag_link"
                 class="block"
                 target="_blank"
@@ -61,7 +61,7 @@
                 <span>{{run.annotations.tag}}</span>
               </a>
               <a
-                v-else-if="run.annotations.event_type == 'pull_request'"
+                v-else-if="run.annotations.ref_type == 'pull_request'"
                 :href="run.annotations.pull_request_link"
                 class="block"
                 target="_blank"
