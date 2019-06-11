@@ -131,7 +131,7 @@
 import vClickOutside from "v-click-outside";
 
 import { cancelRun, stopRun, restartRun } from "@/util/data.js";
-import { userLocalRunLink, projectRunLink } from "@/util/link.js";
+import { userDirectRunLink, projectRunLink } from "@/util/link.js";
 import { runStatus, runResultClass } from "@/util/run.js";
 
 export default {
@@ -210,7 +210,7 @@ export default {
           data.id
         );
       } else {
-        runLink = userLocalRunLink(this.ownername, data.id);
+        runLink = userDirectRunLink(this.ownername, data.id);
       }
       this.$router.push(runLink);
     }

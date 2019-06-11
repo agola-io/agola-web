@@ -32,38 +32,38 @@
         </li>
         <li
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name === 'user local runs' }]"
+          :class="[{ 'tab-element-selected': $route.name === 'user direct runs' }]"
         >
-          <router-link :to="userLocalRunsLink(username)">
+          <router-link :to="userDirectRunsLink(username)">
             <i class="mr-1 mdi mdi-run-fast"/>
-            <span>Local Runs</span>
+            <span>Direct Runs</span>
           </router-link>
         </li>
-        <li v-if="$route.name === 'user local run' || $route.name == 'user local run task'">
+        <li v-if="$route.name === 'user direct run' || $route.name == 'user direct run task'">
           <tabarrow/>
         </li>
         <li
           class="tab-element"
-          v-if="$route.name === 'user local run' || $route.name == 'user local run task'"
-          :class="[{ 'tab-element-selected': $route.name === 'user local run' }]"
+          v-if="$route.name === 'user direct run' || $route.name == 'user direct run task'"
+          :class="[{ 'tab-element-selected': $route.name === 'user direct run' }]"
         >
-          <router-link :to="userLocalRunLink(username, $route.params.runid)">
+          <router-link :to="userDirectRunLink(username, $route.params.runid)">
             <span v-if="run">
               Run
               <strong>#{{run.counter}}</strong>
             </span>
           </router-link>
         </li>
-        <li v-if="$route.name === 'user local run task'">
+        <li v-if="$route.name === 'user direct run task'">
           <tabarrow/>
         </li>
         <li
           class="tab-element"
-          v-if="$route.name == 'user local run task'"
-          :class="[{ 'tab-element-selected': $route.name === 'user local run task' }]"
+          v-if="$route.name == 'user direct run task'"
+          :class="[{ 'tab-element-selected': $route.name === 'user direct run task' }]"
         >
           <router-link
-            :to="userLocalRunTaskLink(username, $route.params.runid, $route.params.taskid)"
+            :to="userDirectRunTaskLink(username, $route.params.runid, $route.params.taskid)"
           >
             <span v-if="run">
               Task
@@ -137,9 +137,9 @@ import vClickOutside from "v-click-outside";
 import {
   ownerLink,
   ownerProjectsLink,
-  userLocalRunsLink,
-  userLocalRunLink,
-  userLocalRunTaskLink,
+  userDirectRunsLink,
+  userDirectRunLink,
+  userDirectRunTaskLink,
   ownerSettingsLink,
   projectGroupCreateProjectGroupLink,
   projectGroupCreateProjectLink,
@@ -181,9 +181,9 @@ export default {
   methods: {
     ownerLink: ownerLink,
     ownerProjectsLink: ownerProjectsLink,
-    userLocalRunsLink: userLocalRunsLink,
-    userLocalRunLink: userLocalRunLink,
-    userLocalRunTaskLink: userLocalRunTaskLink,
+    userDirectRunsLink: userDirectRunsLink,
+    userDirectRunLink: userDirectRunLink,
+    userDirectRunTaskLink: userDirectRunTaskLink,
     ownerSettingsLink: ownerSettingsLink,
     projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
     projectGroupCreateProjectLink: projectGroupCreateProjectLink,

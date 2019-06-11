@@ -23,7 +23,7 @@
             >
               <span class>{{run.name}}</span>
             </router-link>
-            <router-link v-else class="w-1/3 font-bold" :to="userLocalRunLink(ownername, run.id)">
+            <router-link v-else class="w-1/3 font-bold" :to="userDirectRunLink(ownername, run.id)">
               <span>{{run.name}}</span>
             </router-link>
             <div class="w-1/3">{{run.annotations.message}}</div>
@@ -87,7 +87,7 @@
 
 <script>
 import { fetchUser, fetchProject, fetchRuns } from "@/util/data.js";
-import { userLocalRunLink, projectRunLink } from "@/util/link.js";
+import { userDirectRunLink, projectRunLink } from "@/util/link.js";
 import { runResultClass } from "@/util/run.js";
 
 export default {
@@ -117,7 +117,7 @@ export default {
   },
   methods: {
     projectRunLink: projectRunLink,
-    userLocalRunLink: userLocalRunLink,
+    userDirectRunLink: userDirectRunLink,
     runResultClass: runResultClass,
     stillRunning(run) {
       return run.result != "unknown" && run.phase == "running";

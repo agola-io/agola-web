@@ -80,19 +80,19 @@ const router = new VueRouter({
         },
         {
           path: "runs",
-          name: "user local runs",
+          name: "user direct runs",
           component: runs,
           props: (route) => ({ ownertype: "user", ownername: route.params.username })
         },
         {
           path: "runs/:runid",
-          name: "user local run",
+          name: "user direct run",
           component: runsummary,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, runid: route.params.runid })
         },
         {
           path: "runs/:runid/tasks/:taskid",
-          name: "user local run task",
+          name: "user direct run task",
           component: tasksummary,
           props: (route) => ({ ownertype: "user", ownername: route.params.username, runid: route.params.runid, taskid: route.params.taskid })
         },

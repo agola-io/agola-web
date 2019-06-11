@@ -27,16 +27,16 @@ export function ownerSettingsLink(ownertype, ownername) {
     }
 }
 
-export function userLocalRunsLink(username) {
-    return { name: "user local runs", params: { username: username } }
+export function userDirectRunsLink(username) {
+    return { name: "user direct runs", params: { username: username } }
 }
 
-export function userLocalRunLink(username, runid) {
-    return { name: "user local run", params: { username: username, runid: runid } }
+export function userDirectRunLink(username, runid) {
+    return { name: "user direct run", params: { username: username, runid: runid } }
 }
 
-export function userLocalRunTaskLink(username, runid, taskid) {
-    return { name: "user local run task", params: { username: username, runid: runid, taskid: taskid } }
+export function userDirectRunTaskLink(username, runid, taskid) {
+    return { name: "user direct run task", params: { username: username, runid: runid, taskid: taskid } }
 }
 
 export function userAddLinkedAccountLink(username, remotesourcename) {

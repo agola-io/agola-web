@@ -39,7 +39,7 @@
 
 <script>
 import { fetchRun } from "@/util/data.js";
-import { userLocalRunTaskLink, projectRunTaskLink } from "@/util/link.js";
+import { userDirectRunTaskLink, projectRunTaskLink } from "@/util/link.js";
 
 import rundetail from "@/components/rundetail.vue";
 import task from "@/components/task.vue";
@@ -71,7 +71,7 @@ export default {
           task.id
         );
       } else {
-        return userLocalRunTaskLink(this.ownername, this.runid, task.id);
+        return userDirectRunTaskLink(this.ownername, this.runid, task.id);
       }
     },
     parents(task) {
