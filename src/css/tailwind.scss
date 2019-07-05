@@ -49,6 +49,10 @@
   @apply border-b-2 border-blue-300 text-blue-500;
 }
 
+.tab-element-disabled {
+  @apply px-4 -m-2px border-b-2;
+}
+
 .panel {
   @apply mb-2 border-solid border-gray-300 rounded border shadow;
 }

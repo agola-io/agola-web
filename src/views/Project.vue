@@ -8,7 +8,7 @@
 
     <div class="flex justify-between">
       <ul class="flex-grow tab">
-        <li class="tab-element">
+        <li class="tab-element-disabled">
           <i class="mr-1 mdi mdi-run-fast"/>
           <span>Runs</span>
         </li>
