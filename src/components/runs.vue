@@ -171,13 +171,10 @@ export default {
       if (this.project !== null) {
         if (this.query == "branches") {
           group = "/project/" + this.project.id + "/branch";
-          lastrun = true;
         } else if (this.query == "tags") {
           group = "/project/" + this.project.id + "/tag";
-          lastrun = true;
         } else if (this.query == "pullrequests") {
           group = "/project/" + this.project.id + "/pr";
-          lastrun = true;
         } else {
           group = "/project/" + this.project.id;
         }
