@@ -125,6 +125,9 @@ export default {
       this.$router.push({ name: "home" });
     }
   },
+  mounted: function() {
+    this.$store.dispatch("setError", null);
+  },
   created: function() {
     doLogout();
     this.fetchRemoteSources();

@@ -1,10 +1,27 @@
 import { apiurl, loginapi, registerapi } from "@/util/auth";
 import { fetch as authfetch } from "@/util/auth";
+import router from "@/router";
 
 export async function fetch(url, init) {
     try {
         let res = await authfetch(url, init)
         if (!res.ok) {
+            if (res.status === 401) {
+                router.push({ name: "login" })
+                // if we return a response containing an error what happens is
+                // that router.push mounts the login view before the calling
+                // component processed the response and the calling component
+                // may set the "unauthorized" error as a global error hiding the
+                // login view.
+                // So return an empty response so the caller won't set a global
+                // error (but in the console will appear other errors since also
+                // data is null)
+
+                // TODO(sgotti) find a way to make this cleaner. The solution
+                // could be to find a way to firstly let the component handle
+                // the error and the do the router push...
+                return
+            }
             let data = await res.json()
             return { data: null, error: data.message }
         } else {
@@ -86,6 +103,7 @@ export async function fetchRuns(group, startRunID, lastrun) {
     if (startRunID) {
         u.searchParams.append("start", startRunID)
     }
+
     return await fetch(u)
 }
 

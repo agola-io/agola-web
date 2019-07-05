@@ -1,4 +1,3 @@
-import router from "@/router";
 import store from "@/store";
 
 const ID_TOKEN_KEY = 'id_token';
@@ -54,8 +53,7 @@ export async function loginapi(init) {
     }
 
     try {
-        let res = await window.fetch(loginurl(), init)
-        return res
+        return await window.fetch(loginurl(), init)
     } catch (e) {
         throw e
     }
@@ -67,8 +65,7 @@ export async function registerapi(init) {
     }
 
     try {
-        let res = await window.fetch(registerurl(), init)
-        return res
+        return await window.fetch(registerurl(), init)
     } catch (e) {
         throw e
     }
@@ -87,10 +84,7 @@ export async function fetch(url, init) {
     }
 
     try {
-        let res = await window.fetch(url, init)
-        if (res.status === 401) {
-            router.push({ name: "login" })
-        } else { return res }
+        return await window.fetch(url, init)
     } catch (e) {
         throw e
     }
