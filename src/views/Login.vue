@@ -13,19 +13,21 @@
         v-for="rs in remotesources"
         v-bind:key="rs.id"
       >
-        <LoginForm
-          action="Login"
-          :name="rs.name"
-          v-if="rs.auth_type == 'password'"
-          v-on:login="doLogin($event.username, $event.password, rs.name)"
-        />
-        <div v-else class="w-full max-w-xs">
-          <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div class="flex justify-center">
-              <button
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                @click="doLogin(null, null, rs.name)"
-              >Login with {{rs.name}}</button>
+        <div v-if="rs.login_enabled">
+          <LoginForm
+            action="Login"
+            :name="rs.name"
+            v-if="rs.auth_type == 'password'"
+            v-on:login="doLogin($event.username, $event.password, rs.name)"
+          />
+          <div v-else class="w-full max-w-xs">
+            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+              <div class="flex justify-center">
+                <button
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  @click="doLogin(null, null, rs.name)"
+                >Login with {{rs.name}}</button>
+              </div>
             </div>
           </div>
         </div>
