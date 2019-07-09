@@ -146,6 +146,21 @@ export async function fetchProject(ref) {
     return await fetch(apiurl(path));
 }
 
+export async function fetchSecrets(ownertype, ref, all) {
+    let path
+    if (ownertype == "project") {
+        path = "/projects/"
+    } else if (ownertype == "projectgroup") {
+        path = "/projectgroups/"
+    }
+    path += encodeURIComponent(ref);
+    path += "/secrets";
+    if (all) {
+        path += "?tree&removeoverridden";
+    }
+    return await fetch(apiurl(path));
+}
+
 export async function fetchVariables(ownertype, ref, all) {
     let path
     if (ownertype == "project") {

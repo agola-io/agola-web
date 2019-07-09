@@ -11,12 +11,12 @@
               type="text"
               placeholder="Project Group Name"
               v-model="projectGroup.name"
-            >
+            />
           </div>
         </div>
         <div class="mb-4">
           <label class="checkbox">
-            <input type="checkbox" v-model="projectGroupIsPrivate">
+            <input type="checkbox" v-model="projectGroupIsPrivate" />
             Private
           </label>
         </div>
@@ -33,9 +33,16 @@
     </div>
 
     <div class="panel">
+      <p class="panel-title">Secrets</p>
+      <div class="p-4">
+        <projectsecrets :secrets="secrets" :allsecrets="allsecrets" type="projectgroup" />
+      </div>
+    </div>
+
+    <div class="panel">
       <p class="panel-title">Variables</p>
       <div class="p-4">
-        <projectvars :variables="variables" :allvariables="allvariables"/>
+        <projectvars :variables="variables" :allvariables="allvariables" type="projectgroup" />
       </div>
     </div>
 
@@ -66,7 +73,7 @@
             v-model="projectGroupNameToDelete"
             type="email"
             placeholder="Project Group name to delete"
-          >
+          />
         </div>
         <button
           class="btn btn-red"
@@ -88,6 +95,7 @@
 <script>
 import {
   fetchProjectGroup,
+  fetchSecrets,
   fetchVariables,
   updateProjectGroup,
   deleteProjectGroup
@@ -95,10 +103,11 @@ import {
 
 import { projectGroupLink } from "@/util/link.js";
 
+import projectsecrets from "@/components/projectsecrets";
 import projectvars from "@/components/projectvars";
 
 export default {
-  components: { projectvars },
+  components: { projectsecrets, projectvars },
   name: "projectgroupsettings",
   props: {
     ownertype: String,
@@ -111,6 +120,8 @@ export default {
       deleteProjectGroupError: null,
       projectGroup: null,
       projectGroupIsPrivate: false,
+      secrets: [],
+      allsecrets: [],
       variables: [],
       allvariables: [],
       projectGroupNameToDelete: ""
@@ -197,6 +208,28 @@ export default {
     }
     this.projectGroup = data;
     this.projectGroupIsPrivate = this.projectGroup.visibility == "private";
+
+    ({ data, error } = await fetchSecrets(
+      "projectgroup",
+      projectgroupref,
+      false
+    ));
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.secrets = data;
+
+    ({ data, error } = await fetchSecrets(
+      "projectgroup",
+      projectgroupref,
+      true
+    ));
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.allsecrets = data;
 
     ({ data, error } = await fetchVariables(
       "projectgroup",

@@ -10,11 +10,11 @@
             type="text"
             placeholder="Project Name"
             v-model="project.name"
-          >
+          />
         </div>
         <div class="mb-4">
           <label class="checkbox">
-            <input type="checkbox" v-model="projectIsPrivate">
+            <input type="checkbox" v-model="projectIsPrivate" />
             Private
           </label>
         </div>
@@ -30,9 +30,16 @@
     </div>
 
     <div class="panel">
+      <p class="panel-title">Secrets</p>
+      <div class="p-4">
+        <projectsecrets :secrets="secrets" :allsecrets="allsecrets" type="project" />
+      </div>
+    </div>
+
+    <div class="panel">
       <p class="panel-title">Variables</p>
       <div class="p-4">
-        <projectvars :variables="variables" :allvariables="allvariables"/>
+        <projectvars :variables="variables" :allvariables="allvariables" type="project" />
       </div>
     </div>
 
@@ -63,7 +70,7 @@
             v-model="projectNameToDelete"
             type="email"
             placeholder="Project name to delete"
-          >
+          />
         </div>
         <button
           class="btn btn-red"
@@ -104,6 +111,7 @@
 <script>
 import {
   fetchProject,
+  fetchSecrets,
   fetchVariables,
   updateProject,
   deleteProject,
@@ -112,10 +120,11 @@ import {
 
 import { projectGroupLink } from "@/util/link.js";
 
+import projectsecrets from "@/components/projectsecrets";
 import projectvars from "@/components/projectvars";
 
 export default {
-  components: { projectvars },
+  components: { projectsecrets, projectvars },
   name: "projectsettings",
   props: {
     ownertype: String,
@@ -129,6 +138,8 @@ export default {
       updateRepoLinkedAccountError: null,
       project: null,
       projectIsPrivate: false,
+      secrets: [],
+      allsecrets: [],
       variables: [],
       allvariables: [],
       projectNameToDelete: ""
@@ -226,6 +237,20 @@ export default {
     }
     this.project = data;
     this.projectIsPrivate = this.project.visibility == "private";
+
+    ({ data, error } = await fetchSecrets("project", projectref, false));
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.secrets = data;
+
+    ({ data, error } = await fetchSecrets("project", projectref, true));
+    if (error) {
+      this.$store.dispatch("setError", error);
+      return;
+    }
+    this.allsecrets = data;
 
     ({ data, error } = await fetchVariables("project", projectref, false));
     if (error) {
