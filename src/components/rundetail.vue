@@ -24,10 +24,10 @@
       </div>
 
       <div class="mb-2 border-l-5 rounded shadow" :class="runResultClass(run)">
-        <div class="p-4 border border-l-0 rounded-r">
-          <div class="flex items-start justify-between">
-            <div class="flex items-center">
-              <span class="text-2xl mr-3">{{run.name}}</span>
+        <div class="p-4 border border-l-0 rounded-r flex">
+          <div class="w-4/6 items-start justify-between">
+            <div class="flex items-center mb-1">
+              <h2 class="text-2xl mr-3">{{run.name}}</h2>
               <span
                 class="mr-3 rounded px-2 py-1 text-xs"
                 :class="'is-' + runResultClass(run)"
@@ -37,7 +37,53 @@
                 class="rounded bg-gray-500 text-white px-2 py-1 text-xs"
               >Still running</span>
             </div>
-            <div class="relative mr-3">
+            <div class="mb-6">{{run.annotations.message.split(/\r?\n/)[0]}}</div>
+            <div>
+              <a :href="run.annotations.commit_link" class="block" target="_blank">
+                <i class="mdi mdi-source-commit mdi-rotate-90"></i>
+                <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
+              </a>
+              <a
+                v-if="run.annotations.ref_type == 'branch'"
+                :href="run.annotations.branch_link"
+                class="block"
+                target="_blank"
+              >
+                <i class="mdi mdi-source-branch"></i>
+                <span>{{run.annotations.branch}}</span>
+              </a>
+              <a
+                v-else-if="run.annotations.ref_type == 'tag'"
+                :href="run.annotations.tag_link"
+                class="block"
+                target="_blank"
+              >
+                <i class="mdi mdi-tag"></i>
+                <span>{{run.annotations.tag}}</span>
+              </a>
+              <a
+                v-else-if="run.annotations.ref_type == 'pull_request'"
+                :href="run.annotations.pull_request_link"
+                class="block"
+                target="_blank"
+              >
+                <i class="mdi mdi-source-pull"></i>
+                <span>PR #{{run.annotations.pull_request_id}}</span>
+              </a>
+            </div>
+          </div>
+          <div class="w-1/6">
+            <div>
+              <i class="mdi mdi-clock-fast mr-1"></i>
+              <span class="text-right">{{ duration(run) }}</span>
+            </div>
+            <div :title="endTime(run)">
+              <i class="mdi mdi-calendar-month-outline mr-1"></i>
+              <span class="text-right">{{ endTimeHuman(run) }}</span>
+            </div>
+          </div>
+          <div class="w-1/6 flex items-start justify-between">
+            <div class="relative ml-auto mr-3">
               <div
                 v-if="run.can_restart_from_scratch || run.can_restart_from_failed_tasks"
                 class="flex"
@@ -85,42 +131,6 @@
               >Stop</button>
             </div>
           </div>
-          <div class="flex">
-            <div class="w-1/2">{{run.annotations.message}}</div>
-            <div class="w-1/2">
-              <a :href="run.annotations.commit_link" class="block" target="_blank">
-                <i class="mdi mdi-source-commit mdi-rotate-90"></i>
-                <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
-              </a>
-              <a
-                v-if="run.annotations.ref_type == 'branch'"
-                :href="run.annotations.branch_link"
-                class="block"
-                target="_blank"
-              >
-                <i class="mdi mdi-source-branch"></i>
-                <span>{{run.annotations.branch}}</span>
-              </a>
-              <a
-                v-else-if="run.annotations.ref_type == 'tag'"
-                :href="run.annotations.tag_link"
-                class="block"
-                target="_blank"
-              >
-                <i class="mdi mdi-tag"></i>
-                <span>{{run.annotations.tag}}</span>
-              </a>
-              <a
-                v-else-if="run.annotations.ref_type == 'pull_request'"
-                :href="run.annotations.pull_request_link"
-                class="block"
-                target="_blank"
-              >
-                <i class="mdi mdi-source-pull"></i>
-                <span>PR #{{run.annotations.pull_request_id}}</span>
-              </a>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -133,6 +143,11 @@ import vClickOutside from "v-click-outside";
 import { cancelRun, stopRun, restartRun } from "@/util/data.js";
 import { userDirectRunLink, projectRunLink } from "@/util/link.js";
 import { runStatus, runResultClass } from "@/util/run.js";
+
+import * as moment from "moment";
+import momentDurationFormatSetup from "moment-duration-format";
+
+momentDurationFormatSetup(moment);
 
 export default {
   name: "rundetail",
@@ -147,6 +162,7 @@ export default {
   },
   data() {
     return {
+      now: moment(),
       stopRunError: null,
       cancelRunError: null,
       restartRunError: null,
@@ -213,7 +229,42 @@ export default {
         runLink = userDirectRunLink(this.ownername, data.id);
       }
       this.$router.push(runLink);
+    },
+    duration(run) {
+      let formatString = "h:mm:ss[s]";
+      let start = moment(run.start_time);
+      let end = moment(run.end_time);
+
+      if (run.start_time === null) {
+        return moment.duration(0).format(formatString);
+      }
+      if (run.end_time === null) {
+        return moment.duration(this.now.diff(start)).format(formatString);
+      }
+      return moment.duration(end.diff(start)).format(formatString);
+    },
+    endTime(run) {
+      let formatString = "lll";
+      let end = moment(run.end_time);
+
+      if (run.end_time === null) {
+        return "";
+      }
+      return "Finished " + end.format(formatString);
+    },
+    endTimeHuman(run) {
+      let end = moment(run.end_time);
+
+      if (run.end_time === null) {
+        return "";
+      }
+      return end.fromNow();
     }
+  },
+  created: function() {
+    window.setInterval(() => {
+      this.now = moment();
+    }, 500);
   }
 };
 </script>
