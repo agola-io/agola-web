@@ -16,7 +16,7 @@
 
     <div class="mb-8 flex justify-between">
       <span class="text-3xl">{{username}}</span>
-      <createprojectbutton v-on:click="goToCreate($event)"/>
+      <createprojectbutton v-on:click="goToCreate($event)" />
     </div>
 
     <div class="flex justify-between">
@@ -26,7 +26,7 @@
           :class="[{ 'tab-element-selected': $route.name === 'user projects' || $route.name === 'user' }]"
         >
           <router-link :to="ownerProjectsLink('user', username)">
-            <i class="mr-1 mdi mdi-home"/>
+            <i class="mr-1 mdi mdi-home" />
             <span>Projects</span>
           </router-link>
         </li>
@@ -35,12 +35,12 @@
           :class="[{ 'tab-element-selected': $route.name === 'user direct runs' }]"
         >
           <router-link :to="userDirectRunsLink(username)">
-            <i class="mr-1 mdi mdi-run-fast"/>
+            <i class="mr-1 mdi mdi-run-fast" />
             <span>Direct Runs</span>
           </router-link>
         </li>
         <li v-if="$route.name === 'user direct run' || $route.name == 'user direct run task'">
-          <tabarrow/>
+          <tabarrow />
         </li>
         <li
           class="tab-element"
@@ -55,7 +55,7 @@
           </router-link>
         </li>
         <li v-if="$route.name === 'user direct run task'">
-          <tabarrow/>
+          <tabarrow />
         </li>
         <li
           class="tab-element"
@@ -77,7 +77,7 @@
           :class="[{ 'tab-element-selected': $route.name.endsWith('user project group settings') }]"
         >
           <router-link :to="projectGroupSettingsLink('user', username, [])">
-            <i class="mr-1 mdi mdi-settings"/>
+            <i class="mr-1 mdi mdi-settings" />
             <span>Root Project Group Settings</span>
           </router-link>
         </li>
@@ -87,7 +87,7 @@
           :class="[{ 'tab-element-selected': $route.name.endsWith('user settings') }]"
         >
           <router-link :to="ownerSettingsLink('user', username)">
-            <i class="mr-1 mdi mdi-settings"/>
+            <i class="mr-1 mdi mdi-settings" />
             <span>User Settings</span>
           </router-link>
         </li>
@@ -103,7 +103,7 @@
               <button
                 class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
               >
-                <i class="mr-4 mdi mdi-settings"/>
+                <i class="mr-4 mdi mdi-settings" />
                 <i class="mdi mdi-chevron-down"></i>
               </button>
             </div>
@@ -117,7 +117,7 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="projectGroupSettingsLink('user', username, [])"
                   >
-                    <i class="mr-1 mdi mdi-settings"/>
+                    <i class="mr-1 mdi mdi-settings" />
                     <span>Root Project Group Settings</span>
                   </router-link>
                 </li>
@@ -198,6 +198,16 @@ export default {
       this.$router.push(
         projectGroupCreateProjectGroupLink("user", this.username, [])
       );
+    }
+  },
+  created: async function() {
+    if (this.$route.params.runid) {
+      let { data, error } = await fetchRun(this.$route.params.runid);
+      if (error) {
+        this.$store.dispatch("setError", error);
+        return;
+      }
+      this.run = data;
     }
   }
 };
