@@ -39,33 +39,35 @@
             <span>Direct Runs</span>
           </router-link>
         </li>
-        <li v-if="$route.name === 'user direct run' || $route.name == 'user direct run task'">
+        <li
+          v-if="run && ($route.name === 'user direct run' || $route.name == 'user direct run task')"
+        >
           <tabarrow />
         </li>
         <li
           class="tab-element"
-          v-if="$route.name === 'user direct run' || $route.name == 'user direct run task'"
+          v-if="run && ($route.name === 'user direct run' || $route.name == 'user direct run task')"
           :class="[{ 'tab-element-selected': $route.name === 'user direct run' }]"
         >
           <router-link :to="userDirectRunLink(username, $route.params.runid)">
-            <span v-if="run">
+            <span>
               Run
               <strong>#{{run.counter}}</strong>
             </span>
           </router-link>
         </li>
-        <li v-if="$route.name === 'user direct run task'">
+        <li v-if="run && $route.name === 'user direct run task'">
           <tabarrow />
         </li>
         <li
           class="tab-element"
-          v-if="$route.name == 'user direct run task'"
+          v-if="run && $route.name == 'user direct run task'"
           :class="[{ 'tab-element-selected': $route.name === 'user direct run task' }]"
         >
           <router-link
             :to="userDirectRunTaskLink(username, $route.params.runid, $route.params.taskid)"
           >
-            <span v-if="run">
+            <span>
               Task
               <strong>{{run.tasks[$route.params.taskid].name}}</strong>
             </span>
@@ -168,6 +170,7 @@ export default {
   },
   watch: {
     $route: async function(route) {
+      this.run = null;
       if (route.params.runid) {
         let { data, error } = await fetchRun(route.params.runid);
         if (error) {
