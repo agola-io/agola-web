@@ -7,7 +7,11 @@
     >
       <div>{{ fetchRunsError }}</div>
     </div>
-    <div v-if="runs.length > 0">
+
+    <div class="ml-6 flex w-48">
+      <div v-bind:class="{ 'spinner': fetchRunsLoading }"></div>
+    </div>
+    <div v-if="runs">
       <ul>
         <li
           class="mb-2 border-l-5 rounded-l"
@@ -96,7 +100,7 @@
         >Load more...</button>
       </div>
     </div>
-    <div v-else class>No runs</div>
+    <div v-if="runs && runs.length == 0" class>No runs</div>
   </div>
 </template>
 
@@ -121,8 +125,10 @@ export default {
   data() {
     return {
       now: moment(),
+      fetchRunsLoading: false,
+      fetchRunsLoadingTimeout: false,
       fetchRunsError: null,
-      runs: [],
+      runs: null,
       wantedRunsNumber: 25,
       hasMoreRuns: false,
       polling: null,
@@ -132,6 +138,8 @@ export default {
   },
   watch: {
     $route: function() {
+      this.runs = null;
+      this.hasMoreRuns = false;
       this.update();
     }
   },
@@ -139,6 +147,15 @@ export default {
     projectRunLink: projectRunLink,
     userDirectRunLink: userDirectRunLink,
     runResultClass: runResultClass,
+    startFetchRunsLoading() {
+      this.fetchRunsLoadingTimeout = setTimeout(() => {
+        this.fetchRunsLoading = true;
+      }, 0);
+    },
+    stopFetchRunsLoading() {
+      clearTimeout(this.fetchRunsLoadingTimeout);
+      this.fetchRunsLoading = false;
+    },
     stillRunning(run) {
       return run.result != "unknown" && run.phase == "running";
     },
@@ -168,7 +185,7 @@ export default {
       }
       this.project = data;
 
-      this.fetchRuns();
+      this.fetchRuns(true);
     },
     async fetchUser() {
       let { data, error } = await fetchUser(this.ownername);
@@ -178,14 +195,14 @@ export default {
       }
       this.user = data;
 
-      this.fetchRuns();
+      this.fetchRuns(true);
     },
     loadMoreRuns() {
       this.wantedRunsNumber += 25;
       this.fetchRuns();
     },
     // TODO(sgotti) use run events instead of refetching all runs everytime
-    async fetchRuns() {
+    async fetchRuns(loading) {
       let group;
       let lastrun = false;
       if (this.project !== null) {
@@ -207,9 +224,12 @@ export default {
       let stopFetch = false;
       let runCount = 0;
       let startRunID = null;
+
+      if (loading) this.startFetchRunsLoading();
       while (!stopFetch) {
         let { data, error } = await fetchRuns(group, startRunID, lastrun);
         if (error) {
+          this.stopFetchRunsLoading();
           this.fetchRunsError = error;
           return;
         }
@@ -224,6 +244,7 @@ export default {
           startRunID = newRuns[newRuns.length - 1].id;
         }
       }
+      this.stopFetchRunsLoading();
       this.runs = newRuns;
       this.hasMoreRuns = hasMoreRuns;
     },
