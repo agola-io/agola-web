@@ -138,7 +138,7 @@
 </template>
 
 <script>
-import vClickOutside from "v-click-outside";
+import * as vClickOutside from "v-click-outside-x";
 
 import { cancelRun, stopRun, restartRun } from "@/util/data.js";
 import { userDirectRunLink, projectRunLink } from "@/util/link.js";

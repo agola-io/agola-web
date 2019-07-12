@@ -7,7 +7,7 @@
             class="font-semibold flex items-center flex-shrink-0 text-xl tracking-tight"
             to="/"
           >
-            <img class="w-10 mr-2" src="/img/agola-logo-circle.svg">
+            <img class="w-10 mr-2" src="/img/agola-logo-circle.svg" />
             Agola
           </router-link>
         </div>
@@ -22,7 +22,7 @@
               xmlns="http://www.w3.org/2000/svg"
             >
               <title>Menu</title>
-              <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
+              <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
             </svg>
           </button>
         </div>
@@ -37,7 +37,7 @@
               @click="createDropdownActive = !createDropdownActive"
               class="relative flex items-center focus:outline-none"
             >
-              <i class="mdi mdi-plus-box mdi-24px"/>
+              <i class="mdi mdi-plus-box mdi-24px" />
               <i class="mdi mdi-chevron-down"></i>
             </button>
             <div
@@ -75,14 +75,14 @@
                   <b>{{user.username}}</b>
                 </li>
                 <li>
-                  <hr class="navbar-divider">
+                  <hr class="navbar-divider" />
                 </li>
                 <li>
                   <router-link
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="ownerSettingsLink('user', user.username)"
                   >
-                    <i class="mr-1 mdi mdi-settings"/>
+                    <i class="mr-1 mdi mdi-settings" />
                     <span>User Settings</span>
                   </router-link>
                 </li>
@@ -125,7 +125,7 @@
 
 
 <script>
-import vClickOutside from "v-click-outside";
+import * as vClickOutside from "v-click-outside-x";
 
 import { mapGetters } from "vuex";
 

@@ -9,7 +9,7 @@
 
     <div class="mb-8 flex justify-between">
       <span class="text-3xl">{{projectGroupName()}}</span>
-      <createprojectbutton v-on:click="goToCreate($event)"/>
+      <createprojectbutton v-on:click="goToCreate($event)" />
     </div>
 
     <div class="flex justify-between">
@@ -19,7 +19,7 @@
           :class="[{ 'tab-element-selected': $route.name.match('project group project') || $route.name.endsWith('project group') }]"
         >
           <router-link :to="projectGroupProjectsLink(ownertype, ownername, projectgroupref)">
-            <i class="mdi mdi-home"/>
+            <i class="mdi mdi-home" />
             <span>Projects</span>
           </router-link>
         </li>
@@ -29,7 +29,7 @@
           :class="[{ 'tab-element-selected': $route.name.endsWith('project group settings') }]"
         >
           <router-link :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)">
-            <i class="mdi mdi-settings"/>
+            <i class="mdi mdi-settings" />
             <span>Project Group Settings</span>
           </router-link>
         </li>
@@ -45,7 +45,7 @@
               <button
                 class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
               >
-                <i class="mr-4 mdi mdi-settings"/>
+                <i class="mr-4 mdi mdi-settings" />
                 <i class="mdi mdi-chevron-down"></i>
               </button>
             </div>
@@ -59,7 +59,7 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)"
                   >
-                    <i class="mdi mdi-settings"/>
+                    <i class="mdi mdi-settings" />
                     <span>Project Group Settings</span>
                   </router-link>
                 </li>
@@ -75,7 +75,7 @@
 
 
 <script>
-import vClickOutside from "v-click-outside";
+import * as vClickOutside from "v-click-outside-x";
 
 import {
   projectGroupProjectsLink,

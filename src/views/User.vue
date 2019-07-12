@@ -134,7 +134,7 @@
 </template>
 
 <script>
-import vClickOutside from "v-click-outside";
+import * as vClickOutside from "v-click-outside-x";
 
 import {
   ownerLink,

@@ -16,7 +16,7 @@
 
     <div class="mb-8 flex justify-between">
       <span class="text-3xl">{{orgname}}</span>
-      <createprojectbutton v-on:click="goToCreate($event)"/>
+      <createprojectbutton v-on:click="goToCreate($event)" />
     </div>
 
     <div class="flex justify-between">
@@ -26,7 +26,7 @@
           :class="[{ 'tab-element-selected': $route.name === 'org projects' || $route.name === 'org' }]"
         >
           <router-link :to="ownerProjectsLink('org', orgname)">
-            <i class="mr-1 mdi mdi-home"/>
+            <i class="mr-1 mdi mdi-home" />
             <span>Projects</span>
           </router-link>
         </li>
@@ -35,7 +35,7 @@
           :class="[{ 'tab-element-selected': $route.name === 'org members' }]"
         >
           <router-link :to="orgMembersLink(orgname)">
-            <i class="mr-1 mdi mdi-account-group"/>
+            <i class="mr-1 mdi mdi-account-group" />
             <span>Members</span>
           </router-link>
         </li>
@@ -45,7 +45,7 @@
           :class="[{ 'tab-element-selected': $route.name.endsWith('org project group settings') }]"
         >
           <router-link :to="projectGroupSettingsLink('org', orgname, [])">
-            <i class="mr-1 mdi mdi-settings"/>
+            <i class="mr-1 mdi mdi-settings" />
             <span>Root Project Group Settings</span>
           </router-link>
         </li>
@@ -55,7 +55,7 @@
           :class="[{ 'tab-element-selected': $route.name.endsWith('org settings') }]"
         >
           <router-link :to="ownerSettingsLink('org', orgname)">
-            <i class="mr-1 mdi mdi-settings"/>
+            <i class="mr-1 mdi mdi-settings" />
             <span>Organization Settings</span>
           </router-link>
         </li>
@@ -71,7 +71,7 @@
               <button
                 class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
               >
-                <i class="mr-4 mdi mdi-settings"/>
+                <i class="mr-4 mdi mdi-settings" />
                 <i class="mdi mdi-chevron-down"></i>
               </button>
             </div>
@@ -85,7 +85,7 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="projectGroupSettingsLink('org', orgname, [])"
                   >
-                    <i class="mr-1 mdi mdi-settings"/>
+                    <i class="mr-1 mdi mdi-settings" />
                     <span>Root Project Group Settings</span>
                   </router-link>
                 </li>
@@ -94,7 +94,7 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="ownerSettingsLink('org', orgname)"
                   >
-                    <i class="mr-1 mdi mdi-settings"/>
+                    <i class="mr-1 mdi mdi-settings" />
                     <span>Organization Settings</span>
                   </router-link>
                 </li>
@@ -110,7 +110,7 @@
 
 
 <script>
-import vClickOutside from "v-click-outside";
+import * as vClickOutside from "v-click-outside-x";
 
 import {
   ownerLink,
