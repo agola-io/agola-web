@@ -105,14 +105,14 @@
                   <li>
                     <a
                       v-if="run.can_restart_from_scratch"
-                      class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+                      class="block px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
                       @click="restartRun(run.id, true)"
                     >From start</a>
                   </li>
                   <li>
                     <a
                       v-if="run.can_restart_from_failed_tasks"
-                      class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+                      class="block px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
                       @click="restartRun(run.id)"
                     >From failed tasks</a>
                   </li>
