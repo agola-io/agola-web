@@ -205,8 +205,25 @@ export default {
         return levelTasks;
       };
 
+      let levelsTasks = function(tasks, startLevel) {
+        let levelTasks = [];
+        for (let task of tasks) {
+          if (task.level < startLevel) {
+            continue;
+          }
+          levelTasks.push(task);
+        }
+        return levelTasks;
+      };
+
       let levelTasksByRow = function(tasks, level) {
         return levelTasks(tasks, level).sort((a, b) =>
+          a.row > b.row ? 1 : b.row > a.row ? -1 : 0
+        );
+      };
+
+      let levelsTasksByRow = function(tasks, startLevel) {
+        return levelsTasks(tasks, startLevel).sort((a, b) =>
           a.row > b.row ? 1 : b.row > a.row ? -1 : 0
         );
       };
@@ -254,7 +271,7 @@ export default {
         let row = 0;
         // if not at the last level fetch parents by their childs
         if (l < maxlevel) {
-          for (let curTask of levelTasksByRow(graphTasks, l + 1)) {
+          for (let curTask of levelsTasksByRow(graphTasks, l + 1)) {
             for (let depTaskID in curTask.depends) {
               for (let parent of levelTasks(graphTasks, l)) {
                 if (seenTasks.has(parent.id)) {
@@ -266,7 +283,7 @@ export default {
                   let maxChildLevel = taskMaxChildLevel(graphTasks, parent);
                   if (maxChildLevel > parent.level + 1) {
                     // put parent in a row greater than the max row the next levels until the child level
-                    let mrow = levelsMaxRow(graphTasks, maxChildLevel) + 1;
+                    let mrow = levelsMaxRow(graphTasks, maxChildLevel - 1) + 1;
                     parent.row = mrow;
                     row = mrow + 1;
                   } else {
