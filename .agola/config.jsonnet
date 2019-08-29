@@ -96,7 +96,7 @@ local task_build(version, arch) = {
                 EOF
               |||,
             },
-            { type: 'run', command: '/kaniko/executor --destination sorintlab/agola:$AGOLA_GIT_TAG' },
+            { type: 'run', command: '/kaniko/executor --destination sorintlab/agola-web:$AGOLA_GIT_TAG' },
           ],
           depends: ['checkout code and save to workspace'],
           when: {
