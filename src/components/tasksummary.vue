@@ -77,6 +77,7 @@ export default {
       if (task.status == "failed") return "is-failed";
       if (task.status == "stopped") return "is-failed";
       if (task.status == "running") return "is-running";
+      if (task.status == "skipped") return "is-skipped";
       return "unknown";
     },
     async fetchRun() {
