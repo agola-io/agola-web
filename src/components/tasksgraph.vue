@@ -148,6 +148,7 @@ export default {
       if (task.status == "failed") return "failed";
       if (task.status == "stopped") return "failed";
       if (task.status == "running") return "running";
+      if (task.status == "skipped") return "skipped";
       return "unknown";
     },
     update(tasks) {

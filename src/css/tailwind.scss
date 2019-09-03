@@ -85,6 +85,14 @@
   @apply bg-blue-500 text-white;
 }
 
+.skipped {
+  @apply border-gray-800;
+}
+
+.is-skipped {
+  @apply bg-gray-800 text-white;
+}
+
 .unknown {
   @apply border-gray-400;
 }
