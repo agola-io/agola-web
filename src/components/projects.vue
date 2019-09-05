@@ -1,7 +1,10 @@
 <template>
   <div>
     <h4 class="text-xl my-3">Projects</h4>
-    <ul v-if="projects.length > 0">
+    <div v-if="fetchProjectsLoading" class="ml-6 flex w-48">
+      <div v-bind:class="{ 'spinner': fetchProjectsLoading }"></div>
+    </div>
+    <ul v-else-if="projects.length > 0">
       <li class="mb-2 border rounded-l" v-for="project in projects" v-bind:key="project.id">
         <div class="pl-4 py-4 flex items-center">
           <router-link class="item" :to="projectLink(ownertype, ownername, ref(project.name))">
@@ -12,10 +15,13 @@
     </ul>
     <div v-else class="font-bold">No projects</div>
 
-    <hr class="my-6 border-t">
+    <hr class="my-6 border-t" />
 
     <h4 class="text-xl my-3">Project Groups</h4>
-    <ul v-if="projectgroups.length > 0">
+    <div v-if="fetchProjectGroupsLoading" class="ml-6 flex w-48">
+      <div v-bind:class="{ 'spinner': fetchProjectGroupsLoading }"></div>
+    </div>
+    <ul v-else-if="projectgroups.length > 0">
       <li
         class="mb-2 border rounded-l"
         v-for="projectgroup in projectgroups"
@@ -53,6 +59,9 @@ export default {
   },
   data() {
     return {
+      fetchProjectGroupsLoading: false,
+      fetchProjectsLoading: false,
+
       projects: [],
       projectgroups: [],
       polling: null
@@ -65,6 +74,18 @@ export default {
     }
   },
   methods: {
+    startFetchProjectsLoading() {
+      this.fetchProjectsLoading = true;
+    },
+    stopFetchProjectsLoading() {
+      this.fetchProjectsLoading = false;
+    },
+    startFetchProjectGroupsLoading() {
+      this.fetchProjectGroupsLoading = true;
+    },
+    stopFetchProjectGroupsLoading() {
+      this.fetchProjectGroupsLoading = false;
+    },
     ref(name) {
       let ref = [];
       if (this.projectgroupref) {
@@ -79,9 +100,11 @@ export default {
         projectgroupref.push(...this.projectgroupref);
       }
 
+      this.startFetchProjectsLoading();
       let { data, error } = await fetchProjectGroupProjects(
         projectgroupref.join("/")
       );
+      this.stopFetchProjectsLoading();
       if (error) {
         this.$store.dispatch("setError", error);
         return;
@@ -93,9 +116,11 @@ export default {
       if (this.projectgroupref) {
         projectgroupref.push(...this.projectgroupref);
       }
+      this.startFetchProjectGroupsLoading();
       let { data, error } = await fetchProjectGroupSubgroups(
         projectgroupref.join("/")
       );
+      this.stopFetchProjectGroupsLoading();
       if (error) {
         this.$store.dispatch("setError", error);
         return;
