@@ -125,13 +125,17 @@ export default {
   data() {
     return {
       now: moment(),
+
+      fetchAbort: null,
+
       fetchRunsLoading: false,
       fetchRunsLoadingTimeout: false,
       fetchRunsError: null,
+      fetchRunsSchedule: null,
+
       runs: null,
       wantedRunsNumber: 25,
       hasMoreRuns: false,
-      polling: null,
       project: null,
       user: null
     };
@@ -163,22 +167,32 @@ export default {
       return run.tasks_waiting_approval.length > 0;
     },
     update() {
-      clearInterval(this.polling);
+      if (this.fetchAbort) {
+        this.fetchAbort.abort();
+      }
+      clearTimeout(this.fetchRunsSchedule);
       if (this.projectref !== undefined) {
         this.fetchProject();
       } else {
         this.fetchUser();
       }
-      this.pollData();
     },
     async fetchProject() {
+      this.fetchAbort = new AbortController();
+
       let projectref = [
         this.ownertype,
         this.ownername,
         ...this.projectref
       ].join("/");
 
-      let { data, error } = await fetchProject(projectref);
+      let { data, error, aborted } = await fetchProject(
+        projectref,
+        this.fetchAbort.signal
+      );
+      if (aborted) {
+        return;
+      }
       if (error) {
         this.$store.dispatch("setError", error);
         return;
@@ -188,7 +202,15 @@ export default {
       this.fetchRuns(true);
     },
     async fetchUser() {
-      let { data, error } = await fetchUser(this.ownername);
+      this.fetchAbort = new AbortController();
+
+      let { data, error, aborted } = await fetchUser(
+        this.ownername,
+        this.fetchAbort.signal
+      );
+      if (aborted) {
+        return;
+      }
       if (error) {
         this.$store.dispatch("setError", error);
         return;
@@ -227,10 +249,20 @@ export default {
 
       if (loading) this.startFetchRunsLoading();
       while (!stopFetch) {
-        let { data, error } = await fetchRuns(group, startRunID, lastrun);
+        let { data, error, aborted } = await fetchRuns(
+          group,
+          startRunID,
+          lastrun,
+          this.fetchAbort.signal
+        );
+        if (aborted) {
+          return;
+        }
         if (error) {
           this.stopFetchRunsLoading();
           this.fetchRunsError = error;
+
+          this.scheduleFetchRuns();
           return;
         }
         this.fetchRunsError = null;
@@ -247,10 +279,12 @@ export default {
       this.stopFetchRunsLoading();
       this.runs = newRuns;
       this.hasMoreRuns = hasMoreRuns;
+
+      this.scheduleFetchRuns();
     },
-    pollData() {
-      clearInterval(this.polling);
-      this.polling = setInterval(() => {
+    scheduleFetchRuns() {
+      clearTimeout(this.fetchRunsSchedule);
+      this.fetchRunsSchedule = setTimeout(() => {
         this.fetchRuns();
       }, 2000);
     },
@@ -293,7 +327,10 @@ export default {
     this.update();
   },
   beforeDestroy() {
-    clearInterval(this.polling);
+    if (this.fetchAbort) {
+      this.fetchAbort.abort();
+    }
+    clearTimeout(this.fetchRunsSchedule);
   }
 };
 </script>

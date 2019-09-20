@@ -24,7 +24,6 @@ export default {
       error: null,
       run: null,
       code: this.$route.query.code,
-      polling: null,
       username: null
     };
   },
