@@ -1,10 +1,9 @@
-import { apiurl, loginapi, registerapi } from "@/util/auth";
-import { fetch as authfetch } from "@/util/auth";
 import router from "@/router";
+import { apiurl, fetch as authfetch, loginapi, registerapi } from "@/util/auth";
 
-export async function fetch(url, init) {
+export async function fetch(url, init, signal) {
     try {
-        let res = await authfetch(url, init)
+        let res = await authfetch(url, init, signal)
         if (!res.ok) {
             if (res.status === 401) {
                 router.push({ name: "login" })
@@ -31,6 +30,9 @@ export async function fetch(url, init) {
             return { data: await res.json(), error: null }
         }
     } catch (e) {
+        if (e.name == 'AbortError') {
+            return { data: null, error: null, aborted: true, }
+        }
         return { data: null, error: "api call failed: " + e.message }
     }
 }
@@ -82,17 +84,17 @@ export async function register(username, remotesourcename, remoteloginname, remo
     }
 }
 
-export async function fetchCurrentUser() {
+export async function fetchCurrentUser(signal) {
     let path = "/user"
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchOrgMembers(orgref) {
+export async function fetchOrgMembers(orgref, signal) {
     let path = "/orgs/" + orgref + "/members"
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchRuns(group, startRunID, lastrun) {
+export async function fetchRuns(group, startRunID, lastrun, signal) {
     let u = apiurl("/runs");
     if (group) {
         u.searchParams.append("group", group)
@@ -104,49 +106,49 @@ export async function fetchRuns(group, startRunID, lastrun) {
         u.searchParams.append("start", startRunID)
     }
 
-    return await fetch(u)
+    return await fetch(u, null, signal)
 }
 
-export async function fetchRun(runid) {
-    return await fetch(apiurl("/runs/" + runid));
+export async function fetchRun(runid, signal) {
+    return await fetch(apiurl("/runs/" + runid), null, signal);
 }
 
-export async function fetchTask(runid, taskid) {
-    return await fetch(apiurl("/runs/" + runid + "/tasks/" + taskid))
+export async function fetchTask(runid, taskid, signal) {
+    return await fetch(apiurl("/runs/" + runid + "/tasks/" + taskid), signal)
 }
 
-export async function fetchUser(username) {
+export async function fetchUser(username, signal) {
     let path = "/users/" + username
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchProjectGroup(projectgroupref) {
+export async function fetchProjectGroup(projectgroupref, signal) {
     let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
 
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchProjectGroupSubgroups(projectgroupref) {
+export async function fetchProjectGroupSubgroups(projectgroupref, signal) {
     let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
     path += "/subgroups";
 
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchProjectGroupProjects(projectgroupref) {
+export async function fetchProjectGroupProjects(projectgroupref, signal) {
     let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
     path += "/projects";
 
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchProject(ref) {
+export async function fetchProject(ref, signal) {
     let path = "/projects/" + encodeURIComponent(ref)
 
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchSecrets(ownertype, ref, all) {
+export async function fetchSecrets(ownertype, ref, all, signal) {
     let path
     if (ownertype == "project") {
         path = "/projects/"
@@ -158,10 +160,10 @@ export async function fetchSecrets(ownertype, ref, all) {
     if (all) {
         path += "?tree&removeoverridden";
     }
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchVariables(ownertype, ref, all) {
+export async function fetchVariables(ownertype, ref, all, signal) {
     let path
     if (ownertype == "project") {
         path = "/projects/"
@@ -173,10 +175,10 @@ export async function fetchVariables(ownertype, ref, all) {
     if (all) {
         path += "?tree&removeoverridden";
     }
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function createOrganization(orgname, visibility) {
+export async function createOrganization(orgname, visibility, signal) {
     let path = "/orgs"
     let init = {
         method: "POST",
@@ -185,10 +187,10 @@ export async function createOrganization(orgname, visibility) {
             visibility: visibility,
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function createUserToken(username, tokenname) {
+export async function createUserToken(username, tokenname, signal) {
     let path = "/users/" + username + "/tokens"
     let init = {
         method: "POST",
@@ -196,18 +198,18 @@ export async function createUserToken(username, tokenname) {
             token_name: tokenname,
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function deleteUserToken(username, tokenname) {
+export async function deleteUserToken(username, tokenname, signal) {
     let path = "/users/" + username + "/tokens/" + tokenname
     let init = {
         method: "DELETE",
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function createUserLinkedAccount(username, remotesourcename, loginname, password) {
+export async function createUserLinkedAccount(username, remotesourcename, loginname, password, signal) {
     let path = "/users/" + username + "/linkedaccounts"
     let init = {
         method: "POST",
@@ -217,18 +219,18 @@ export async function createUserLinkedAccount(username, remotesourcename, loginn
             remote_source_login_password: password,
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function deleteLinkedAccount(username, laid) {
+export async function deleteLinkedAccount(username, laid, signal) {
     let path = "/users/" + username + "/linkedaccounts/" + laid
     let init = {
         method: "DELETE",
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function restartRun(runid, fromStart) {
+export async function restartRun(runid, fromStart, signal) {
     let path = "/runs/" + runid + "/actions"
     let init = {
         method: "PUT",
@@ -237,10 +239,10 @@ export async function restartRun(runid, fromStart) {
             from_start: fromStart
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function cancelRun(runid) {
+export async function cancelRun(runid, signal) {
     let path = "/runs/" + runid + "/actions"
     let init = {
         method: "PUT",
@@ -248,10 +250,10 @@ export async function cancelRun(runid) {
             action_type: "cancel"
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function stopRun(runid) {
+export async function stopRun(runid, signal) {
     let path = "/runs/" + runid + "/actions"
     let init = {
         method: "PUT",
@@ -259,10 +261,10 @@ export async function stopRun(runid) {
             action_type: "stop"
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function approveTask(runid, taskid) {
+export async function approveTask(runid, taskid, signal) {
     let path = "/runs/" + runid + "/tasks/" + taskid + "/actions"
     let init = {
         method: "PUT",
@@ -270,20 +272,20 @@ export async function approveTask(runid, taskid) {
             action_type: "approve"
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function fetchRemoteSources() {
+export async function fetchRemoteSources(signal) {
     let path = "/remotesources"
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path), null, signal);
 }
 
-export async function userRemoteRepos(remotesourceid) {
+export async function userRemoteRepos(remotesourceid, signal) {
     let path = "/user/remoterepos/" + remotesourceid
-    return await fetch(apiurl(path));
+    return await fetch(apiurl(path, null, signal));
 }
 
-export async function createProjectGroup(parentref, name, visibility) {
+export async function createProjectGroup(parentref, name, visibility, signal) {
     let path = "/projectgroups"
     let init = {
         method: "POST",
@@ -293,10 +295,10 @@ export async function createProjectGroup(parentref, name, visibility) {
             visibility: visibility
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function updateProjectGroup(projectgroupref, name, visibility) {
+export async function updateProjectGroup(projectgroupref, name, visibility, signal) {
     let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
     let init = {
         method: "PUT",
@@ -305,10 +307,10 @@ export async function updateProjectGroup(projectgroupref, name, visibility) {
             visibility: visibility,
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function createProject(parentref, name, visibility, remotesourcename, remoterepopath) {
+export async function createProject(parentref, name, visibility, remotesourcename, remoterepopath, signal) {
     let path = "/projects"
     let init = {
         method: "POST",
@@ -320,10 +322,10 @@ export async function createProject(parentref, name, visibility, remotesourcenam
             repo_path: remoterepopath,
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function updateProject(projectref, name, visibility) {
+export async function updateProject(projectref, name, visibility, signal) {
     let path = "/projects/" + encodeURIComponent(projectref)
     let init = {
         method: "PUT",
@@ -332,29 +334,29 @@ export async function updateProject(projectref, name, visibility) {
             visibility: visibility,
         })
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function deleteProject(projectref) {
+export async function deleteProject(projectref, signal) {
     let path = "/projects/" + encodeURIComponent(projectref)
     let init = {
         method: "DELETE",
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function projectUpdateRepoLinkedAccount(projectref) {
+export async function projectUpdateRepoLinkedAccount(projectref, signal) {
     let path = "/projects/" + encodeURIComponent(projectref) + "/updaterepolinkedaccount"
     let init = {
         method: "PUT",
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }
 
-export async function deleteProjectGroup(projectgroupref) {
+export async function deleteProjectGroup(projectgroupref, signal) {
     let path = "/projectgroups/" + encodeURIComponent(projectgroupref)
     let init = {
         method: "DELETE",
     }
-    return await fetch(apiurl(path), init)
+    return await fetch(apiurl(path), init, signal)
 }

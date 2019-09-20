@@ -168,15 +168,28 @@ export default {
   },
   data() {
     return {
+      fetchAbort: null,
+
       dropdownActive: false,
       run: null
     };
   },
   watch: {
     $route: async function(route) {
+      if (this.fetchAbort) {
+        this.fetchAbort.abort();
+      }
+      this.fetchAbort = new AbortController();
+
       this.run = null;
       if (route.params.runid) {
-        let { data, error } = await fetchRun(route.params.runid);
+        let { data, error, aborted } = await fetchRun(
+          route.params.runid,
+          this.fetchAbort.signal
+        );
+        if (aborted) {
+          return;
+        }
         if (error) {
           this.$store.dispatch("setError", error);
           return;
@@ -199,13 +212,26 @@ export default {
     }
   },
   created: async function() {
+    this.fetchAbort = new AbortController();
+
     if (this.$route.params.runid) {
-      let { data, error } = await fetchRun(this.$route.params.runid);
+      let { data, error } = await fetchRun(
+        this.$route.params.runid,
+        this.fetchAbort.signal
+      );
+      if (aborted) {
+        return;
+      }
       if (error) {
         this.$store.dispatch("setError", error);
         return;
       }
       this.run = data;
+    }
+  },
+  beforeDestroy() {
+    if (this.fetchAbort) {
+      this.fetchAbort.abort();
     }
   }
 };
