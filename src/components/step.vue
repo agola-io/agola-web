@@ -16,15 +16,56 @@
         </div>
         <span class>{{ duration }}</span>
       </div>
-      <div class="p-1" v-show="active">
-        <Log
-          v-bind:runid="runid"
-          v-bind:taskid="taskid"
-          v-bind:setup="setup"
-          v-bind:step="stepnum"
-          v-bind:stepphase="step.phase"
-          v-bind:show="active"
-        />
+      <div class="p-1 font-mono text-xs" v-show="active">
+        <div v-if="step.type == 'run'">
+          <div class="p-3 rounded-t bg-gray-900 text-white">
+            <span>
+              <span class="w-2/12 bg-gray-700 rounded-l px-3 py-1 text-center font-semibold">Shell</span>
+              <span
+                class="w-2/12 bg-gray-600 rounded-r px-3 py-1 text-center font-semibold mr-2"
+              >{{ step.shell}}</span>
+            </span>
+            <span v-if="step.exit_status != undefined">
+              <span
+                class="w-2/12 bg-gray-700 rounded-l px-3 py-1 text-center font-semibold"
+              >Exit Status</span>
+              <span
+                class="w-2/12 bg-gray-600 rounded-r px-3 py-1 text-center font-semibold mr-2"
+              >{{ step.exit_status}}</span>
+            </span>
+          </div>
+          <div
+            class="px-3 py-2 border-b-2 border-gray-900 bg-gray-700 text-white cursor-pointer"
+            @click.prevent="toggleCommand"
+          >
+            <i
+              class="inline-block mr-1 mdi mdi-arrow-right"
+              :class="{ 'arrow-down': commandActive, 'arrow-right': !commandActive }"
+            ></i>
+            <span>Command</span>
+          </div>
+          <div
+            v-show="commandActive"
+            class="p-3 bg-gray-900 text-white overflow-x-auto"
+            :class="{ 'rounded': step.type != 'run' }"
+          >
+            <pre class="font-mono text-xs">{{ step.command}}</pre>
+          </div>
+        </div>
+        <div v-if="step.type == 'run'" class="px-3 py-2 bg-gray-700 text-white">Log</div>
+        <div
+          class="p-3 rounded-b bg-gray-900 text-white"
+          :class="{ 'rounded': step.type != 'run' }"
+        >
+          <Log
+            v-bind:runid="runid"
+            v-bind:taskid="taskid"
+            v-bind:setup="setup"
+            v-bind:step="stepnum"
+            v-bind:stepphase="step.phase"
+            v-bind:show="active"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -45,6 +86,7 @@ export default {
   data() {
     return {
       active: false,
+      commandActive: true,
       now: moment()
     };
   },
@@ -80,15 +122,12 @@ export default {
   methods: {
     toggle() {
       this.active = !this.active;
-      if (this.active) {
-        this.$emit("step-open", this.index);
-      }
+    },
+    toggleCommand() {
+      this.commandActive = !this.commandActive;
     }
   },
   created() {
-    if (this.active) {
-      this.$emit("step-open", this.index);
-    }
     window.setInterval(() => {
       this.now = moment();
     }, 500);
