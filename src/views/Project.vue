@@ -215,7 +215,7 @@ export default {
     this.fetchAbort = new AbortController();
 
     if (this.$route.params.runid) {
-      let { data, error } = await fetchRun(
+      let { data, error, aborted } = await fetchRun(
         this.$route.params.runid,
         this.fetchAbort.signal
       );
