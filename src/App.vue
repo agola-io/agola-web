@@ -149,14 +149,6 @@ export default {
     };
   },
   watch: {
-    user: function(user) {
-      if (user) {
-        this.$router.push({
-          name: "user",
-          params: { username: this.user.username }
-        });
-      }
-    },
     $route: function() {
       this.userDropdownActive = false;
       this.createDropdownActive = false;

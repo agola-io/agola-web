@@ -13,7 +13,12 @@
 <script>
 import { fetch } from "@/util/data";
 
-import { oauth2callbackurl, setLoggedUser } from "@/util/auth";
+import {
+  oauth2callbackurl,
+  setLoggedUser,
+  unsetLoginRedirect,
+  getLoginRedirect
+} from "@/util/auth";
 
 export default {
   components: {},
@@ -41,7 +46,13 @@ export default {
 
       if (data.request_type === "loginuser") {
         setLoggedUser(data.response.token, data.response.user);
-        this.$router.push("/");
+        let redirect = getLoginRedirect(redirect);
+        if (redirect) {
+          unsetLoginRedirect();
+          this.$router.push(redirect);
+        } else {
+          this.$router.push({ name: "home" });
+        }
       } else if (data.request_type === "authorize") {
         this.$store.dispatch("setRegisterUser", data.response);
         this.$router.push("/register");

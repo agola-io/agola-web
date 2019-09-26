@@ -38,7 +38,12 @@
 
 <script>
 import { fetchRemoteSources, login } from "@/util/data";
-import { setLoggedUser, doLogout } from "@/util/auth";
+import {
+  setLoggedUser,
+  unsetLoginRedirect,
+  setLoginRedirect,
+  doLogout
+} from "@/util/auth";
 
 import LoginForm from "@/components/loginform";
 
@@ -63,6 +68,9 @@ export default {
       this.remotesources = data;
     },
     async doLogin(username, password, remotesourcename) {
+      unsetLoginRedirect();
+      let redirect = this.$route.query["redirect"];
+
       this.error = null;
 
       let { data, error } = await login(username, password, remotesourcename);
@@ -72,11 +80,19 @@ export default {
         return;
       }
       if (data.oauth2_redirect) {
+        if (redirect) {
+          setLoginRedirect(redirect);
+        }
         window.location = data.oauth2_redirect;
         return;
       }
       setLoggedUser(data.token, data.user);
-      this.$router.push({ name: "home" });
+      if (redirect) {
+        unsetLoginRedirect();
+        this.$router.push(redirect);
+      } else {
+        this.$router.push({ name: "home" });
+      }
     }
   },
   mounted: function() {

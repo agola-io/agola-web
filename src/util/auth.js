@@ -2,6 +2,7 @@ import store from "@/store";
 
 const ID_TOKEN_KEY = 'id_token';
 const USER_KEY = 'user';
+const LOGIN_REDIRECT_KEY = 'login_redirect';
 
 let API_URL = window.CONFIG.API_URL;
 let API_BASE_PATH = window.CONFIG.API_BASE_PATH;
@@ -124,4 +125,16 @@ export function unsetUser() {
 export function isLoggedIn() {
     const idToken = getIdToken();
     return !!idToken;
+}
+
+export function getLoginRedirect() {
+    return sessionStorage.getItem(LOGIN_REDIRECT_KEY);
+}
+
+export function setLoginRedirect(url) {
+    sessionStorage.setItem(LOGIN_REDIRECT_KEY, url);
+}
+
+export function unsetLoginRedirect() {
+    return sessionStorage.removeItem(LOGIN_REDIRECT_KEY);
 }
