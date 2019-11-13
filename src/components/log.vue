@@ -1,11 +1,44 @@
 <template>
-  <div class="overflow-x-auto">
-    <div v-for="(item, index) in items" :key="index">
-      <div class="font-mono leading-normal text-xs whitespace-no-wrap" v-html="item" />
-    </div>
-    <div v-if="lastitem" class="font-mono leading-snug text-xs">
-      <div v-html="lastitem" />
-    </div>
+  <div>
+    <span
+      v-if="logExists == false"
+      class="bg-gray-700 border border-yellow-600 rounded px-3 py-1 text-center font-semibold"
+    >
+      Log doesn't exist
+    </span>
+    <template v-else>
+      <div
+        v-if="(streaming || done) && items.length == 0 && lastitem.length == 0"
+        class="bg-gray-700 border border-yellow-600 rounded mb-1 px-3 py-1 text-center font-semibold"
+      >
+        No lines
+      </div>
+      <div class="overflow-x-auto">
+        <div v-for="(item, index) in items" :key="index">
+          <div
+            class="font-mono leading-normal text-xs whitespace-no-wrap"
+            v-html="item"
+          />
+        </div>
+        <div v-if="lastitem" class="font-mono leading-snug text-xs">
+          <div v-html="lastitem" />
+        </div>
+        <div v-if="fetching" class="w-3 h-5 spinner"></div>
+      </div>
+    </template>
+    <template v-if="error">
+      <span
+        class="bg-gray-700 border border-red-600 rounded px-3 py-1 text-center font-semibold"
+      >
+        Error fetching log
+      </span>
+      <button
+        class="ml-3 font-bold py-1 px-4 rounded bg-gray-700 text-white hover:bg-gray-600 focus:bg-gray-600 focus:outline-none"
+        @click="fetch()"
+      >
+        Retry
+      </button>
+    </template>
   </div>
 </template>
 
@@ -36,7 +69,11 @@ export default {
       lines: [],
       formatter: formatter,
       es: null,
-      fetching: false
+      fetching: false,
+      streaming: false,
+      done: false,
+      logExists: null,
+      error: null
     };
   },
   methods: {
@@ -54,6 +91,9 @@ export default {
     },
     async getLogs(follow) {
       this.items = [];
+      this.logExists = null;
+      this.error = null;
+
       let path = "/logs?runID=" + this.runid + "&taskID=" + this.taskid;
       if (this.setup) {
         path += "&setup";
@@ -68,6 +108,7 @@ export default {
         this.fetching = true;
         let res = await fetch(apiurl(path), { signal: this.fetchAbort.signal });
         if (res.status == 200) {
+          this.streaming = true;
           const reader = res.body.getReader();
 
           let lastline = "";
@@ -76,6 +117,8 @@ export default {
             let { done, value } = await reader.read();
             if (done) {
               this.fetching = false;
+              this.streaming = false;
+              this.done = true;
               return;
             }
 
@@ -113,11 +156,18 @@ export default {
             j += part.length;
             this.lastitem = this.formatter.ansi_to_html(lastline);
           }
+        } else if (res.status == 404) {
+          this.logExists = false;
+        } else if (res.status == 500) {
+          this.error = true;
         }
       } catch (e) {
+        this.error = true;
         // TODO(sgotti) show that log fetching has failed
       }
       this.fetching = false;
+      this.streaming = false;
+      this.done = false;
     },
     abortFetch() {
       if (this.fetchAbort) {
@@ -170,6 +220,3 @@ export default {
   }
 };
 </script>
-
-<style scoped lang="scss">
-</style>
