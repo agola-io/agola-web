@@ -5,6 +5,9 @@ module.exports = {
         center: true,
         padding: '2rem',
       },
+      fontFamily: {
+          'sans': ['Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji']
+      },
       borderWidth: {
         default: '1px',
         '0': '0',

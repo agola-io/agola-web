@@ -1,58 +1,66 @@
 <template>
-<div class="overflow-x-auto">
-  <svg version="1.1" :width="width" :height="height" class="svg-content" scroll overflow="scroll">
-    <g v-for="(segment, i) in segments" v-bind:key="segment + i">
-      <line
-        :x1="segment.x1"
-        :y1="segment.y1"
-        :x2="segment.x2"
-        :y2="segment.y2"
-        :stroke-width="segment.strokeWidth"
-        :stroke="segment.stroke"
-        stroke-linecap="round"
-        :class="['stroke-current', segment.stroke]"
-      />
-    </g>
-    <g v-for="(task, idx) in outTasks" v-bind:key="idx">
-      <foreignObject
-        :x="(taskWidth + taskXSpace) * task.level"
-        :y="(taskHeight + taskYSpace) * task.row"
-        rx="3"
-        ry="3"
-        :width="taskWidth"
-        :height="taskHeight"
-      >
-        <body>
-          <div
-            class="mb-2 border-l-5 rounded-l"
-            :class="taskClass(task)"
-            @mouseover="hoverTask = task"
-            @mouseleave="hoverTask = null"
-          >
-            <router-link
-              tag="a"
-              :to="task.link"
-              class="px-1 flex flex-col border border-l-0 rounded-r"
-              :style="{ height: taskHeight +'px'}"
-              :title="task.name"
+  <div class="overflow-x-auto">
+    <svg
+      version="1.1"
+      :width="width"
+      :height="height"
+      class="svg-content"
+      scroll
+      overflow="scroll"
+    >
+      <g v-for="(segment, i) in segments" v-bind:key="segment + i">
+        <line
+          :x1="segment.x1"
+          :y1="segment.y1"
+          :x2="segment.x2"
+          :y2="segment.y2"
+          :stroke-width="segment.strokeWidth"
+          :stroke="segment.stroke"
+          stroke-linecap="round"
+          :class="['stroke-current', segment.stroke]"
+        />
+      </g>
+      <g v-for="(task, idx) in outTasks" v-bind:key="idx">
+        <foreignObject
+          :x="(taskWidth + taskXSpace) * task.level"
+          :y="(taskHeight + taskYSpace) * task.row"
+          rx="3"
+          ry="3"
+          :width="taskWidth"
+          :height="taskHeight"
+        >
+          <body>
+            <div
+              class="mb-2 border-l-5 rounded-l"
+              :class="taskClass(task)"
+              @mouseover="hoverTask = task"
+              @mouseleave="hoverTask = null"
             >
-              <div class="flex justify-end">
-                <div class="text-right text-xs">{{ task.duration }}</div>
-              </div>
-              <div class="font-bold truncate">{{task.name}}</div>
-              <div class="flex justify-end">
-                <span
-                  v-if="task.waiting_approval"
-                  class="bg-gray-200 rounded-full px-2 py-0 text-xs text-center font-semibold"
-                >Waiting Approval</span>
-              </div>
-            </router-link>
-          </div>
-        </body>
-      </foreignObject>
-    </g>
-  </svg>
-</div>
+              <router-link
+                tag="a"
+                :to="task.link"
+                class="px-1 flex flex-col border border-l-0 rounded-r"
+                :style="{ height: taskHeight + 'px' }"
+                :title="task.name"
+              >
+                <div class="flex justify-end">
+                  <div class="text-right text-xs">{{ task.duration }}</div>
+                </div>
+                <div class="font-bold truncate">{{ task.name }}</div>
+                <div class="flex justify-end">
+                  <span
+                    v-if="task.waiting_approval"
+                    class="bg-gray-200 rounded-full px-2 py-0 text-xs text-center font-semibold"
+                    >Waiting Approval</span
+                  >
+                </div>
+              </router-link>
+            </div>
+          </body>
+        </foreignObject>
+      </g>
+    </svg>
+  </div>
 </template>
 
 <script>
@@ -215,12 +223,6 @@ export default {
           levelTasks.push(task);
         }
         return levelTasks;
-      };
-
-      let levelTasksByRow = function(tasks, level) {
-        return levelTasks(tasks, level).sort((a, b) =>
-          a.row > b.row ? 1 : b.row > a.row ? -1 : 0
-        );
       };
 
       let levelsTasksByRow = function(tasks, startLevel) {
