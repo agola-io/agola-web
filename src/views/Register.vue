@@ -12,9 +12,28 @@
         <RegisterForm
           :remote-username="registeruser.remote_user_info.LoginName"
           :username="registeruser.remote_user_info.LoginName"
-          v-on:login="doRegister(registeruser.remote_source_name, $event.username, registeruser.remote_source_login_name, registeruser.remote_source_login_password)"
+          v-on:login="
+            doRegister(
+              registeruser.remote_source_name,
+              $event.username,
+              registeruser.remote_source_login_name,
+              registeruser.remote_source_login_password
+            )
+          "
         />
       </div>
+    </div>
+    <div
+      v-else-if="!hasRemoteSources"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+    >
+      No remote sources defined
+    </div>
+    <div
+      v-else-if="!hasRegisterRemoteSources"
+      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+    >
+      No remote sources enabled for registration
     </div>
     <div v-else>
       <div
@@ -35,7 +54,9 @@
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   @click="doAuthorize(rs.name)"
-                >Register with {{rs.name}}</button>
+                >
+                  Register with {{ rs.name }}
+                </button>
               </div>
             </div>
           </div>
@@ -68,7 +89,22 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["registeruser"])
+    ...mapGetters(["registeruser"]),
+
+    hasRemoteSources() {
+      if (this.remotesources) {
+        return this.remotesources.length > 0;
+      }
+      return false;
+    },
+    hasRegisterRemoteSources() {
+      for (let rs of this.remotesources) {
+        if (rs.registration_enabled) {
+          return true;
+        }
+      }
+      return false;
+    }
   },
   methods: {
     async fetchRemoteSources() {
@@ -81,14 +117,16 @@ export default {
     },
     async doAuthorize(remotesourcename, username, password) {
       let u = authorizeurl();
-      let res = await (await fetch(u, {
-        method: "POST",
-        body: JSON.stringify({
-          remote_source_name: remotesourcename,
-          login_name: username,
-          password: password
+      let res = await (
+        await fetch(u, {
+          method: "POST",
+          body: JSON.stringify({
+            remote_source_name: remotesourcename,
+            login_name: username,
+            password: password
+          })
         })
-      })).json();
+      ).json();
 
       if (res.oauth2_redirect) {
         window.location = res.oauth2_redirect;
