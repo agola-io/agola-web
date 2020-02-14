@@ -14,7 +14,12 @@
         Private
       </label>
     </div>
-
+    <div class="mb-4">
+      <label class="checkbox">
+        <input type="checkbox" v-model="pass_vars_to_forked_pr" />
+        Pass variables to run even if triggered by PR from forked repo (DANGEROUS)
+      </label>
+    </div>
     <div class="mb-3 flex items-center">
       <div class="flex relative w-64">
         <select
@@ -165,7 +170,8 @@ export default {
         this.projectName,
         visibility,
         remoteSource.name,
-        this.remoteRepoPath
+        this.remoteRepoPath,
+        this.pass_vars_to_forked_pr
       );
       this.stopProjectLoading();
       if (error) {

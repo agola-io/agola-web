@@ -335,6 +335,7 @@ export async function createProject(
   visibility,
   remotesourcename,
   remoterepopath,
+  passvarstoforkedpr,
   signal
 ) {
   let path = "/projects";
@@ -345,19 +346,21 @@ export async function createProject(
       parent_ref: parentref,
       visibility: visibility,
       remote_source_name: remotesourcename,
-      repo_path: remoterepopath
+      repo_path: remoterepopath,
+      pass_vars_to_forked_pr: passvarstoforkedpr
     })
   };
   return await fetch(apiurl(path), init, signal);
 }
 
-export async function updateProject(projectref, name, visibility, signal) {
+export async function updateProject(projectref, name, visibility, passvarstoforkedpr, signal) {
   let path = "/projects/" + encodeURIComponent(projectref);
   let init = {
     method: "PUT",
     body: JSON.stringify({
       name: name,
-      visibility: visibility
+      visibility: visibility,
+      pass_vars_to_forked_pr: passvarstoforkedpr
     })
   };
   return await fetch(apiurl(path), init, signal);

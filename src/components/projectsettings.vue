@@ -18,6 +18,12 @@
             Private
           </label>
         </div>
+        <div class="mb-4">
+          <label class="checkbox">
+            <input type="checkbox" v-model="project.pass_vars_to_forked_pr" />
+            Pass variables to run even if triggered by PR from forked repo (DANGEROUS)
+          </label>
+        </div>
         <button class="btn btn-blue" @click="updateProject()">Update</button>
         <div
           v-if="updateProjectError"
@@ -178,7 +184,8 @@ export default {
       let { error } = await updateProject(
         projectref,
         this.project.name,
-        visibility
+        visibility,
+        this.project.pass_vars_to_forked_pr
       );
       if (error) {
         this.updateProjectError = error;
@@ -235,6 +242,7 @@ export default {
       this.$store.dispatch("setError", error);
       return;
     }
+
     this.project = data;
     this.projectIsPrivate = this.project.visibility == "private";
 
