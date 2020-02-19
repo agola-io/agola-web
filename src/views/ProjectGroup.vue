@@ -8,66 +8,90 @@
     />
 
     <div class="mb-8 flex justify-between">
-      <span class="text-3xl">{{projectGroupName()}}</span>
+      <span class="text-3xl">{{ projectGroupName() }}</span>
       <createprojectbutton v-on:click="goToCreate($event)" />
     </div>
 
-    <div class="flex justify-between">
-      <ul class="flex-grow tab">
-        <li
-          class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.match('project group project') || $route.name.endsWith('project group') }]"
-        >
-          <router-link :to="projectGroupProjectsLink(ownertype, ownername, projectgroupref)">
-            <i class="mdi mdi-home" />
-            <span>Projects</span>
-          </router-link>
-        </li>
-        <li
-          v-if="$route.name.endsWith('project group settings')"
-          class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.endsWith('project group settings') }]"
-        >
-          <router-link :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)">
-            <i class="mdi mdi-settings" />
-            <span>Project Group Settings</span>
-          </router-link>
-        </li>
-      </ul>
-      <ul class="flex tab">
-        <li>
-          <div class="relative">
-            <div
-              class="flex -mt-3"
-              v-click-outside="() => dropdownActive = false"
-              @click="dropdownActive = !dropdownActive"
+    <div class="flex justify-between border-b-2">
+      <nav>
+        <ul class="flex flex-wrap tab">
+          <li
+            class="tab-element"
+            :class="[
+              {
+                'tab-element-selected':
+                  $route.name.match('project group project') ||
+                  $route.name.endsWith('project group')
+              }
+            ]"
+          >
+            <router-link
+              :to="
+                projectGroupProjectsLink(ownertype, ownername, projectgroupref)
+              "
             >
-              <button
-                class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
+              <i class="mdi mdi-home" />
+              <span>Projects</span>
+            </router-link>
+          </li>
+          <li
+            v-if="$route.name.endsWith('project group settings')"
+            class="tab-element"
+            :class="[
+              {
+                'tab-element-selected': $route.name.endsWith(
+                  'project group settings'
+                )
+              }
+            ]"
+          >
+            <router-link
+              :to="
+                projectGroupSettingsLink(ownertype, ownername, projectgroupref)
+              "
+            >
+              <i class="mdi mdi-settings" />
+              <span>Project Group Settings</span>
+            </router-link>
+          </li>
+        </ul>
+      </nav>
+      <nav>
+        <div
+          class="flex -mt-3"
+          v-click-outside="() => (dropdownActive = false)"
+          @click="dropdownActive = !dropdownActive"
+        >
+          <button
+            class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
+          >
+            <i class="mr-4 mdi mdi-settings" />
+            <i class="mdi mdi-chevron-down"></i>
+          </button>
+        </div>
+        <div
+          v-if="dropdownActive"
+          class="z-10 origin-top-right absolute right-0 mt-2 w-64 bg-white rounded-lg border shadow-md py-2"
+        >
+          <ul>
+            <li>
+              <router-link
+                class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
+                :to="
+                  projectGroupSettingsLink(
+                    ownertype,
+                    ownername,
+                    projectgroupref
+                  )
+                "
               >
-                <i class="mr-4 mdi mdi-settings" />
-                <i class="mdi mdi-chevron-down"></i>
-              </button>
-            </div>
-            <div
-              v-if="dropdownActive"
-              class="z-10 origin-top-right absolute right-0 mt-2 w-64 bg-white rounded-lg border shadow-md py-2"
-            >
-              <ul>
-                <li>
-                  <router-link
-                    class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
-                    :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)"
-                  >
-                    <i class="mdi mdi-settings" />
-                    <span>Project Group Settings</span>
-                  </router-link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </li>
-      </ul>
+                <i class="mdi mdi-settings" />
+                <span>Project Group Settings</span>
+              </router-link>
+            </li>
+          </ul>
+        </div>
+      </nav>
     </div>
     <router-view class="mt-8"></router-view>
   </div>
