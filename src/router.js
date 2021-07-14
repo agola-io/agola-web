@@ -21,6 +21,7 @@ import Oauth2 from "./views/Oauth2.vue";
 import Register from "./views/Register.vue";
 import Login from "./views/Login.vue";
 import Logout from "./views/Logout.vue";
+import CreateSource from "./views/CreateSource.vue";
 
 import { parseRef, projectRunLink } from "@/util/link.js";
 import { fetchProject } from "@/util/data.js";
@@ -36,6 +37,11 @@ const router = new VueRouter({
       path: "/register",
       name: "register",
       component: Register,
+    },
+    {
+      path: "/newsource",
+      name: "newsource",
+      component: CreateSource,
     },
     {
       path: "/login",

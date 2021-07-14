@@ -13,6 +13,14 @@
         class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
       >
         No remote sources defined
+      <router-link
+        class="underline text-blue-600 block"
+        to="/newsource"
+      >
+        <button class="btn btn-blue">
+          Create one
+        </button>
+      </router-link>
       </div>
       <div
         v-else-if="!hasLoginRemoteSources"
