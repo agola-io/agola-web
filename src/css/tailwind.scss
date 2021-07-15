@@ -34,11 +34,11 @@
 }
 
 .tab {
-  @apply flex border-b-2;
+  @apply flex;
 }
 
 .tab-element {
-  @apply px-4 -m-2px border-b-2;
+  @apply pr-4;
 }
 
 .tab-element:hover {
@@ -46,11 +46,11 @@
 }
 
 .tab-element-selected {
-  @apply border-b-2 border-blue-300 text-blue-500;
+  @apply border-blue-300 text-blue-500;
 }
 
 .tab-element-disabled {
-  @apply px-4 -m-2px border-b-2;
+  @apply pr-4;
 }
 
 .panel {
