@@ -64,7 +64,7 @@ export async function registerapi(init) {
   return await window.fetch(registerurl(), init);
 }
 
-export async function fetch(url, init, signal) {
+export async function fetch(url, init, signal, token, tokenType = "bearer") {
   if (!init) {
     init = {};
   }
@@ -74,9 +74,9 @@ export async function fetch(url, init, signal) {
   if (signal) {
     init["signal"] = signal;
   }
-  let idToken = getIdToken();
+  let idToken = token || getIdToken();
   if (idToken) {
-    init.headers["Authorization"] = "bearer " + idToken;
+    init.headers["Authorization"] = tokenType + " " + idToken;
   }
 
   return await window.fetch(url, init);
