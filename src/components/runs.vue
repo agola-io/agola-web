@@ -12,6 +12,21 @@
       <div v-bind:class="{ 'spinner': fetchRunsLoading }"></div>
     </div>
     <div v-if="runs">
+      <img :src="projectBadgeURL(this.project.id)"/>
+      <div class="my-3">
+        <input
+          class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+          placeholder="Badge URL" disabled
+          :value="projectBadgeURL(this.project.id)"
+          id="badgeURL"
+        />
+        <button 
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold mx-2 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          v-on:click="copyProjectBadgeURL()"
+        >
+          Copy
+        </button>
+      </div>
       <ul>
         <li
           class="mb-2 border-l-5 rounded-l"
@@ -105,7 +120,7 @@
 </template>
 
 <script>
-import { fetchUser, fetchProject, fetchRuns } from "@/util/data.js";
+import { fetchUser, fetchProject, fetchRuns, projectBadgeURL } from "@/util/data.js";
 import { userDirectRunLink, projectRunLink } from "@/util/link.js";
 import { runResultClass } from "@/util/run.js";
 import * as moment from "moment";
@@ -150,6 +165,14 @@ export default {
   methods: {
     projectRunLink: projectRunLink,
     userDirectRunLink: userDirectRunLink,
+    projectBadgeURL: projectBadgeURL,
+    copyProjectBadgeURL: () => {
+      const urlInput = document.querySelector("#badgeURL");
+      urlInput.disabled = false;
+      urlInput.select();
+      document.execCommand("copy");
+      urlInput.disabled = true;
+    },
     runResultClass: runResultClass,
     startFetchRunsLoading() {
       this.fetchRunsLoadingTimeout = setTimeout(() => {

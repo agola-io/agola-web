@@ -120,6 +120,10 @@ export async function fetchRuns(group, startRunID, lastrun, signal) {
   return await fetch(u, null, signal);
 }
 
+export function projectBadgeURL(projectId) {
+  return apiurl(`/badges/${projectId}`);
+}
+
 export async function fetchRun(runid, signal) {
   return await fetch(apiurl("/runs/" + runid), null, signal);
 }
