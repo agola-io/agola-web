@@ -27,7 +27,7 @@
           </button>
         </div>
         <div
-          class="w-full block flex-grow lg:flex lg:items-center lg:w-auto"
+          class="w-full block mt-5 sm:mt-0 flex-grow lg:flex lg:items-center lg:w-auto"
           :class="{'hidden' : !navActive}"
         >
           <div class="text-sm lg:flex-grow"></div>

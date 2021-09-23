@@ -24,8 +24,8 @@
       </div>
 
       <div class="mb-2 border-l-5 rounded shadow" :class="runResultClass(run)">
-        <div class="p-4 border border-l-0 rounded-r flex">
-          <div class="w-4/6 items-start justify-between">
+        <div class="p-4 border border-l-0 rounded-r flex flex-col sm:flex-row">
+          <div class="sm:w-4/6 items-start justify-between">
             <div class="flex items-center mb-1">
               <h2 class="text-2xl mr-3">{{run.name}}</h2>
               <span
@@ -72,7 +72,7 @@
               </a>
             </div>
           </div>
-          <div class="w-1/6">
+          <div class="sm:w-1/6">
             <div>
               <i class="mdi mdi-clock-fast mr-1"></i>
               <span class="text-right">{{ duration(run) }}</span>
@@ -82,7 +82,7 @@
               <span class="text-right">{{ endTimeHuman(run) }}</span>
             </div>
           </div>
-          <div class="w-1/6 flex items-start justify-between">
+          <div class="sm:w-1/6 flex items-start justify-between">
             <div class="relative ml-auto mr-3">
               <div
                 v-if="run.can_restart_from_scratch || run.can_restart_from_failed_tasks"

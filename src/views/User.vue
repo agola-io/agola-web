@@ -14,7 +14,7 @@
       </ol>
     </nav>
 
-    <div class="mb-8 flex justify-between">
+    <div class="mb-8 flex flex-col sm:flex-row justify-between">
       <span class="text-3xl">{{username}}</span>
       <createprojectbutton v-on:click="goToCreate($event)" />
     </div>
