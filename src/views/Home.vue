@@ -8,12 +8,7 @@
     <div class="m-8">
       <h1 class="text-lg">
         Hi, you are almost ready to go! Just
-        <router-link
-          class="underline text-blue-600"
-          to="/login"
-        >
-          login
-        </router-link>
+        <router-link class="underline text-blue-600" to="/login"> login</router-link>
         into your account
         or create a 
         <router-link

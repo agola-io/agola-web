@@ -7,7 +7,7 @@
     </div>
 
     <div class="flex justify-between">
-      <ul class="flex-grow tab">
+      <ul class="overflow-x-auto overflow-y-hidden flex-grow tab">
         <li class="tab-element-disabled">
           <i class="mr-1 mdi mdi-run-fast" />
           <span>Runs</span>

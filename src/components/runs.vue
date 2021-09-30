@@ -19,9 +19,9 @@
           v-bind:key="run.id"
           :class="runResultClass(run)"
         >
-          <div class="pl-4 flex items-center border border-l-0 rounded-r">
+          <div class="pl-4 flex sm:items-center flex-col sm:flex-row border border-l-0 rounded-r">
             <!-- TODO(sgotti) add gradient overflow -->
-            <div v-if="projectref" class="w-2/12">
+            <div v-if="projectref" class="sm:w-2/12">
               <div
                 v-if="run.annotations.ref_type == 'branch'"
                 class="whitespace-no-wrap overflow-x-hidden"
@@ -50,7 +50,7 @@
             </div>
             <router-link
               v-if="projectref"
-              class="w-5/12 pl-3 mr-auto whitespace-no-wrap overflow-hidden"
+              class="sm:w-5/12 pl-3 mr-auto"
               :to="projectRunLink(ownertype, ownername, projectref, run.id)"
             >
               <span class="font-bold">{{run.name}}</span>
