@@ -106,27 +106,54 @@ export async function fetchOrgMembers(orgref, signal) {
   return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchRuns(group, startRunID, lastrun, signal) {
-  let u = apiurl('/runs');
-  if (group) {
-    u.searchParams.append('group', group);
+export async function fetchRuns(
+  rungrouptype,
+  rungroupref,
+  subgroup,
+  startRunNumber,
+  signal
+) {
+  let path =
+    '/' + rungrouptype + '/' + encodeURIComponent(rungroupref) + '/runs';
+  let u = apiurl(path);
+  if (subgroup) {
+    u.searchParams.append('subgroup', subgroup);
   }
-  if (lastrun) {
-    u.searchParams.append('lastrun', true);
-  }
-  if (startRunID) {
-    u.searchParams.append('start', startRunID);
+  if (startRunNumber) {
+    u.searchParams.append('start', startRunNumber);
   }
 
   return await fetch(u, null, signal);
 }
 
-export async function fetchRun(runid, signal) {
-  return await fetch(apiurl('/runs/' + runid), null, signal);
+export async function fetchRun(rungrouptype, rungroupref, runnumber, signal) {
+  let path =
+    '/' +
+    rungrouptype +
+    '/' +
+    encodeURIComponent(rungroupref) +
+    '/runs/' +
+    runnumber;
+  return await fetch(apiurl(path), null, signal);
 }
 
-export async function fetchTask(runid, taskid, signal) {
-  return await fetch(apiurl('/runs/' + runid + '/tasks/' + taskid), signal);
+export async function fetchTask(
+  rungrouptype,
+  rungroupref,
+  runnumber,
+  taskid,
+  signal
+) {
+  let path =
+    '/' +
+    rungrouptype +
+    '/' +
+    encodeURIComponent(rungroupref) +
+    '/runs/' +
+    runnumber +
+    '/tasks/' +
+    taskid;
+  return await fetch(apiurl(path), null, signal);
 }
 
 export async function fetchUser(username, signal) {
@@ -283,8 +310,21 @@ export async function deleteLinkedAccount(username, laid, signal) {
   return await fetch(apiurl(path), init, signal);
 }
 
-export async function restartRun(runid, fromStart, signal) {
-  let path = '/runs/' + runid + '/actions';
+export async function restartRun(
+  rungrouptype,
+  rungroupref,
+  runnumber,
+  fromStart,
+  signal
+) {
+  let path =
+    '/' +
+    rungrouptype +
+    '/' +
+    encodeURIComponent(rungroupref) +
+    '/runs/' +
+    runnumber +
+    '/actions';
   let init = {
     method: 'PUT',
     body: JSON.stringify({
@@ -295,8 +335,15 @@ export async function restartRun(runid, fromStart, signal) {
   return await fetch(apiurl(path), init, signal);
 }
 
-export async function cancelRun(runid, signal) {
-  let path = '/runs/' + runid + '/actions';
+export async function cancelRun(rungrouptype, rungroupref, runnumber, signal) {
+  let path =
+    '/' +
+    rungrouptype +
+    '/' +
+    encodeURIComponent(rungroupref) +
+    '/runs/' +
+    runnumber +
+    '/actions';
   let init = {
     method: 'PUT',
     body: JSON.stringify({
@@ -306,8 +353,15 @@ export async function cancelRun(runid, signal) {
   return await fetch(apiurl(path), init, signal);
 }
 
-export async function stopRun(runid, signal) {
-  let path = '/runs/' + runid + '/actions';
+export async function stopRun(rungrouptype, rungroupref, runnumber, signal) {
+  let path =
+    '/' +
+    rungrouptype +
+    '/' +
+    encodeURIComponent(rungroupref) +
+    '/runs/' +
+    runnumber +
+    '/actions';
   let init = {
     method: 'PUT',
     body: JSON.stringify({
@@ -317,8 +371,23 @@ export async function stopRun(runid, signal) {
   return await fetch(apiurl(path), init, signal);
 }
 
-export async function approveTask(runid, taskid, signal) {
-  let path = '/runs/' + runid + '/tasks/' + taskid + '/actions';
+export async function approveTask(
+  rungrouptype,
+  rungroupref,
+  runnumber,
+  taskid,
+  signal
+) {
+  let path =
+    '/' +
+    rungrouptype +
+    '/' +
+    encodeURIComponent(rungroupref) +
+    '/runs/' +
+    runnumber +
+    '/tasks/' +
+    taskid +
+    '/actions';
   let init = {
     method: 'PUT',
     body: JSON.stringify({

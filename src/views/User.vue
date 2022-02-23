@@ -68,10 +68,12 @@
             { 'tab-element-selected': $route.name === 'user direct run' },
           ]"
         >
-          <router-link :to="userDirectRunLink(username, $route.params.runid)">
+          <router-link
+            :to="userDirectRunLink(username, $route.params.runnumber)"
+          >
             <span>
               Run
-              <strong>#{{ run.counter }}</strong>
+              <strong>#{{ run.number }}</strong>
             </span>
           </router-link>
         </li>
@@ -89,7 +91,7 @@
             :to="
               userDirectRunTaskLink(
                 username,
-                $route.params.runid,
+                $route.params.runnumber,
                 $route.params.taskid
               )
             "
@@ -213,9 +215,13 @@ export default {
       this.fetchAbort = new AbortController();
       this.run = null;
 
-      if (route.params.runid) {
+      if (route.params.runnumber) {
+        let rungrouptype = 'users';
+        let rungroupref = this.username;
         let { data, error, aborted } = await fetchRun(
-          route.params.runid,
+          rungrouptype,
+          rungroupref,
+          this.$route.params.runnumber,
           this.fetchAbort.signal
         );
         if (aborted) {
@@ -254,9 +260,13 @@ export default {
   created: async function () {
     this.fetchAbort = new AbortController();
 
-    if (this.$route.params.runid) {
+    if (this.$route.params.runnumber) {
+      let rungrouptype = 'users';
+      let rungroupref = this.username;
       let { data, error, aborted } = await fetchRun(
-        this.$route.params.runid,
+        rungrouptype,
+        rungroupref,
+        this.$route.params.runnumber,
         this.fetchAbort.signal
       );
       if (aborted) {
