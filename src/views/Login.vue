@@ -13,14 +13,9 @@
         class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
       >
         No remote sources defined
-      <router-link
-        class="underline text-blue-600 block"
-        to="/newsource"
-      >
-        <button class="btn btn-blue">
-          Create one
-        </button>
-      </router-link>
+        <router-link class="underline text-blue-600 block" to="/newsource">
+          <button class="btn btn-blue">Create one</button>
+        </router-link>
       </div>
       <div
         v-else-if="!hasLoginRemoteSources"
@@ -61,25 +56,25 @@
 </template>
 
 <script>
-import { fetchRemoteSources, login } from "@/util/data";
+import { fetchRemoteSources, login } from '@/util/data';
 import {
   setLoggedUser,
   unsetLoginRedirect,
   setLoginRedirect,
-  doLogout
-} from "@/util/auth";
+  doLogout,
+} from '@/util/auth';
 
-import LoginForm from "@/components/loginform";
+import LoginForm from '@/components/loginform';
 
 export default {
-  name: "Login",
+  name: 'Login',
   components: {
-    LoginForm
+    LoginForm,
   },
-  data: function() {
+  data: function () {
     return {
       error: null,
-      remotesources: null
+      remotesources: null,
     };
   },
   computed: {
@@ -96,20 +91,20 @@ export default {
         }
       }
       return false;
-    }
+    },
   },
   methods: {
     async fetchRemoteSources() {
       let { data, error } = await fetchRemoteSources();
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       this.remotesources = data;
     },
     async doLogin(username, password, remotesourcename) {
       unsetLoginRedirect();
-      let redirect = this.$route.query["redirect"];
+      let redirect = this.$route.query['redirect'];
 
       this.error = null;
 
@@ -131,18 +126,16 @@ export default {
         unsetLoginRedirect();
         this.$router.push(redirect);
       } else {
-        this.$router.push({ name: "home" });
+        this.$router.push({ name: 'home' });
       }
-    }
+    },
   },
-  mounted: function() {
-    this.$store.dispatch("setError", null);
+  mounted: function () {
+    this.$store.dispatch('setError', null);
   },
-  created: function() {
+  created: function () {
     doLogout();
     this.fetchRemoteSources();
-  }
+  },
 };
 </script>
-
-

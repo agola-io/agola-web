@@ -7,17 +7,18 @@
       type="text"
       placeholder="Project Name"
       v-model="projectName"
-    >
+    />
     <div class="mb-4">
       <label>
-        <input type="checkbox" v-model="projectIsPrivate">
+        <input type="checkbox" v-model="projectIsPrivate" />
         Private
       </label>
     </div>
     <div class="mb-4">
       <label class="checkbox">
         <input type="checkbox" v-model="pass_vars_to_forked_pr" />
-        Pass variables to run even if triggered by PR from forked repo (DANGEROUS)
+        Pass variables to run even if triggered by PR from forked repo
+        (DANGEROUS)
       </label>
     </div>
     <div class="mb-3 flex items-center">
@@ -31,31 +32,48 @@
             v-for="(rs, index) in remoteSources"
             v-bind:key="rs.id"
             :value="index"
-          >{{ rs.name }}</option>
+          >
+            {{ rs.name }}
+          </option>
         </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
-          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2"
+        >
+          <svg
+            class="fill-current h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+            ></path>
           </svg>
         </div>
       </div>
       <button
         class="ml-3 btn btn-blue"
-        v-bind:class="{ 'spinner': fetchRemoteReposLoading }"
+        v-bind:class="{ spinner: fetchRemoteReposLoading }"
         :disabled="selectedRemoteSourceIndex == null"
         @click="fetchRemoteRepos()"
-      >Fetch remote repositories</button>
+      >
+        Fetch remote repositories
+      </button>
     </div>
 
     <div v-if="remoteRepos.length">
       <h4 class="text-xl">Available remote repositories</h4>
-      <remoterepos :remoterepos="remoteRepos" v-on:reposelected="repoSelected($event)"/>
+      <remoterepos
+        :remoterepos="remoteRepos"
+        v-on:reposelected="repoSelected($event)"
+      />
       <button
         class="btn btn-blue"
-        v-bind:class="{ 'spinner': createProjectLoading }"
+        v-bind:class="{ spinner: createProjectLoading }"
         :disabled="!createProjectButtonEnabled"
         @click="createProject()"
-      >Create Project</button>
+      >
+        Create Project
+      </button>
       <div
         v-if="createProjectError"
         class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
@@ -72,20 +90,20 @@ import {
   fetchCurrentUser,
   fetchRemoteSources,
   createProject,
-  userRemoteRepos
-} from "@/util/data.js";
+  userRemoteRepos,
+} from '@/util/data.js';
 
-import { projectLink } from "@/util/link.js";
+import { projectLink } from '@/util/link.js';
 
-import remoterepos from "@/components/remoterepos.vue";
+import remoterepos from '@/components/remoterepos.vue';
 
 export default {
   components: { remoterepos },
-  name: "createproject",
+  name: 'createproject',
   props: {
     ownertype: String,
     ownername: String,
-    projectgroupref: Array
+    projectgroupref: Array,
   },
   data() {
     return {
@@ -98,15 +116,15 @@ export default {
       remoteSources: null,
       remoteRepos: [],
       selectedRemoteSourceIndex: null,
-      projectName: "",
+      projectName: '',
       projectIsPrivate: false,
-      remoteRepoPath: null
+      remoteRepoPath: null,
     };
   },
   computed: {
-    createProjectButtonEnabled: function() {
+    createProjectButtonEnabled: function () {
       return this.projectName.length && this.remoteRepoPath;
-    }
+    },
   },
   watch: {},
   methods: {
@@ -143,7 +161,7 @@ export default {
       let { data, error } = await userRemoteRepos(remoteSource.id);
       this.stopFetchRemoteReposLoading();
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       this.remoteRepos = data;
@@ -155,11 +173,11 @@ export default {
       if (this.projectgroupref) {
         refArray = [...refArray, ...this.projectgroupref];
       }
-      let parentref = refArray.join("/");
+      let parentref = refArray.join('/');
 
-      let visibility = "public";
+      let visibility = 'public';
       if (this.projectIsPrivate) {
-        visibility = "private";
+        visibility = 'private';
       }
 
       let remoteSource = this.remoteSources[this.selectedRemoteSourceIndex];
@@ -186,12 +204,12 @@ export default {
       this.$router.push(
         projectLink(this.ownertype, this.ownername, projectref)
       );
-    }
+    },
   },
-  created: async function() {
+  created: async function () {
     let { data, error } = await fetchCurrentUser();
     if (error) {
-      this.$store.dispatch("setError", error);
+      this.$store.dispatch('setError', error);
       return;
     }
     this.user = data;
@@ -199,7 +217,7 @@ export default {
     // TODO(sgotti) filter only remote source where the user has a linked account
     ({ data, error } = await fetchRemoteSources());
     if (error) {
-      this.$store.dispatch("setError", error);
+      this.$store.dispatch('setError', error);
       return;
     }
 
@@ -215,10 +233,8 @@ export default {
       }
       this.remoteSources = remoteSources;
     }
-  }
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
-
+<style scoped lang="scss"></style>

@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <projbreadcrumbs
@@ -8,7 +7,7 @@
     />
 
     <div class="mb-8 flex justify-between">
-      <span class="text-3xl">{{projectGroupName()}}</span>
+      <span class="text-3xl">{{ projectGroupName() }}</span>
       <createprojectbutton v-on:click="goToCreate($event)" />
     </div>
 
@@ -16,9 +15,19 @@
       <ul class="flex-grow tab">
         <li
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.match('project group project') || $route.name.endsWith('project group') }]"
+          :class="[
+            {
+              'tab-element-selected':
+                $route.name.match('project group project') ||
+                $route.name.endsWith('project group'),
+            },
+          ]"
         >
-          <router-link :to="projectGroupProjectsLink(ownertype, ownername, projectgroupref)">
+          <router-link
+            :to="
+              projectGroupProjectsLink(ownertype, ownername, projectgroupref)
+            "
+          >
             <i class="mdi mdi-home" />
             <span>Projects</span>
           </router-link>
@@ -26,9 +35,19 @@
         <li
           v-if="$route.name.endsWith('project group settings')"
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.endsWith('project group settings') }]"
+          :class="[
+            {
+              'tab-element-selected': $route.name.endsWith(
+                'project group settings'
+              ),
+            },
+          ]"
         >
-          <router-link :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)">
+          <router-link
+            :to="
+              projectGroupSettingsLink(ownertype, ownername, projectgroupref)
+            "
+          >
             <i class="mdi mdi-settings" />
             <span>Project Group Settings</span>
           </router-link>
@@ -39,7 +58,7 @@
           <div class="relative">
             <div
               class="flex -mt-3"
-              v-click-outside="() => dropdownActive = false"
+              v-click-outside="() => (dropdownActive = false)"
               @click="dropdownActive = !dropdownActive"
             >
               <button
@@ -57,7 +76,13 @@
                 <li>
                   <router-link
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
-                    :to="projectGroupSettingsLink(ownertype, ownername, projectgroupref)"
+                    :to="
+                      projectGroupSettingsLink(
+                        ownertype,
+                        ownername,
+                        projectgroupref
+                      )
+                    "
                   >
                     <i class="mdi mdi-settings" />
                     <span>Project Group Settings</span>
@@ -73,34 +98,33 @@
   </div>
 </template>
 
-
 <script>
-import * as vClickOutside from "v-click-outside-x";
+import * as vClickOutside from 'v-click-outside-x';
 
 import {
   projectGroupProjectsLink,
   projectGroupSettingsLink,
   projectGroupCreateProjectGroupLink,
-  projectGroupCreateProjectLink
-} from "@/util/link.js";
+  projectGroupCreateProjectLink,
+} from '@/util/link.js';
 
-import projbreadcrumbs from "@/components/projbreadcrumbs.vue";
-import createprojectbutton from "@/components/createprojectbutton.vue";
+import projbreadcrumbs from '@/components/projbreadcrumbs.vue';
+import createprojectbutton from '@/components/createprojectbutton.vue';
 
 export default {
-  name: "ProjectGroup",
+  name: 'ProjectGroup',
   components: { projbreadcrumbs, createprojectbutton },
   directives: {
-    clickOutside: vClickOutside.directive
+    clickOutside: vClickOutside.directive,
   },
   props: {
     ownertype: String,
     ownername: String,
-    projectgroupref: Array
+    projectgroupref: Array,
   },
   data() {
     return {
-      dropdownActive: false
+      dropdownActive: false,
     };
   },
   methods: {
@@ -110,12 +134,12 @@ export default {
     projectGroupCreateProjectLink: projectGroupCreateProjectLink,
     projectGroupName() {
       if (!this.projectgroupref.length) {
-        return "Root Project Group";
+        return 'Root Project Group';
       }
       return this.projectgroupref[this.projectgroupref.length - 1];
     },
     goToCreate(type) {
-      if (type == "project") {
+      if (type == 'project') {
         this.$router.push(
           projectGroupCreateProjectLink(
             this.ownertype,
@@ -132,10 +156,9 @@ export default {
           this.projectgroupref
         )
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

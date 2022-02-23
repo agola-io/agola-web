@@ -7,8 +7,8 @@
         v-bind:key="repo.id"
         @click="select(index)"
       >
-        <input type="radio" :checked="selectedrepo == index">
-        {{repo.path}}
+        <input type="radio" :checked="selectedrepo == index" />
+        {{ repo.path }}
       </label>
     </div>
     <div v-else class="block px-4 py-2 border-b">No remote repositories</div>
@@ -18,23 +18,22 @@
 <script>
 export default {
   components: {},
-  name: "remoterepos",
+  name: 'remoterepos',
   props: {
-    remoterepos: Array
+    remoterepos: Array,
   },
   data() {
     return {
-      selectedrepo: null
+      selectedrepo: null,
     };
   },
   methods: {
     select(index) {
       this.selectedrepo = index;
-      this.$emit("reposelected", this.remoterepos[index].path);
-    }
-  }
+      this.$emit('reposelected', this.remoterepos[index].path);
+    },
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

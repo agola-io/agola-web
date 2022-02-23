@@ -8,13 +8,9 @@
       <span class="block sm:inline">{{ error }}</span>
     </div>
     <div>
-      <div >
-        <div
-          class="flex justify-center items-center w-max"
-        >
-          <CreateSourceForm
-            v-on:createSource="createSource($event)"
-          />
+      <div>
+        <div class="flex justify-center items-center w-max">
+          <CreateSourceForm v-on:createSource="createSource($event)" />
         </div>
       </div>
     </div>
@@ -22,40 +18,53 @@
 </template>
 
 <script>
-
-import CreateSourceForm from "@/components/createsourceform";
-import { createRemoteSource } from "@/util/data.js";
-import router from "@/router";
+import CreateSourceForm from '@/components/createsourceform';
+import { createRemoteSource } from '@/util/data.js';
+import router from '@/router';
 
 export default {
-  name: "CreateSource",
+  name: 'CreateSource',
   components: {
-    CreateSourceForm
+    CreateSourceForm,
   },
-  data: function() {
+  data: function () {
     return {
       error: null,
     };
   },
   methods: {
-    async createSource({ 
-      token, name, type, clientId, clientSecret, url, skipVerify, sshHostKey, 
+    async createSource({
+      token,
+      name,
+      type,
+      clientId,
+      clientSecret,
+      url,
+      skipVerify,
+      sshHostKey,
       skipSshHostKeyCheck,
     }) {
       const res = await createRemoteSource(
-        token, type, name, clientId, clientSecret, url, "oauth2", skipVerify,
-        sshHostKey, skipSshHostKeyCheck, true, true, undefined,
+        token,
+        type,
+        name,
+        clientId,
+        clientSecret,
+        url,
+        'oauth2',
+        skipVerify,
+        sshHostKey,
+        skipSshHostKeyCheck,
+        true,
+        true,
+        undefined
       );
-      if (res.error) 
-        this.$store.dispatch("setError", res.error);
-      else
-        router.push({name: "login"});
-    }
+      if (res.error) this.$store.dispatch('setError', res.error);
+      else router.push({ name: 'login' });
+    },
   },
-  mounted: function() {
-    this.$store.dispatch("setError", null);
+  mounted: function () {
+    this.$store.dispatch('setError', null);
   },
 };
 </script>
-
-

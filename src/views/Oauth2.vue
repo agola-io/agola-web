@@ -11,32 +11,32 @@
 </template>
 
 <script>
-import { fetch } from "@/util/data";
+import { fetch } from '@/util/data';
 
 import {
   oauth2callbackurl,
   setLoggedUser,
   unsetLoginRedirect,
-  getLoginRedirect
-} from "@/util/auth";
+  getLoginRedirect,
+} from '@/util/auth';
 
 export default {
   components: {},
-  name: "Oauth2",
+  name: 'Oauth2',
   props: {},
   data() {
     return {
       error: null,
       run: null,
       code: this.$route.query.code,
-      username: null
+      username: null,
     };
   },
   methods: {
     async doOauth2() {
       let u = oauth2callbackurl();
-      u.searchParams.append("code", this.$route.query.code);
-      u.searchParams.append("state", this.$route.query.state);
+      u.searchParams.append('code', this.$route.query.code);
+      u.searchParams.append('state', this.$route.query.state);
       let { data, error } = await fetch(u);
       if (error) {
         // set local login error on failed oauth2.
@@ -44,29 +44,28 @@ export default {
         return;
       }
 
-      if (data.request_type === "loginuser") {
+      if (data.request_type === 'loginuser') {
         setLoggedUser(data.response.token, data.response.user);
         let redirect = getLoginRedirect(redirect);
         if (redirect) {
           unsetLoginRedirect();
           this.$router.push(redirect);
         } else {
-          this.$router.push({ name: "home" });
+          this.$router.push({ name: 'home' });
         }
-      } else if (data.request_type === "authorize") {
-        this.$store.dispatch("setRegisterUser", data.response);
-        this.$router.push("/register");
-      } else if (data.request_type === "createuserla") {
+      } else if (data.request_type === 'authorize') {
+        this.$store.dispatch('setRegisterUser', data.response);
+        this.$router.push('/register');
+      } else if (data.request_type === 'createuserla') {
         this.$router.push({
-          name: "user settings",
-          params: { username: this.username }
+          name: 'user settings',
+          params: { username: this.username },
         });
       }
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.doOauth2();
-  }
+  },
 };
 </script>
-

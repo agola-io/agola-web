@@ -5,7 +5,9 @@
       @submit.prevent="$emit('login', { username })"
     >
       <div class="mb-4">
-        <label class="block text-sm font-bold mb-2" for="username">Remote Username</label>
+        <label class="block text-sm font-bold mb-2" for="username"
+          >Remote Username</label
+        >
         <input
           class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="username"
@@ -13,38 +15,38 @@
           placeholder="Username"
           :disabled="true"
           v-model="remoteUsername"
-        >
+        />
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-bold mb-2" for="username">Username</label>
+        <label class="block text-sm font-bold mb-2" for="username"
+          >Username</label
+        >
         <input
           class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="username"
           type="text"
           placeholder="Username"
           v-model="username"
-        >
+        />
       </div>
       <div class="flex justify-center">
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           type="submit"
-        >Register</button>
+        >
+          Register
+        </button>
       </div>
     </form>
   </div>
 </template>
 
-
 <script>
 export default {
-  name: "RegisterForm",
+  name: 'RegisterForm',
   props: {
     remoteUsername: String,
-    username: String
-  }
+    username: String,
+  },
 };
 </script>
-
-
-

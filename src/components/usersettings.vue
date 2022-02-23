@@ -7,7 +7,10 @@
           class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
           role="alert"
         >
-          <p>Removing a Linked Account will also block all the projects that uses this Linked Account to access their remote repository</p>
+          <p>
+            Removing a Linked Account will also block all the projects that uses
+            this Linked Account to access their remote repository
+          </p>
         </div>
         <ul v-if="user.linked_accounts">
           <li
@@ -16,10 +19,14 @@
             v-bind:key="index"
           >
             <div>
-              <span class="font-bold">{{la.remote_user_name}}</span>
-              <span class="ml-1">(on remote source {{laRemoteSourceName(la)}})</span>
+              <span class="font-bold">{{ la.remote_user_name }}</span>
+              <span class="ml-1"
+                >(on remote source {{ laRemoteSourceName(la) }})</span
+              >
             </div>
-            <button class="btn btn-red" @click="deleteLinkedAccount(la)">Delete</button>
+            <button class="btn btn-red" @click="deleteLinkedAccount(la)">
+              Delete
+            </button>
           </li>
           <div
             v-if="deleteLinkedAccountError"
@@ -40,9 +47,13 @@
               class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
               v-model="selectedRemoteSourceName"
             >
-              <option v-for="rs in remotesources" v-bind:key="rs.id">{{ rs.name }}</option>
+              <option v-for="rs in remotesources" v-bind:key="rs.id">
+                {{ rs.name }}
+              </option>
             </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2"
+            >
               <svg
                 class="fill-current h-4 w-4"
                 xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +67,9 @@
           </div>
         </div>
 
-        <button class="ml-3 btn btn-blue" @click="addLinkedAccount()">Add Linked Account</button>
+        <button class="ml-3 btn btn-blue" @click="addLinkedAccount()">
+          Add Linked Account
+        </button>
       </div>
     </div>
 
@@ -69,8 +82,10 @@
             v-for="token in user.tokens"
             v-bind:key="token"
           >
-            <span class="font-bold">{{token}}</span>
-            <button class="btn btn-red" @click="deleteUserToken(token)">Delete</button>
+            <span class="font-bold">{{ token }}</span>
+            <button class="btn btn-red" @click="deleteUserToken(token)">
+              Delete
+            </button>
           </li>
           <div
             v-if="deleteUserTokenError"
@@ -102,8 +117,10 @@
               </svg>
             </div>
             <div>
-              <p class="font-bold">User token created. Copy it now since it won't be showed again</p>
-              <p class="text-sm">{{token}}</p>
+              <p class="font-bold">
+                User token created. Copy it now since it won't be showed again
+              </p>
+              <p class="text-sm">{{ token }}</p>
             </div>
           </div>
           <span
@@ -130,8 +147,10 @@
             type="text"
             placeholder="Token name"
             v-model="newtokenname"
-          >
-          <button class="ml-3 btn btn-blue" @click="createUserToken()">Create Token</button>
+          />
+          <button class="ml-3 btn btn-blue" @click="createUserToken()">
+            Create Token
+          </button>
         </div>
         <div
           v-if="createUserTokenError"
@@ -151,14 +170,14 @@ import {
   fetchRemoteSources,
   createUserToken,
   deleteUserToken,
-  deleteLinkedAccount
-} from "@/util/data.js";
+  deleteLinkedAccount,
+} from '@/util/data.js';
 
-import { userAddLinkedAccountLink } from "@/util/link.js";
+import { userAddLinkedAccountLink } from '@/util/link.js';
 
 export default {
   components: {},
-  name: "usersettings",
+  name: 'usersettings',
   props: {},
   data() {
     return {
@@ -169,7 +188,7 @@ export default {
       remotesources: [],
       token: null,
       newtokenname: null,
-      selectedRemoteSourceName: null
+      selectedRemoteSourceName: null,
     };
   },
   methods: {
@@ -181,7 +200,7 @@ export default {
     async fetchCurrentUser() {
       let { data, error } = await fetchCurrentUser();
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       this.user = data;
@@ -189,7 +208,7 @@ export default {
     async fetchRemoteSources() {
       let { data, error } = await fetchRemoteSources();
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       this.remotesources = data;
@@ -249,15 +268,13 @@ export default {
         return;
       }
       this.fetchCurrentUser();
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.fetchCurrentUser();
     this.fetchRemoteSources();
-  }
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
-
+<style scoped lang="scss"></style>

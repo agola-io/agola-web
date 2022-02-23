@@ -5,8 +5,10 @@
     </div>
     <div class="flex" v-for="secret in secrets" v-bind:key="secret.id">
       <div class="w-2/12">
-        <span class="name">{{secret.name}}</span>
-        <div v-if="showparentpath" class="text-sm font-light">from {{secret.parent_path}}</div>
+        <span class="name">{{ secret.name }}</span>
+        <div v-if="showparentpath" class="text-sm font-light">
+          from {{ secret.parent_path }}
+        </div>
       </div>
     </div>
   </div>
@@ -15,16 +17,12 @@
 <script>
 export default {
   components: {},
-  name: "secrets",
+  name: 'secrets',
   props: {
     secrets: Array,
-    showparentpath: Boolean
-  }
+    showparentpath: Boolean,
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
-
-
-
+<style scoped lang="scss"></style>

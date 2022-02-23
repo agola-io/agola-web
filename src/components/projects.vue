@@ -2,13 +2,20 @@
   <div>
     <h4 class="text-xl my-3">Projects</h4>
     <div v-if="fetchProjectsLoading" class="ml-6 flex w-48">
-      <div v-bind:class="{ 'spinner': fetchProjectsLoading }"></div>
+      <div v-bind:class="{ spinner: fetchProjectsLoading }"></div>
     </div>
     <ul v-else-if="projects.length > 0">
-      <li class="mb-2 border rounded-l" v-for="project in projects" v-bind:key="project.id">
+      <li
+        class="mb-2 border rounded-l"
+        v-for="project in projects"
+        v-bind:key="project.id"
+      >
         <div class="pl-4 py-4 flex items-center">
-          <router-link class="item" :to="projectLink(ownertype, ownername, ref(project.name))">
-            <span class="font-bold">{{project.name}}</span>
+          <router-link
+            class="item"
+            :to="projectLink(ownertype, ownername, ref(project.name))"
+          >
+            <span class="font-bold">{{ project.name }}</span>
           </router-link>
         </div>
       </li>
@@ -19,7 +26,7 @@
 
     <h4 class="text-xl my-3">Project Groups</h4>
     <div v-if="fetchProjectGroupsLoading" class="ml-6 flex w-48">
-      <div v-bind:class="{ 'spinner': fetchProjectGroupsLoading }"></div>
+      <div v-bind:class="{ spinner: fetchProjectGroupsLoading }"></div>
     </div>
     <ul v-else-if="projectgroups.length > 0">
       <li
@@ -32,7 +39,7 @@
             class="item"
             :to="projectGroupLink(ownertype, ownername, ref(projectgroup.name))"
           >
-            <span class="font-bold">{{projectgroup.name}}</span>
+            <span class="font-bold">{{ projectgroup.name }}</span>
           </router-link>
         </div>
       </li>
@@ -44,18 +51,18 @@
 <script>
 import {
   fetchProjectGroupProjects,
-  fetchProjectGroupSubgroups
-} from "@/util/data.js";
+  fetchProjectGroupSubgroups,
+} from '@/util/data.js';
 
-import { projectLink, projectGroupLink } from "@/util/link.js";
+import { projectLink, projectGroupLink } from '@/util/link.js';
 
 export default {
   components: {},
-  name: "Projects",
+  name: 'Projects',
   props: {
     ownertype: String,
     ownername: String,
-    projectgroupref: Array
+    projectgroupref: Array,
   },
   data() {
     return {
@@ -65,18 +72,18 @@ export default {
       fetchProjectsLoading: false,
 
       projects: [],
-      projectgroups: []
+      projectgroups: [],
     };
   },
   watch: {
-    $route: async function() {
+    $route: async function () {
       if (this.fetchAbort) {
         this.fetchAbort.abort();
       }
       this.fetchAbort = new AbortController();
       this.fetchProjects(this.ownertype, this.ownername);
       this.fetchProjectGroups(this.ownertype, this.ownername);
-    }
+    },
   },
   methods: {
     startFetchProjectsLoading() {
@@ -107,7 +114,7 @@ export default {
 
       this.startFetchProjectsLoading();
       let { data, error, aborted } = await fetchProjectGroupProjects(
-        projectgroupref.join("/"),
+        projectgroupref.join('/'),
         this.fetchAbort.signal
       );
       this.stopFetchProjectsLoading();
@@ -115,7 +122,7 @@ export default {
         return;
       }
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       this.projects = data;
@@ -127,7 +134,7 @@ export default {
       }
       this.startFetchProjectGroupsLoading();
       let { data, error, aborted } = await fetchProjectGroupSubgroups(
-        projectgroupref.join("/"),
+        projectgroupref.join('/'),
         this.fetchAbort.signal
       );
       this.stopFetchProjectGroupsLoading();
@@ -135,15 +142,15 @@ export default {
         return;
       }
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       this.projectgroups = data;
     },
     projectLink: projectLink,
-    projectGroupLink: projectGroupLink
+    projectGroupLink: projectGroupLink,
   },
-  created: function() {
+  created: function () {
     this.fetchAbort = new AbortController();
     this.fetchProjects(this.ownertype, this.ownername);
     this.fetchProjectGroups(this.ownertype, this.ownername);
@@ -152,9 +159,8 @@ export default {
     if (this.fetchAbort) {
       this.fetchAbort.abort();
     }
-  }
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

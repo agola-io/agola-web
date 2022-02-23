@@ -27,21 +27,29 @@
         <div class="p-4 border border-l-0 rounded-r flex">
           <div class="w-4/6 items-start justify-between">
             <div class="flex items-center mb-1">
-              <h2 class="text-2xl mr-3">{{run.name}}</h2>
+              <h2 class="text-2xl mr-3">{{ run.name }}</h2>
               <span
                 class="mr-3 rounded px-2 py-1 text-xs"
                 :class="'is-' + runResultClass(run)"
-              >{{ runStatus(run) | capitalize }}</span>
+                >{{ runStatus(run) | capitalize }}</span
+              >
               <span
                 v-if="stillRunning(run)"
                 class="rounded bg-gray-500 text-white px-2 py-1 text-xs"
-              >Still running</span>
+                >Still running</span
+              >
             </div>
-            <div class="mb-6">{{run.annotations.message.split(/\r?\n/)[0]}}</div>
+            <div class="mb-6">
+              {{ run.annotations.message.split(/\r?\n/)[0] }}
+            </div>
             <div>
-              <a :href="run.annotations.commit_link" class="block" target="_blank">
+              <a
+                :href="run.annotations.commit_link"
+                class="block"
+                target="_blank"
+              >
                 <i class="mdi mdi-source-commit mdi-rotate-90"></i>
-                <span>{{run.annotations.commit_sha.substring(0,8)}}</span>
+                <span>{{ run.annotations.commit_sha.substring(0, 8) }}</span>
               </a>
               <a
                 v-if="run.annotations.ref_type == 'branch'"
@@ -50,7 +58,7 @@
                 target="_blank"
               >
                 <i class="mdi mdi-source-branch"></i>
-                <span>{{run.annotations.branch}}</span>
+                <span>{{ run.annotations.branch }}</span>
               </a>
               <a
                 v-else-if="run.annotations.ref_type == 'tag'"
@@ -59,7 +67,7 @@
                 target="_blank"
               >
                 <i class="mdi mdi-tag"></i>
-                <span>{{run.annotations.tag}}</span>
+                <span>{{ run.annotations.tag }}</span>
               </a>
               <a
                 v-else-if="run.annotations.ref_type == 'pull_request'"
@@ -68,7 +76,7 @@
                 target="_blank"
               >
                 <i class="mdi mdi-source-pull"></i>
-                <span>PR #{{run.annotations.pull_request_id}}</span>
+                <span>PR #{{ run.annotations.pull_request_id }}</span>
               </a>
             </div>
           </div>
@@ -85,12 +93,18 @@
           <div class="w-1/6 flex items-start justify-between">
             <div class="relative ml-auto mr-3">
               <div
-                v-if="run.can_restart_from_scratch || run.can_restart_from_failed_tasks"
+                v-if="
+                  run.can_restart_from_scratch ||
+                  run.can_restart_from_failed_tasks
+                "
                 class="flex"
-                v-click-outside="() => dropdownActive = false"
+                v-click-outside="() => (dropdownActive = false)"
               >
                 <div class="flex items-center">
-                  <button class="btn btn-blue" @click="dropdownActive = !dropdownActive">
+                  <button
+                    class="btn btn-blue"
+                    @click="dropdownActive = !dropdownActive"
+                  >
                     <span>Restart</span>
                     <i class="ml-3 mdi mdi-restart" aria-hidden="true"></i>
                   </button>
@@ -107,14 +121,16 @@
                       v-if="run.can_restart_from_scratch"
                       class="block px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
                       @click="restartRun(run.id, true)"
-                    >From start</a>
+                      >From start</a
+                    >
                   </li>
                   <li>
                     <a
                       v-if="run.can_restart_from_failed_tasks"
                       class="block px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
                       @click="restartRun(run.id)"
-                    >From failed tasks</a>
+                      >From failed tasks</a
+                    >
                   </li>
                 </ul>
               </div>
@@ -122,13 +138,17 @@
                 class="btn btn-red"
                 v-if="run.phase == 'queued'"
                 @click="cancelRun(run.id)"
-              >Cancel</button>
+              >
+                Cancel
+              </button>
               <button
                 class="btn btn-red"
                 v-if="run.phase == 'running'"
                 :disabled="run.stopping"
                 @click="stopRun(run.id)"
-              >Stop</button>
+              >
+                Stop
+              </button>
             </div>
           </div>
         </div>
@@ -138,27 +158,27 @@
 </template>
 
 <script>
-import * as vClickOutside from "v-click-outside-x";
+import * as vClickOutside from 'v-click-outside-x';
 
-import { cancelRun, stopRun, restartRun } from "@/util/data.js";
-import { userDirectRunLink, projectRunLink } from "@/util/link.js";
-import { runStatus, runResultClass } from "@/util/run.js";
+import { cancelRun, stopRun, restartRun } from '@/util/data.js';
+import { userDirectRunLink, projectRunLink } from '@/util/link.js';
+import { runStatus, runResultClass } from '@/util/run.js';
 
-import * as moment from "moment";
-import momentDurationFormatSetup from "moment-duration-format";
+import * as moment from 'moment';
+import momentDurationFormatSetup from 'moment-duration-format';
 
 momentDurationFormatSetup(moment);
 
 export default {
-  name: "rundetail",
+  name: 'rundetail',
   directives: {
-    clickOutside: vClickOutside.directive
+    clickOutside: vClickOutside.directive,
   },
   props: {
     ownertype: String,
     ownername: String,
     projectref: Array,
-    run: Object
+    run: Object,
   },
   data() {
     return {
@@ -166,7 +186,7 @@ export default {
       stopRunError: null,
       cancelRunError: null,
       restartRunError: null,
-      dropdownActive: false
+      dropdownActive: false,
     };
   },
   methods: {
@@ -178,14 +198,14 @@ export default {
       this.restartRunError = null;
     },
     stillRunning(run) {
-      return run.result != "unknown" && run.phase == "running";
+      return run.result != 'unknown' && run.phase == 'running';
     },
     taskClass(task) {
-      if (task.status == "success") return "success";
-      if (task.status == "failed") return "failed";
-      if (task.status == "stopped") return "failed";
-      if (task.status == "running") return "running";
-      return "unknown";
+      if (task.status == 'success') return 'success';
+      if (task.status == 'failed') return 'failed';
+      if (task.status == 'stopped') return 'failed';
+      if (task.status == 'running') return 'running';
+      return 'unknown';
     },
     async stopRun(runid) {
       this.resetErrors();
@@ -207,7 +227,7 @@ export default {
         return;
       }
 
-      this.run.phase = "cancelled";
+      this.run.phase = 'cancelled';
     },
     async restartRun(runid, fromStart) {
       this.dropdownActive = false;
@@ -231,7 +251,7 @@ export default {
       this.$router.push(runLink);
     },
     duration(run) {
-      let formatString = "h:mm:ss[s]";
+      let formatString = 'h:mm:ss[s]';
       let start = moment(run.start_time);
       let end = moment(run.end_time);
 
@@ -244,30 +264,29 @@ export default {
       return moment.duration(end.diff(start)).format(formatString);
     },
     endTime(run) {
-      let formatString = "lll";
+      let formatString = 'lll';
       let end = moment(run.end_time);
 
       if (run.end_time === null) {
-        return "";
+        return '';
       }
-      return "Finished " + end.format(formatString);
+      return 'Finished ' + end.format(formatString);
     },
     endTimeHuman(run) {
       let end = moment(run.end_time);
 
       if (run.end_time === null) {
-        return "";
+        return '';
       }
       return end.fromNow();
-    }
+    },
   },
-  created: function() {
+  created: function () {
     window.setInterval(() => {
       this.now = moment();
     }, 500);
-  }
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

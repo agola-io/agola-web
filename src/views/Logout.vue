@@ -1,13 +1,11 @@
 <script>
-import { doLogout } from "@/util/auth";
+import { doLogout } from '@/util/auth';
 
 export default {
-  name: "Logout",
-  created: function() {
+  name: 'Logout',
+  created: function () {
     doLogout();
-    this.$router.push("/");
-  }
+    this.$router.push('/');
+  },
 };
 </script>
-
-

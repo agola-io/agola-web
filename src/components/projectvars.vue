@@ -7,32 +7,34 @@
     <hr class="my-6 border-t" />
 
     <h5 class="text-2xl">All variables (local and inherited)</h5>
-    <vars v-if="allvariables.length" :variables="allvariables" :showparentpath="true" />
+    <vars
+      v-if="allvariables.length"
+      :variables="allvariables"
+      :showparentpath="true"
+    />
     <span v-else>No variables</span>
   </div>
 </template>
 
 <script>
-import vars from "@/components/vars";
+import vars from '@/components/vars';
 
 export default {
   components: { vars },
-  name: "projectvars",
+  name: 'projectvars',
   props: {
     variables: Array,
     allvariables: Array,
-    type: String
+    type: String,
   },
   computed: {
     typetitle() {
-      if (this.type == "project") return "Project";
-      if (this.type == "projectgroup") return "Project group";
-      return "";
-    }
-  }
+      if (this.type == 'project') return 'Project';
+      if (this.type == 'projectgroup') return 'Project group';
+      return '';
+    },
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
-
+<style scoped lang="scss"></style>
