@@ -1,11 +1,11 @@
-import "@/css/tailwind.scss";
-import { getUser } from "@/util/auth";
-import "@mdi/font/css/materialdesignicons.css";
-import Vue from "vue";
-import Vue2Filters from "vue2-filters";
-import App from "./App.vue";
-import router from "./router";
-import store from "./store";
+import '@/css/tailwind.scss';
+import { getUser } from '@/util/auth';
+import '@mdi/font/css/materialdesignicons.css';
+import Vue from 'vue';
+import Vue2Filters from 'vue2-filters';
+import App from './App.vue';
+import router from './router';
+import store from './store';
 
 Vue.use(Vue2Filters);
 
@@ -13,12 +13,12 @@ Vue.use(Vue2Filters);
 new Vue({
   router,
   store,
-  created: function() {
+  created: function () {
     let user = getUser();
     if (user) {
-      store.dispatch("setUser", user);
+      store.dispatch('setUser', user);
     }
-    store.dispatch("setRegisterUser", null);
+    store.dispatch('setRegisterUser', null);
   },
-  render: h => h(App)
-}).$mount("#app");
+  render: (h) => h(App),
+}).$mount('#app');

@@ -43,18 +43,18 @@
 </template>
 
 <script>
-import { apiurl, fetch } from "@/util/auth";
-import AnsiUp from "ansi_up";
+import { apiurl, fetch } from '@/util/auth';
+import AnsiUp from 'ansi_up';
 
 export default {
-  name: "Log",
+  name: 'Log',
   props: {
     show: Boolean,
     runid: String,
     taskid: String,
     setup: Boolean,
     step: Number,
-    stepphase: String
+    stepphase: String,
   },
   computed: {},
   data() {
@@ -65,7 +65,7 @@ export default {
       fetchAbort: null,
 
       items: [],
-      lastitem: "",
+      lastitem: '',
       lines: [],
       formatter: formatter,
       es: null,
@@ -73,7 +73,7 @@ export default {
       streaming: false,
       done: false,
       logExists: null,
-      error: null
+      error: null,
     };
   },
   methods: {
@@ -83,7 +83,7 @@ export default {
       }
 
       let follow = false;
-      if (this.stepphase == "running") {
+      if (this.stepphase == 'running') {
         follow = true;
       }
 
@@ -94,14 +94,14 @@ export default {
       this.logExists = null;
       this.error = null;
 
-      let path = "/logs?runID=" + this.runid + "&taskID=" + this.taskid;
+      let path = '/logs?runID=' + this.runid + '&taskID=' + this.taskid;
       if (this.setup) {
-        path += "&setup";
+        path += '&setup';
       } else {
-        path += "&step=" + this.step;
+        path += '&step=' + this.step;
       }
       if (follow) {
-        path += "&follow";
+        path += '&follow';
       }
 
       try {
@@ -111,7 +111,7 @@ export default {
           this.streaming = true;
           const reader = res.body.getReader();
 
-          let lastline = "";
+          let lastline = '';
           let j = 0;
           for (;;) {
             let { done, value } = await reader.read();
@@ -122,12 +122,12 @@ export default {
               return;
             }
 
-            let data = new TextDecoder("utf-8").decode(value, { stream: true });
+            let data = new TextDecoder('utf-8').decode(value, { stream: true });
 
-            let part = "";
+            let part = '';
             for (var i = 0; i < data.length; i++) {
               let c = data.charAt(i);
-              if (c == "\r") {
+              if (c == '\r') {
                 // replace lastline from start, simulating line feed (go to start of line)
                 // this isn't perfect since the previous line contents could have
                 // been written using different colors and this will lose them but
@@ -136,17 +136,17 @@ export default {
                   lastline.slice(0, j) + part + lastline.slice(j + part.length);
                 j = 0;
                 this.lastitem = this.formatter.ansi_to_html(lastline);
-                part = "";
-              } else if (c == "\n") {
+                part = '';
+              } else if (c == '\n') {
                 lastline =
                   lastline.slice(0, j) + part + lastline.slice(j + part.length);
                 j += part.length;
                 this.lastitem = this.formatter.ansi_to_html(lastline);
                 this.items.push(this.lastitem);
-                this.lastitem = "";
-                lastline = "";
+                this.lastitem = '';
+                lastline = '';
                 j = 0;
-                part = "";
+                part = '';
               } else {
                 part += c;
               }
@@ -174,10 +174,10 @@ export default {
         this.fetchAbort.abort();
       }
       this.fetchAbort = new AbortController();
-    }
+    },
   },
   watch: {
-    show: function(post, pre) {
+    show: function (post, pre) {
       if (pre == false && post == true) {
         this.abortFetch();
         this.fetch();
@@ -186,23 +186,23 @@ export default {
         this.abortFetch();
       }
     },
-    stepphase: function(post) {
+    stepphase: function (post) {
       if (!this.show) {
         return;
       }
       if (this.fetching) {
         return;
       }
-      if (post == "running") {
+      if (post == 'running') {
         this.abortFetch();
         this.getLogs(true);
       } else {
         this.abortFetch();
         this.getLogs(false);
       }
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.fetchAbort = new AbortController();
 
     if (this.show) {
@@ -217,6 +217,6 @@ export default {
     if (this.es !== null) {
       this.es.close();
     }
-  }
+  },
 };
 </script>

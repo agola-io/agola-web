@@ -1,9 +1,13 @@
 <template>
   <div>
-    <projbreadcrumbs :ownertype="ownertype" :ownername="ownername" :projectref="projectref" />
+    <projbreadcrumbs
+      :ownertype="ownertype"
+      :ownername="ownername"
+      :projectref="projectref"
+    />
 
     <div class="mb-8">
-      <span class="text-3xl">{{projectName()}}</span>
+      <span class="text-3xl">{{ projectName() }}</span>
     </div>
 
     <div class="flex justify-between">
@@ -17,7 +21,13 @@
         </li>
         <li
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.match('project runs') || $route.name.endsWith('project') }]"
+          :class="[
+            {
+              'tab-element-selected':
+                $route.name.match('project runs') ||
+                $route.name.endsWith('project'),
+            },
+          ]"
         >
           <router-link :to="projectRunsLink(ownertype, ownername, projectref)">
             <i class="mr-1 mdi mdi-asterisk" />
@@ -26,45 +36,84 @@
         </li>
         <li
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.match('project branches runs') }]"
+          :class="[
+            {
+              'tab-element-selected': $route.name.match(
+                'project branches runs'
+              ),
+            },
+          ]"
         >
-          <router-link :to="projectBranchesRunsLink(ownertype, ownername, projectref)">
+          <router-link
+            :to="projectBranchesRunsLink(ownertype, ownername, projectref)"
+          >
             <i class="mr-1 mdi mdi-source-branch" />
             <span>Branches</span>
           </router-link>
         </li>
         <li
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.match('project tags runs') }]"
+          :class="[
+            { 'tab-element-selected': $route.name.match('project tags runs') },
+          ]"
         >
-          <router-link :to="projectTagsRunsLink(ownertype, ownername, projectref)">
+          <router-link
+            :to="projectTagsRunsLink(ownertype, ownername, projectref)"
+          >
             <i class="mr-1 mdi mdi-tag" />
             <span>Tags</span>
           </router-link>
         </li>
         <li
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.match('project pull requests runs') }]"
+          :class="[
+            {
+              'tab-element-selected': $route.name.match(
+                'project pull requests runs'
+              ),
+            },
+          ]"
         >
-          <router-link :to="projectPRsRunsLink(ownertype, ownername, projectref)">
+          <router-link
+            :to="projectPRsRunsLink(ownertype, ownername, projectref)"
+          >
             <i class="mr-1 mdi mdi-source-pull" />
             <span>Pull Requests</span>
           </router-link>
         </li>
         <li
-          v-if="run && ($route.name.endsWith('project run') || $route.name.endsWith('project run task'))"
+          v-if="
+            run &&
+            ($route.name.endsWith('project run') ||
+              $route.name.endsWith('project run task'))
+          "
         >
           <tabarrow />
         </li>
         <li
           class="tab-element"
-          v-if="run && ($route.name.endsWith('project run') || $route.name.endsWith('project run task'))"
-          :class="[{ 'tab-element-selected': $route.name.endsWith('project run') }]"
+          v-if="
+            run &&
+            ($route.name.endsWith('project run') ||
+              $route.name.endsWith('project run task'))
+          "
+          :class="[
+            { 'tab-element-selected': $route.name.endsWith('project run') },
+          ]"
         >
-          <router-link :to="projectRunLink(ownertype, ownername, projectref, $route.params.runid)">
+          <router-link
+            :to="
+              projectRunLink(
+                ownertype,
+                ownername,
+                projectref,
+                $route.params.runid
+              )
+            "
+          >
             <p>
               Run
-              <strong>#{{run.counter}}</strong>
+              <strong>#{{ run.counter }}</strong>
             </p>
           </router-link>
         </li>
@@ -74,23 +123,41 @@
         <li
           class="tab-element"
           v-if="run && $route.name.endsWith('project run task')"
-          :class="[{ 'tab-element-selected': $route.name.endsWith('project run task') }]"
+          :class="[
+            {
+              'tab-element-selected': $route.name.endsWith('project run task'),
+            },
+          ]"
         >
           <router-link
-            :to="projectRunTaskLink(ownertype, ownername, projectref, $route.params.runid, $route.params.taskid)"
+            :to="
+              projectRunTaskLink(
+                ownertype,
+                ownername,
+                projectref,
+                $route.params.runid,
+                $route.params.taskid
+              )
+            "
           >
             <p>
               Task
-              <strong>{{run.tasks[$route.params.taskid].name}}</strong>
+              <strong>{{ run.tasks[$route.params.taskid].name }}</strong>
             </p>
           </router-link>
         </li>
         <li
           v-if="$route.name.endsWith('project settings')"
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.endsWith('project settings') }]"
+          :class="[
+            {
+              'tab-element-selected': $route.name.endsWith('project settings'),
+            },
+          ]"
         >
-          <router-link :to="projectSettingsLink(ownertype, ownername, projectref)">
+          <router-link
+            :to="projectSettingsLink(ownertype, ownername, projectref)"
+          >
             <i class="mr-1 mdi mdi-settings" />
             <span>Project Settings</span>
           </router-link>
@@ -101,7 +168,7 @@
           <div class="relative">
             <div
               class="flex -mt-3"
-              v-click-outside="() => dropdownActive = false"
+              v-click-outside="() => (dropdownActive = false)"
               @click="dropdownActive = !dropdownActive"
             >
               <button
@@ -135,9 +202,8 @@
   </div>
 </template>
 
-
 <script>
-import * as vClickOutside from "v-click-outside-x";
+import * as vClickOutside from 'v-click-outside-x';
 
 import {
   projectLink,
@@ -147,35 +213,35 @@ import {
   projectPRsRunsLink,
   projectRunLink,
   projectRunTaskLink,
-  projectSettingsLink
-} from "@/util/link.js";
+  projectSettingsLink,
+} from '@/util/link.js';
 
-import { fetchRun } from "@/util/data.js";
+import { fetchRun } from '@/util/data.js';
 
-import projbreadcrumbs from "@/components/projbreadcrumbs.vue";
-import tabarrow from "@/components/tabarrow.vue";
+import projbreadcrumbs from '@/components/projbreadcrumbs.vue';
+import tabarrow from '@/components/tabarrow.vue';
 
 export default {
-  name: "Project",
+  name: 'Project',
   components: { projbreadcrumbs, tabarrow },
   directives: {
-    clickOutside: vClickOutside.directive
+    clickOutside: vClickOutside.directive,
   },
   props: {
     ownertype: String,
     ownername: String,
-    projectref: Array
+    projectref: Array,
   },
   data() {
     return {
       fetchAbort: null,
 
       dropdownActive: false,
-      run: null
+      run: null,
     };
   },
   watch: {
-    $route: async function(route) {
+    $route: async function (route) {
       if (this.fetchAbort) {
         this.fetchAbort.abort();
       }
@@ -191,12 +257,12 @@ export default {
           return;
         }
         if (error) {
-          this.$store.dispatch("setError", error);
+          this.$store.dispatch('setError', error);
           return;
         }
         this.run = data;
       }
-    }
+    },
   },
   methods: {
     projectLink: projectLink,
@@ -209,9 +275,9 @@ export default {
     projectSettingsLink: projectSettingsLink,
     projectName() {
       return this.projectref[this.projectref.length - 1];
-    }
+    },
   },
-  created: async function() {
+  created: async function () {
     this.fetchAbort = new AbortController();
 
     if (this.$route.params.runid) {
@@ -223,7 +289,7 @@ export default {
         return;
       }
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       this.run = data;
@@ -233,9 +299,8 @@ export default {
     if (this.fetchAbort) {
       this.fetchAbort.abort();
     }
-  }
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

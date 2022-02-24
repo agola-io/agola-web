@@ -28,13 +28,8 @@
       class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
     >
       No remote sources defined
-      <router-link
-        class="underline text-blue-600 block"
-        to="/newsource"
-      >
-        <button class="btn btn-blue">
-          Create one
-        </button>
+      <router-link class="underline text-blue-600 block" to="/newsource">
+        <button class="btn btn-blue">Create one</button>
       </router-link>
     </div>
     <div
@@ -75,29 +70,29 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex';
 
-import LoginForm from "@/components/loginform";
-import RegisterForm from "@/components/registerform";
+import LoginForm from '@/components/loginform';
+import RegisterForm from '@/components/registerform';
 
-import { fetchRemoteSources, register } from "@/util/data";
+import { fetchRemoteSources, register } from '@/util/data';
 
-import { authorizeurl, fetch, doLogout } from "@/util/auth";
+import { authorizeurl, fetch, doLogout } from '@/util/auth';
 
 export default {
-  name: "Register",
+  name: 'Register',
   components: {
     LoginForm,
-    RegisterForm
+    RegisterForm,
   },
-  data: function() {
+  data: function () {
     return {
       error: null,
-      remotesources: null
+      remotesources: null,
     };
   },
   computed: {
-    ...mapGetters(["registeruser"]),
+    ...mapGetters(['registeruser']),
 
     hasRemoteSources() {
       if (this.remotesources) {
@@ -112,13 +107,13 @@ export default {
         }
       }
       return false;
-    }
+    },
   },
   methods: {
     async fetchRemoteSources() {
       let { data, error } = await fetchRemoteSources();
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       this.remotesources = data;
@@ -127,12 +122,12 @@ export default {
       let u = authorizeurl();
       let res = await (
         await fetch(u, {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({
             remote_source_name: remotesourcename,
             login_name: username,
-            password: password
-          })
+            password: password,
+          }),
         })
       ).json();
 
@@ -140,11 +135,11 @@ export default {
         window.location = res.oauth2_redirect;
         return;
       }
-      this.$store.dispatch("setRegisterUser", {
+      this.$store.dispatch('setRegisterUser', {
         remote_user_info: res.remote_user_info,
         remote_source_name: res.remote_source_name,
         remote_source_login_name: username,
-        remote_source_login_password: password
+        remote_source_login_password: password,
       });
     },
     async doRegister(
@@ -170,18 +165,15 @@ export default {
         window.location = data.oauth2_redirect;
         return;
       }
-      this.$router.push({ name: "home" });
-    }
+      this.$router.push({ name: 'home' });
+    },
   },
-  mounted: function() {
-    this.$store.dispatch("setError", null);
+  mounted: function () {
+    this.$store.dispatch('setError', null);
   },
-  created: function() {
+  created: function () {
     doLogout();
     this.fetchRemoteSources();
-  }
+  },
 };
 </script>
-
-
-

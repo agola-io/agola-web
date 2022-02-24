@@ -20,7 +20,9 @@
             Private
           </label>
         </div>
-        <button class="btn btn-blue" @click="updateProjectGroup()">Update</button>
+        <button class="btn btn-blue" @click="updateProjectGroup()">
+          Update
+        </button>
 
         <div
           v-if="updateProjectGroupError"
@@ -35,14 +37,22 @@
     <div class="panel">
       <p class="panel-title">Secrets</p>
       <div class="p-4">
-        <projectsecrets :secrets="secrets" :allsecrets="allsecrets" type="projectgroup" />
+        <projectsecrets
+          :secrets="secrets"
+          :allsecrets="allsecrets"
+          type="projectgroup"
+        />
       </div>
     </div>
 
     <div class="panel">
       <p class="panel-title">Variables</p>
       <div class="p-4">
-        <projectvars :variables="variables" :allvariables="allvariables" type="projectgroup" />
+        <projectvars
+          :variables="variables"
+          :allvariables="allvariables"
+          type="projectgroup"
+        />
       </div>
     </div>
 
@@ -56,16 +66,13 @@
         >
           <p>
             This operation
-            <strong>CANNOT</strong> be undone.
-            This operation will remove
-            <strong>{{projectGroupPath}}</strong>
+            <strong>CANNOT</strong> be undone. This operation will remove
+            <strong>{{ projectGroupPath }}</strong>
           </p>
         </div>
         <label class="block mb-2">
           Please type the project group name for confirmation:
-          <span
-            class="text-red-500 font-bold"
-          >{{ projectGroupName }}</span>
+          <span class="text-red-500 font-bold">{{ projectGroupName }}</span>
         </label>
         <div class="mb-4">
           <input
@@ -79,7 +86,9 @@
           class="btn btn-red"
           @click="deleteProjectGroup()"
           :disabled="!deleteButtonEnabled"
-        >Delete Project Group</button>
+        >
+          Delete Project Group
+        </button>
       </div>
     </div>
     <div
@@ -98,21 +107,21 @@ import {
   fetchSecrets,
   fetchVariables,
   updateProjectGroup,
-  deleteProjectGroup
-} from "@/util/data.js";
+  deleteProjectGroup,
+} from '@/util/data.js';
 
-import { projectGroupLink } from "@/util/link.js";
+import { projectGroupLink } from '@/util/link.js';
 
-import projectsecrets from "@/components/projectsecrets";
-import projectvars from "@/components/projectvars";
+import projectsecrets from '@/components/projectsecrets';
+import projectvars from '@/components/projectvars';
 
 export default {
   components: { projectsecrets, projectvars },
-  name: "projectgroupsettings",
+  name: 'projectgroupsettings',
   props: {
     ownertype: String,
     ownername: String,
-    projectgroupref: Array
+    projectgroupref: Array,
   },
   data() {
     return {
@@ -124,24 +133,24 @@ export default {
       allsecrets: [],
       variables: [],
       allvariables: [],
-      projectGroupNameToDelete: ""
+      projectGroupNameToDelete: '',
     };
   },
   computed: {
-    projectGroupName: function() {
+    projectGroupName: function () {
       return this.projectgroupref[this.projectgroupref.length - 1];
     },
-    projectGroupPath: function() {
-      return ["", this.ownertype, this.ownername, ...this.projectgroupref].join(
-        "/"
+    projectGroupPath: function () {
+      return ['', this.ownertype, this.ownername, ...this.projectgroupref].join(
+        '/'
       );
     },
-    deleteButtonEnabled: function() {
+    deleteButtonEnabled: function () {
       return this.projectGroupNameToDelete == this.projectGroupName;
     },
     isRootProjectGroup() {
       return this.projectgroupref.length == 0;
-    }
+    },
   },
   methods: {
     resetErrors() {
@@ -154,12 +163,12 @@ export default {
       let projectgroupref = [
         this.ownertype,
         this.ownername,
-        ...this.projectgroupref
-      ].join("/");
+        ...this.projectgroupref,
+      ].join('/');
 
-      let visibility = "public";
+      let visibility = 'public';
       if (this.projectGroupIsPrivate) {
-        visibility = "private";
+        visibility = 'private';
       }
       let { error } = await updateProjectGroup(
         projectgroupref,
@@ -175,8 +184,8 @@ export default {
       let projectgroupref = [
         this.ownertype,
         this.ownername,
-        ...this.projectgroupref
-      ].join("/");
+        ...this.projectgroupref,
+      ].join('/');
 
       if (this.projectGroupNameToDelete == this.projectGroupName) {
         let { error } = await deleteProjectGroup(projectgroupref);
@@ -192,70 +201,68 @@ export default {
           )
         );
       }
-    }
+    },
   },
-  created: async function() {
+  created: async function () {
     let projectgroupref = [
       this.ownertype,
       this.ownername,
-      ...this.projectgroupref
-    ].join("/");
+      ...this.projectgroupref,
+    ].join('/');
 
     let { data, error } = await fetchProjectGroup(projectgroupref);
     if (error) {
-      this.$store.dispatch("setError", error);
+      this.$store.dispatch('setError', error);
       return;
     }
     this.projectGroup = data;
-    this.projectGroupIsPrivate = this.projectGroup.visibility == "private";
+    this.projectGroupIsPrivate = this.projectGroup.visibility == 'private';
 
     ({ data, error } = await fetchSecrets(
-      "projectgroup",
+      'projectgroup',
       projectgroupref,
       false
     ));
     if (error) {
-      this.$store.dispatch("setError", error);
+      this.$store.dispatch('setError', error);
       return;
     }
     this.secrets = data;
 
     ({ data, error } = await fetchSecrets(
-      "projectgroup",
+      'projectgroup',
       projectgroupref,
       true
     ));
     if (error) {
-      this.$store.dispatch("setError", error);
+      this.$store.dispatch('setError', error);
       return;
     }
     this.allsecrets = data;
 
     ({ data, error } = await fetchVariables(
-      "projectgroup",
+      'projectgroup',
       projectgroupref,
       false
     ));
     if (error) {
-      this.$store.dispatch("setError", error);
+      this.$store.dispatch('setError', error);
       return;
     }
     this.variables = data;
 
     ({ data, error } = await fetchVariables(
-      "projectgroup",
+      'projectgroup',
       projectgroupref,
       true
     ));
     if (error) {
-      this.$store.dispatch("setError", error);
+      this.$store.dispatch('setError', error);
       return;
     }
     this.allvariables = data;
-  }
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
-
+<style scoped lang="scss"></style>

@@ -1,8 +1,8 @@
-import store from "@/store";
+import store from '@/store';
 
-const ID_TOKEN_KEY = "id_token";
-const USER_KEY = "user";
-const LOGIN_REDIRECT_KEY = "login_redirect";
+const ID_TOKEN_KEY = 'id_token';
+const USER_KEY = 'user';
+const LOGIN_REDIRECT_KEY = 'login_redirect';
 
 let API_URL = window.CONFIG.API_URL;
 let API_BASE_PATH = window.CONFIG.API_BASE_PATH;
@@ -10,20 +10,20 @@ let API_BASE_PATH = window.CONFIG.API_BASE_PATH;
 export function setLoggedUser(token, user) {
   setIdToken(token);
   setUser(user);
-  store.dispatch("setUser", user);
+  store.dispatch('setUser', user);
 }
 
 export function doLogout() {
   unsetIdToken();
   unsetUser();
-  store.dispatch("setUser", null);
+  store.dispatch('setUser', null);
 }
 
 export function apiurlwithtoken(path) {
   let u = new URL(API_URL + API_BASE_PATH + path);
   let idToken = getIdToken();
   if (idToken) {
-    u.searchParams.append("access_token", idToken);
+    u.searchParams.append('access_token', idToken);
   }
   return u;
 }
@@ -33,19 +33,19 @@ export function apiurl(path) {
 }
 
 export function loginurl() {
-  return apiurl("/auth/login");
+  return apiurl('/auth/login');
 }
 
 export function authorizeurl() {
-  return apiurl("/auth/authorize");
+  return apiurl('/auth/authorize');
 }
 
 export function registerurl() {
-  return new apiurl("/auth/register");
+  return new apiurl('/auth/register');
 }
 
 export function oauth2callbackurl() {
-  return new apiurl("/auth/oauth2/callback");
+  return new apiurl('/auth/oauth2/callback');
 }
 
 export async function loginapi(init) {
@@ -64,19 +64,19 @@ export async function registerapi(init) {
   return await window.fetch(registerurl(), init);
 }
 
-export async function fetch(url, init, signal, token, tokenType = "bearer") {
+export async function fetch(url, init, signal, token, tokenType = 'bearer') {
   if (!init) {
     init = {};
   }
   if (init.headers === undefined) {
-    init["headers"] = {};
+    init['headers'] = {};
   }
   if (signal) {
-    init["signal"] = signal;
+    init['signal'] = signal;
   }
   let idToken = token || getIdToken();
   if (idToken) {
-    init.headers["Authorization"] = tokenType + " " + idToken;
+    init.headers['Authorization'] = tokenType + ' ' + idToken;
   }
 
   return await window.fetch(url, init);

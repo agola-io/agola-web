@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 
-@import "@/css/_ansi.scss";
+@import '@/css/_ansi.scss';
 
 .btn {
   @apply font-bold py-2 px-4 rounded;
@@ -119,7 +119,7 @@
     border-radius: 290486px;
     border-right-color: transparent;
     border-top-color: transparent;
-    content: "";
+    content: '';
     display: block;
     width: 1em;
     height: 1em;

@@ -1,7 +1,7 @@
-const path = require("path");
+const path = require('path');
 
 module.exports = {
   css: {
-    sourceMap: true
-  }
+    sourceMap: true,
+  },
 };

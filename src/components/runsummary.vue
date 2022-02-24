@@ -7,7 +7,12 @@
     >
       <div>{{ fetchRunError }}</div>
     </div>
-    <rundetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref" />
+    <rundetail
+      :run="run"
+      :ownertype="ownertype"
+      :ownername="ownername"
+      :projectref="projectref"
+    />
     <div v-if="run">
       <div v-if="run.phase != 'setuperror'">
         <div class="flex items-center my-6 justify-between">
@@ -17,7 +22,7 @@
             <button
               @click="tasksDisplay = 'graph'"
               class="relative flex items-center focus:outline-none bg-blue-500 hover:bg-blue-600 text-white font-semibold hover:text-white py-2 px-4 border border-blue-700 rounded rounded-r-none"
-              :class="{ 'bg-blue-600': tasksDisplay=='graph'}"
+              :class="{ 'bg-blue-600': tasksDisplay == 'graph' }"
               title="Tasks Graph"
             >
               <i class="mr-1 mdi mdi-file-tree" />
@@ -26,7 +31,7 @@
               @click="tasksDisplay = 'list'"
               class="relative flex items-center focus:outline-none bg-blue-500 hover:bg-blue-600 text-white font-semibold hover:text-white py-2 px-4 border border-l-0 border-blue-700 rounded rounded-l-none"
               title="Tasks List"
-              :class="{ 'bg-blue-600': tasksDisplay=='list'}"
+              :class="{ 'bg-blue-600': tasksDisplay == 'list' }"
             >
               <i class="mr-1 mdi mdi-format-list-bulleted-square" />
             </button>
@@ -42,7 +47,8 @@
             class="font-mono leading-snug text-xs"
             v-for="(error, i) in run.setup_errors"
             v-bind:key="i"
-          >{{error}}</pre>
+            >{{ error }}</pre
+          >
         </div>
       </div>
     </div>
@@ -50,21 +56,21 @@
 </template>
 
 <script>
-import { fetchRun } from "@/util/data.js";
-import { userDirectRunTaskLink, projectRunTaskLink } from "@/util/link.js";
+import { fetchRun } from '@/util/data.js';
+import { userDirectRunTaskLink, projectRunTaskLink } from '@/util/link.js';
 
-import rundetail from "@/components/rundetail.vue";
-import tasks from "@/components/tasks.vue";
-import tasksgraph from "@/components/tasksgraph.vue";
+import rundetail from '@/components/rundetail.vue';
+import tasks from '@/components/tasks.vue';
+import tasksgraph from '@/components/tasksgraph.vue';
 
 export default {
-  name: "runsummary",
+  name: 'runsummary',
   components: { rundetail, tasks, tasksgraph },
   props: {
     ownertype: String,
     ownername: String,
     projectref: Array,
-    runid: String
+    runid: String,
   },
   data() {
     return {
@@ -80,11 +86,11 @@ export default {
       taskYSpace: 20,
       hoverTask: null,
 
-      tasksDisplay: "graph"
+      tasksDisplay: 'graph',
     };
   },
   watch: {
-    $route: async function() {
+    $route: async function () {
       if (this.fetchAbort) {
         this.fetchAbort.abort();
       }
@@ -93,7 +99,7 @@ export default {
       this.fetchAbort = new AbortController();
 
       this.fetchRun();
-    }
+    },
   },
   methods: {
     runTaskLink(task) {
@@ -110,16 +116,16 @@ export default {
       }
     },
     parents(task) {
-      return Object.keys(task.depends).map(key => {
+      return Object.keys(task.depends).map((key) => {
         return this.run.tasks[task.depends[key].task_id].name;
       });
     },
     taskClass(task) {
-      if (task.status == "success") return "success";
-      if (task.status == "failed") return "failed";
-      if (task.status == "stopped") return "failed";
-      if (task.status == "running") return "running";
-      return "unknown";
+      if (task.status == 'success') return 'success';
+      if (task.status == 'failed') return 'failed';
+      if (task.status == 'stopped') return 'failed';
+      if (task.status == 'running') return 'running';
+      return 'unknown';
     },
     async fetchRun() {
       let { data, error, aborted } = await fetchRun(
@@ -145,9 +151,8 @@ export default {
         let task = tasks[taskID];
         task.link = this.runTaskLink(task);
         task.parents = this.parents(task);
-        task.waiting_approval = this.run.tasks_waiting_approval.includes(
-          taskID
-        );
+        task.waiting_approval =
+          this.run.tasks_waiting_approval.includes(taskID);
       }
 
       this.scheduleFetchRun();
@@ -157,9 +162,9 @@ export default {
       this.fetchRunSchedule = setTimeout(() => {
         this.fetchRun();
       }, 2000);
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.fetchAbort = new AbortController();
     this.fetchRun();
   },
@@ -168,9 +173,8 @@ export default {
       this.fetchAbort.abort();
     }
     clearTimeout(this.fetchRunSchedule);
-  }
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

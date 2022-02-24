@@ -64,13 +64,13 @@
 </template>
 
 <script>
-import * as moment from "moment";
-import momentDurationFormatSetup from "moment-duration-format";
+import * as moment from 'moment';
+import momentDurationFormatSetup from 'moment-duration-format';
 
 momentDurationFormatSetup(moment);
 
 export default {
-  name: "tasksgraph",
+  name: 'tasksgraph',
   components: {},
   data() {
     return {
@@ -85,14 +85,14 @@ export default {
       taskYSpace: 20,
       hoverTask: null,
 
-      height: "400px"
+      height: '400px',
     };
   },
   props: {
-    tasks: Object
+    tasks: Object,
   },
   computed: {
-    segments: function() {
+    segments: function () {
       let segments = [];
       for (let edge of this.edges) {
         for (let i = 0; i < edge.edgePoints.length - 1; i++) {
@@ -107,7 +107,7 @@ export default {
           }
 
           // TODO(sgotti) set different colors to edges based on source task status???
-          let stroke = "text-dark";
+          let stroke = 'text-dark';
           segments.push({
             edge: edge,
             x1: edge.edgePoints[i].x,
@@ -115,7 +115,7 @@ export default {
             x2: edge.edgePoints[i + 1].x,
             y2: edge.edgePoints[i + 1].y,
             strokeWidth: strokeWidth,
-            stroke: stroke
+            stroke: stroke,
           });
         }
       }
@@ -130,16 +130,16 @@ export default {
       }
 
       return this.graphTasks;
-    }
+    },
   },
   watch: {
-    tasks: function(tasks) {
+    tasks: function (tasks) {
       this.update(tasks);
-    }
+    },
   },
   methods: {
     duration(task) {
-      let formatString = "h:mm:ss[s]";
+      let formatString = 'h:mm:ss[s]';
       let start = moment(task.start_time);
       let end = moment(task.end_time);
 
@@ -152,12 +152,12 @@ export default {
       return moment.duration(end.diff(start)).format(formatString);
     },
     taskClass(task) {
-      if (task.status == "success") return "success";
-      if (task.status == "failed") return "failed";
-      if (task.status == "stopped") return "failed";
-      if (task.status == "running") return "running";
-      if (task.status == "skipped") return "skipped";
-      return "unknown";
+      if (task.status == 'success') return 'success';
+      if (task.status == 'failed') return 'failed';
+      if (task.status == 'stopped') return 'failed';
+      if (task.status == 'running') return 'running';
+      if (task.status == 'skipped') return 'skipped';
+      return 'unknown';
     },
     update(tasks) {
       // sort tasks by level
@@ -169,7 +169,7 @@ export default {
             ? -1
             : 0
         )
-        .map(k => tasks[k]);
+        .map((k) => tasks[k]);
 
       this.graphTasks = graphTasks;
 
@@ -180,7 +180,7 @@ export default {
         }
       }
 
-      let taskChilds = function(tasks, task) {
+      let taskChilds = function (tasks, task) {
         let childs = [];
         for (let ot of tasks) {
           for (let depTaskID in ot.depends) {
@@ -192,7 +192,7 @@ export default {
         return childs;
       };
 
-      let taskMaxChildLevel = function(tasks, task) {
+      let taskMaxChildLevel = function (tasks, task) {
         let level = task.level;
         let childs = taskChilds(tasks, task);
         for (let child of childs) {
@@ -203,7 +203,7 @@ export default {
         return level;
       };
 
-      let levelTasks = function(tasks, level) {
+      let levelTasks = function (tasks, level) {
         let levelTasks = [];
         for (let task of tasks) {
           if (task.level != level) {
@@ -214,7 +214,7 @@ export default {
         return levelTasks;
       };
 
-      let levelsTasks = function(tasks, startLevel) {
+      let levelsTasks = function (tasks, startLevel) {
         let levelTasks = [];
         for (let task of tasks) {
           if (task.level < startLevel) {
@@ -225,13 +225,13 @@ export default {
         return levelTasks;
       };
 
-      let levelsTasksByRow = function(tasks, startLevel) {
+      let levelsTasksByRow = function (tasks, startLevel) {
         return levelsTasks(tasks, startLevel).sort((a, b) =>
           a.row > b.row ? 1 : b.row > a.row ? -1 : 0
         );
       };
 
-      let levelFreeRow = function(tasks, level) {
+      let levelFreeRow = function (tasks, level) {
         let rows = [];
         for (let task of tasks) {
           if (task.level != level) {
@@ -255,7 +255,7 @@ export default {
         return prevrow;
       };
 
-      let levelsMaxRow = function(tasks, level) {
+      let levelsMaxRow = function (tasks, level) {
         let row = 0;
         for (let task of tasks) {
           if (level >= 0 && task.level > level) {
@@ -344,7 +344,7 @@ export default {
                 sourceTask: pTask,
                 targetTask: curTask,
                 source: { level: pTask.level, row: pTask.row },
-                target: { level: curTask.level, row: curTask.row }
+                target: { level: curTask.level, row: curTask.row },
               });
             }
           }
@@ -362,30 +362,30 @@ export default {
 
         edge.edgePoints.push({
           x: (taskWidth + taskXSpace) * edge.source.level + taskWidth,
-          y: (taskHeight + taskYSpace) * edge.source.row + taskHeight / 2
+          y: (taskHeight + taskYSpace) * edge.source.row + taskHeight / 2,
         });
         edge.edgePoints.push({
           x: (taskWidth + taskXSpace) * edge.target.level - taskXSpace / 2,
-          y: (taskHeight + taskYSpace) * edge.source.row + taskHeight / 2
+          y: (taskHeight + taskYSpace) * edge.source.row + taskHeight / 2,
         });
         edge.edgePoints.push({
           x: (taskWidth + taskXSpace) * edge.target.level - taskXSpace / 2,
-          y: (taskHeight + taskYSpace) * edge.target.row + taskHeight / 2
+          y: (taskHeight + taskYSpace) * edge.target.row + taskHeight / 2,
         });
         edge.edgePoints.push({
           x: (taskWidth + taskXSpace) * edge.target.level,
-          y: (taskHeight + taskYSpace) * edge.target.row + taskHeight / 2
+          y: (taskHeight + taskYSpace) * edge.target.row + taskHeight / 2,
         });
       }
 
       let width = (maxlevel + 1) * (this.taskWidth + this.taskXSpace);
-      this.width = width + "px";
+      this.width = width + 'px';
 
       let height =
         (levelsMaxRow(graphTasks, -1) + 1) *
         (this.taskHeight + this.taskYSpace);
-      this.height = height + "px";
-    }
+      this.height = height + 'px';
+    },
   },
   created() {
     this.update(this.tasks);
@@ -393,6 +393,6 @@ export default {
     window.setInterval(() => {
       this.now = moment();
     }, 500);
-  }
+  },
 };
 </script>

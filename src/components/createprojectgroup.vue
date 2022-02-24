@@ -7,20 +7,22 @@
       type="text"
       placeholder="Project Group Name"
       v-model="projectGroupName"
-    >
+    />
     <div class="mb-4">
       <label>
-        <input type="checkbox" v-model="projectGroupIsPrivate">
+        <input type="checkbox" v-model="projectGroupIsPrivate" />
         Private
       </label>
     </div>
 
     <button
       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      v-bind:class="{ 'spinner': createProjectGroupLoading }"
+      v-bind:class="{ spinner: createProjectGroupLoading }"
       :disabled="!createProjectGroupButtonEnabled"
       @click="createProjectGroup()"
-    >Create ProjectGroup</button>
+    >
+      Create ProjectGroup
+    </button>
     <div
       v-if="createProjectGroupError"
       class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
@@ -32,31 +34,31 @@
 </template>
 
 <script>
-import { createProjectGroup } from "@/util/data.js";
+import { createProjectGroup } from '@/util/data.js';
 
-import { projectGroupLink } from "@/util/link.js";
+import { projectGroupLink } from '@/util/link.js';
 
 export default {
   components: {},
-  name: "createprojectgroup",
+  name: 'createprojectgroup',
   props: {
     ownertype: String,
     ownername: String,
-    projectgroupref: Array
+    projectgroupref: Array,
   },
   data() {
     return {
       createProjectGroupError: null,
       createProjectGroupLoading: false,
       createProjectGroupLoadingTimeout: null,
-      projectGroupName: "",
-      projectGroupIsPrivate: false
+      projectGroupName: '',
+      projectGroupIsPrivate: false,
     };
   },
   computed: {
-    createProjectGroupButtonEnabled: function() {
+    createProjectGroupButtonEnabled: function () {
       return this.projectGroupName.length;
-    }
+    },
   },
   methods: {
     resetErrors() {
@@ -78,11 +80,11 @@ export default {
       if (this.projectgroupref) {
         refArray = [...refArray, ...this.projectgroupref];
       }
-      let parentref = refArray.join("/");
+      let parentref = refArray.join('/');
 
-      let visibility = "public";
+      let visibility = 'public';
       if (this.projectGroupIsPrivate) {
-        visibility = "private";
+        visibility = 'private';
       }
 
       this.startProjectGroupLoading();
@@ -104,12 +106,9 @@ export default {
       this.$router.push(
         projectGroupLink(this.ownertype, this.ownername, projectgroupref)
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
-
-
+<style scoped lang="scss"></style>

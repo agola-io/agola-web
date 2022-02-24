@@ -13,36 +13,44 @@
           v-if="remotesource.auth_type == 'password'"
           action="Add Linked Account"
           :name="remotesource.name"
-          v-on:login="doAddLinkedAccount(remotesource.name, $event.username, $event.password)"
+          v-on:login="
+            doAddLinkedAccount(
+              remotesource.name,
+              $event.username,
+              $event.password
+            )
+          "
         />
         <button
           v-else
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           @click="doAddLinkedAccount(remotesource.name)"
-        >Add Linked Account with {{remotesource.name}}</button>
+        >
+          Add Linked Account with {{ remotesource.name }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import LoginForm from "@/components/loginform";
+import LoginForm from '@/components/loginform';
 
-import { fetchRemoteSources, createUserLinkedAccount } from "@/util/data";
+import { fetchRemoteSources, createUserLinkedAccount } from '@/util/data';
 
 export default {
-  name: "AddLinkedAccount",
+  name: 'AddLinkedAccount',
   props: {
     username: String,
-    remoteSourceName: String
+    remoteSourceName: String,
   },
   components: {
-    LoginForm
+    LoginForm,
   },
-  data: function() {
+  data: function () {
     return {
       addLinkedAccountError: null,
-      remotesource: null
+      remotesource: null,
     };
   },
   methods: {
@@ -52,7 +60,7 @@ export default {
     async fetchRemoteSources() {
       let { data, error } = await fetchRemoteSources();
       if (error) {
-        this.$store.dispatch("setError", error);
+        this.$store.dispatch('setError', error);
         return;
       }
       for (var i = 0; i < data.length; i++) {
@@ -79,17 +87,13 @@ export default {
         return;
       }
       this.$router.push({
-        name: "user settings",
-        params: { username: this.username }
+        name: 'user settings',
+        params: { username: this.username },
       });
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.fetchRemoteSources();
-  }
+  },
 };
 </script>
-
-
-
-

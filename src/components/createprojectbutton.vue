@@ -5,9 +5,11 @@
         <button
           @click="clicked"
           class="relative flex items-center focus:outline-none bg-green-500 hover:bg-green-600 text-white font-semibold hover:text-white py-2 px-4 border border-green-700 rounded rounded-r-none"
-        >{{ buttonValue }}</button>
+        >
+          {{ buttonValue }}
+        </button>
         <button
-          v-click-outside="() => dropdownActive = false"
+          v-click-outside="() => (dropdownActive = false)"
           @click="dropdownActive = !dropdownActive"
           class="relative flex items-center focus:outline-none bg-green-500 hover:bg-green-600 text-white font-semibold hover:text-white py-2 px-4 border border-l-0 border-green-700 rounded rounded-l-none"
         >
@@ -24,14 +26,16 @@
               href="#"
               class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
               @click="setButton('project')"
-            >New Project</a>
+              >New Project</a
+            >
           </li>
           <li>
             <a
               href="#"
               class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
               @click="setButton('projectgroup')"
-            >New Project Group</a>
+              >New Project Group</a
+            >
           </li>
         </ul>
       </div>
@@ -40,28 +44,28 @@
 </template>
 
 <script>
-import * as vClickOutside from "v-click-outside-x";
+import * as vClickOutside from 'v-click-outside-x';
 
 export default {
   components: {},
   directives: {
-    clickOutside: vClickOutside.directive
+    clickOutside: vClickOutside.directive,
   },
-  name: "createprojectbutton",
+  name: 'createprojectbutton',
   props: {},
   data() {
     return {
       dropdownActive: false,
-      type: "project"
+      type: 'project',
     };
   },
   computed: {
-    buttonValue: function() {
-      if (this.type == "project") {
-        return "New Project";
+    buttonValue: function () {
+      if (this.type == 'project') {
+        return 'New Project';
       }
-      return "New Project Group";
-    }
+      return 'New Project Group';
+    },
   },
   methods: {
     setButton(type) {
@@ -69,12 +73,10 @@ export default {
       this.dropdownActive = false;
     },
     clicked() {
-      this.$emit("click", this.type);
-    }
-  }
+      this.$emit('click', this.type);
+    },
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
-
+<style scoped lang="scss"></style>

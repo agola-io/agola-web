@@ -12,7 +12,7 @@
             class="inline-block mr-1 mdi mdi-arrow-right"
             :class="{ 'arrow-down': active, 'arrow-right': !active }"
           ></i>
-          <span class="w-1/3 font-bold">{{step.name}}</span>
+          <span class="w-1/3 font-bold">{{ step.name }}</span>
         </div>
         <span class>{{ duration }}</span>
       </div>
@@ -20,18 +20,24 @@
         <div v-if="step.type == 'run'">
           <div class="p-3 rounded-t bg-gray-900 text-white">
             <span>
-              <span class="w-2/12 bg-gray-700 rounded-l px-3 py-1 text-center font-semibold">Shell</span>
+              <span
+                class="w-2/12 bg-gray-700 rounded-l px-3 py-1 text-center font-semibold"
+                >Shell</span
+              >
               <span
                 class="w-2/12 bg-gray-600 rounded-r px-3 py-1 text-center font-semibold mr-2"
-              >{{ step.shell}}</span>
+                >{{ step.shell }}</span
+              >
             </span>
             <span v-if="step.exit_status != undefined">
               <span
                 class="w-2/12 bg-gray-700 rounded-l px-3 py-1 text-center font-semibold"
-              >Exit Status</span>
+                >Exit Status</span
+              >
               <span
                 class="w-2/12 bg-gray-600 rounded-r px-3 py-1 text-center font-semibold mr-2"
-              >{{ step.exit_status}}</span>
+                >{{ step.exit_status }}</span
+              >
             </span>
           </div>
           <div
@@ -40,22 +46,27 @@
           >
             <i
               class="inline-block mr-1 mdi mdi-arrow-right"
-              :class="{ 'arrow-down': commandActive, 'arrow-right': !commandActive }"
+              :class="{
+                'arrow-down': commandActive,
+                'arrow-right': !commandActive,
+              }"
             ></i>
             <span>Command</span>
           </div>
           <div
             v-show="commandActive"
             class="p-3 bg-gray-900 text-white overflow-x-auto"
-            :class="{ 'rounded': step.type != 'run' }"
+            :class="{ rounded: step.type != 'run' }"
           >
-            <pre class="font-mono text-xs">{{ step.command}}</pre>
+            <pre class="font-mono text-xs">{{ step.command }}</pre>
           </div>
         </div>
-        <div v-if="step.type == 'run'" class="px-3 py-2 bg-gray-700 text-white">Log</div>
+        <div v-if="step.type == 'run'" class="px-3 py-2 bg-gray-700 text-white">
+          Log
+        </div>
         <div
           class="p-3 rounded-b bg-gray-900 text-white"
-          :class="{ 'rounded': step.type != 'run' }"
+          :class="{ rounded: step.type != 'run' }"
         >
           <Log
             v-bind:runid="runid"
@@ -72,22 +83,22 @@
 </template>
 
 <script>
-import * as moment from "moment";
-import momentDurationFormatSetup from "moment-duration-format";
-import Log from "@/components/log.vue";
+import * as moment from 'moment';
+import momentDurationFormatSetup from 'moment-duration-format';
+import Log from '@/components/log.vue';
 
 momentDurationFormatSetup(moment);
 
 export default {
-  name: "step",
+  name: 'step',
   components: {
-    Log
+    Log,
   },
   data() {
     return {
       active: false,
       commandActive: true,
-      now: moment()
+      now: moment(),
     };
   },
   props: {
@@ -95,11 +106,11 @@ export default {
     taskid: String,
     setup: Boolean,
     stepnum: Number,
-    step: Object
+    step: Object,
   },
   computed: {
     duration() {
-      let formatString = "h:mm:ss[s]";
+      let formatString = 'h:mm:ss[s]';
       let start = moment(this.step.start_time);
       let end = moment(this.step.end_time);
 
@@ -112,12 +123,12 @@ export default {
       return moment.duration(end.diff(start)).format(formatString);
     },
     stepClass() {
-      if (this.step.phase == "success") return "success";
-      if (this.step.phase == "failed") return "failed";
-      if (this.step.phase == "stopped") return "failed";
-      if (this.step.phase == "running") return "running";
-      return "unknown";
-    }
+      if (this.step.phase == 'success') return 'success';
+      if (this.step.phase == 'failed') return 'failed';
+      if (this.step.phase == 'stopped') return 'failed';
+      if (this.step.phase == 'running') return 'running';
+      return 'unknown';
+    },
   },
   methods: {
     toggle() {
@@ -125,13 +136,13 @@ export default {
     },
     toggleCommand() {
       this.commandActive = !this.commandActive;
-    }
+    },
   },
   created() {
     window.setInterval(() => {
       this.now = moment();
     }, 500);
-  }
+  },
 };
 </script>
 

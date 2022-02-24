@@ -8,22 +8,30 @@
       <div>Error fetching Run: {{ fetchRunError }}</div>
       <div>Error fetching Task: {{ fetchTaskError }}</div>
     </div>
-    <rundetail :run="run" :ownertype="ownertype" :ownername="ownername" :projectref="projectref" />
+    <rundetail
+      :run="run"
+      :ownertype="ownertype"
+      :ownername="ownername"
+      :projectref="projectref"
+    />
     <div v-if="task != null">
       <div class="mt-8 mb-4 flex justify-between items-center">
         <div class="flex items-center">
-          <span class="text-2xl mr-3">{{task.name}}</span>
+          <span class="text-2xl mr-3">{{ task.name }}</span>
 
           <span
             class="mr-3 rounded px-2 py-1 text-xs"
             :class="taskClass(task)"
-          >{{ task.status | capitalize }}</span>
+            >{{ task.status | capitalize }}</span
+          >
         </div>
         <button
           v-if="task.waiting_approval"
           class="btn btn-blue"
           @click="approveTask(run.id, task.id)"
-        >Approve</button>
+        >
+          Approve
+        </button>
       </div>
       <step
         v-bind:runid="runid"
@@ -44,23 +52,23 @@
 </template>
 
 <script>
-import { fetchRun, fetchTask, approveTask } from "@/util/data.js";
+import { fetchRun, fetchTask, approveTask } from '@/util/data.js';
 
-import step from "@/components/step.vue";
-import rundetail from "@/components/rundetail.vue";
+import step from '@/components/step.vue';
+import rundetail from '@/components/rundetail.vue';
 
 export default {
   components: {
     step,
-    rundetail
+    rundetail,
   },
-  name: "tasksummary",
+  name: 'tasksummary',
   props: {
     ownertype: String,
     ownername: String,
     projectref: Array,
     runid: String,
-    taskid: String
+    taskid: String,
   },
   data() {
     return {
@@ -70,11 +78,11 @@ export default {
       fetchTaskError: null,
 
       run: null,
-      task: null
+      task: null,
     };
   },
   watch: {
-    $route: async function() {
+    $route: async function () {
       if (this.fetchAbort) {
         this.fetchAbort.abort();
       }
@@ -85,16 +93,16 @@ export default {
 
       this.fetchRun();
       this.fetchTask();
-    }
+    },
   },
   methods: {
     taskClass(task) {
-      if (task.status == "success") return "is-success";
-      if (task.status == "failed") return "is-failed";
-      if (task.status == "stopped") return "is-failed";
-      if (task.status == "running") return "is-running";
-      if (task.status == "skipped") return "is-skipped";
-      return "unknown";
+      if (task.status == 'success') return 'is-success';
+      if (task.status == 'failed') return 'is-failed';
+      if (task.status == 'stopped') return 'is-failed';
+      if (task.status == 'running') return 'is-running';
+      if (task.status == 'skipped') return 'is-skipped';
+      return 'unknown';
     },
     async fetchRun() {
       let { data, error, aborted } = await fetchRun(
@@ -143,9 +151,9 @@ export default {
         this.fetchTask();
       }, 2000);
     },
-    approveTask: approveTask
+    approveTask: approveTask,
   },
-  created: function() {
+  created: function () {
     this.fetchAbort = new AbortController();
 
     this.fetchRun();
@@ -157,9 +165,8 @@ export default {
     }
     clearTimeout(this.fetchRunSchedule);
     clearTimeout(this.fetchTaskSchedule);
-  }
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

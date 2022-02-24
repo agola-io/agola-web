@@ -9,13 +9,15 @@
           <span class="mx-2">/</span>
         </li>
         <li>
-          <router-link :to="ownerLink('org', orgname)">{{orgname}}</router-link>
+          <router-link :to="ownerLink('org', orgname)">{{
+            orgname
+          }}</router-link>
         </li>
       </ol>
     </nav>
 
     <div class="mb-8 flex justify-between">
-      <span class="text-3xl">{{orgname}}</span>
+      <span class="text-3xl">{{ orgname }}</span>
       <createprojectbutton v-on:click="goToCreate($event)" />
     </div>
 
@@ -23,7 +25,12 @@
       <ul class="flex-grow tab">
         <li
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name === 'org projects' || $route.name === 'org' }]"
+          :class="[
+            {
+              'tab-element-selected':
+                $route.name === 'org projects' || $route.name === 'org',
+            },
+          ]"
         >
           <router-link :to="ownerProjectsLink('org', orgname)">
             <i class="mr-1 mdi mdi-home" />
@@ -42,7 +49,13 @@
         <li
           v-if="$route.name.endsWith('org project group settings')"
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.endsWith('org project group settings') }]"
+          :class="[
+            {
+              'tab-element-selected': $route.name.endsWith(
+                'org project group settings'
+              ),
+            },
+          ]"
         >
           <router-link :to="projectGroupSettingsLink('org', orgname, [])">
             <i class="mr-1 mdi mdi-settings" />
@@ -52,7 +65,9 @@
         <li
           v-if="$route.name.endsWith('org settings')"
           class="tab-element"
-          :class="[{ 'tab-element-selected': $route.name.endsWith('org settings') }]"
+          :class="[
+            { 'tab-element-selected': $route.name.endsWith('org settings') },
+          ]"
         >
           <router-link :to="ownerSettingsLink('org', orgname)">
             <i class="mr-1 mdi mdi-settings" />
@@ -65,7 +80,7 @@
           <div class="relative">
             <div
               class="flex -mt-3"
-              v-click-outside="() => dropdownActive = false"
+              v-click-outside="() => (dropdownActive = false)"
               @click="dropdownActive = !dropdownActive"
             >
               <button
@@ -108,9 +123,8 @@
   </div>
 </template>
 
-
 <script>
-import * as vClickOutside from "v-click-outside-x";
+import * as vClickOutside from 'v-click-outside-x';
 
 import {
   ownerLink,
@@ -119,23 +133,23 @@ import {
   orgMembersLink,
   projectGroupCreateProjectGroupLink,
   projectGroupCreateProjectLink,
-  projectGroupSettingsLink
-} from "@/util/link.js";
+  projectGroupSettingsLink,
+} from '@/util/link.js';
 
-import createprojectbutton from "@/components/createprojectbutton.vue";
+import createprojectbutton from '@/components/createprojectbutton.vue';
 
 export default {
-  name: "Org",
+  name: 'Org',
   components: { createprojectbutton },
   directives: {
-    clickOutside: vClickOutside.directive
+    clickOutside: vClickOutside.directive,
   },
   props: {
-    orgname: String
+    orgname: String,
   },
   data() {
     return {
-      dropdownActive: false
+      dropdownActive: false,
     };
   },
   methods: {
@@ -147,19 +161,18 @@ export default {
     projectGroupCreateProjectLink: projectGroupCreateProjectLink,
     projectGroupSettingsLink: projectGroupSettingsLink,
     goToCreate(type) {
-      if (type == "project") {
+      if (type == 'project') {
         this.$router.push(
-          projectGroupCreateProjectLink("org", this.orgname, [])
+          projectGroupCreateProjectLink('org', this.orgname, [])
         );
         return;
       }
       this.$router.push(
-        projectGroupCreateProjectGroupLink("org", this.orgname, [])
+        projectGroupCreateProjectGroupLink('org', this.orgname, [])
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

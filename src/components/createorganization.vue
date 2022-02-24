@@ -8,19 +8,21 @@
           type="text"
           placeholder="Organization name"
           v-model="orgName"
-        >
+        />
       </div>
     </div>
     <div class="mb-4">
       <label>
-        <input type="checkbox" v-model="orgIsPrivate">
+        <input type="checkbox" v-model="orgIsPrivate" />
         Private
       </label>
     </div>
     <button
       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
       @click="createOrg()"
-    >Create Organization</button>
+    >
+      Create Organization
+    </button>
     <div
       v-if="createOrgError"
       class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
@@ -32,19 +34,19 @@
 </template>
 
 <script>
-import { createOrganization } from "@/util/data.js";
+import { createOrganization } from '@/util/data.js';
 
-import { ownerLink } from "@/util/link.js";
+import { ownerLink } from '@/util/link.js';
 
 export default {
   components: {},
-  name: "createorganization",
+  name: 'createorganization',
   props: {},
   data() {
     return {
       createOrgError: null,
       orgIsPrivate: false,
-      orgName: null
+      orgName: null,
     };
   },
   methods: {
@@ -54,9 +56,9 @@ export default {
     async createOrg() {
       this.resetErrors();
 
-      let visibility = "public";
+      let visibility = 'public';
       if (this.orgIsPrivate) {
-        visibility = "private";
+        visibility = 'private';
       }
 
       let { error } = await createOrganization(this.orgName, visibility);
@@ -65,14 +67,11 @@ export default {
         return;
       }
 
-      this.$router.push(ownerLink("org", this.orgName));
-    }
+      this.$router.push(ownerLink('org', this.orgName));
+    },
   },
-  created: async function() {}
+  created: async function () {},
 };
 </script>
 
-<style scoped lang="scss">
-</style>
-
-
+<style scoped lang="scss"></style>
