@@ -23,7 +23,7 @@ import Login from './views/Login.vue';
 import Logout from './views/Logout.vue';
 import CreateSource from './views/CreateSource.vue';
 
-import { parseRef, projectRunLink } from '@/util/link.js';
+import { parseRef, parseRunNumber, projectRunLink } from '@/util/link.js';
 import { fetchProject } from '@/util/data.js';
 
 import store from './store';
@@ -100,23 +100,23 @@ const router = new VueRouter({
           }),
         },
         {
-          path: 'runs/:runid',
+          path: 'runs/:runnumber',
           name: 'user direct run',
           component: runsummary,
           props: (route) => ({
             ownertype: 'user',
             ownername: route.params.username,
-            runid: route.params.runid,
+            runnumber: parseRunNumber(route.params.runnumber),
           }),
         },
         {
-          path: 'runs/:runid/tasks/:taskid',
+          path: 'runs/:runnumber/tasks/:taskid',
           name: 'user direct run task',
           component: tasksummary,
           props: (route) => ({
             ownertype: 'user',
             ownername: route.params.username,
-            runid: route.params.runid,
+            runnumber: parseRunNumber(route.params.runnumber),
             taskid: route.params.taskid,
           }),
         },
@@ -218,25 +218,25 @@ const router = new VueRouter({
           }),
         },
         {
-          path: 'runs/:runid',
+          path: 'runs/:runnumber',
           name: 'user project run',
           component: runsummary,
           props: (route) => ({
             ownertype: 'user',
             ownername: route.params.username,
             projectref: parseRef(route.params.projectref),
-            runid: route.params.runid,
+            runnumber: parseRunNumber(route.params.runnumber),
           }),
         },
         {
-          path: 'runs/:runid/tasks/:taskid',
+          path: 'runs/:runnumber/tasks/:taskid',
           name: 'user project run task',
           component: tasksummary,
           props: (route) => ({
             ownertype: 'user',
             ownername: route.params.username,
             projectref: parseRef(route.params.projectref),
-            runid: route.params.runid,
+            runnumber: parseRunNumber(route.params.runnumber),
             taskid: route.params.taskid,
           }),
         },
@@ -434,25 +434,25 @@ const router = new VueRouter({
           }),
         },
         {
-          path: 'runs/:runid',
+          path: 'runs/:runnumber',
           name: 'org project run',
           component: runsummary,
           props: (route) => ({
             ownertype: 'org',
             ownername: route.params.orgname,
             projectref: parseRef(route.params.projectref),
-            runid: route.params.runid,
+            runnumber: parseRunNumber(route.params.runnumber),
           }),
         },
         {
-          path: 'runs/:runid/tasks/:taskid',
+          path: 'runs/:runnumber/tasks/:taskid',
           name: 'org project run task',
           component: tasksummary,
           props: (route) => ({
             ownertype: 'org',
             ownername: route.params.orgname,
             projectref: parseRef(route.params.projectref),
-            runid: route.params.runid,
+            runnumber: parseRunNumber(route.params.runnumber),
             taskid: route.params.taskid,
           }),
         },
@@ -539,9 +539,9 @@ router.beforeEach(async (to, from, next) => {
   const { path, query } = to;
 
   if (path == '/run') {
-    // generic run handler by projectref and runid
+    // generic run handler by projectref and runnumber
     let projectref = query.projectref;
-    let runid = query.runid;
+    let runnumber = query.runnumber;
 
     let { data, error } = await fetchProject(projectref);
     if (error) {
@@ -552,7 +552,12 @@ router.beforeEach(async (to, from, next) => {
     let project = data;
 
     let parts = project.path.split('/');
-    let nextPath = projectRunLink(parts[0], parts[1], parts.slice(2), runid);
+    let nextPath = projectRunLink(
+      parts[0],
+      parts[1],
+      parts.slice(2),
+      runnumber
+    );
 
     next({ path: nextPath.path, replace: true });
   }

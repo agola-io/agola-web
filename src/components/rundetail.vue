@@ -120,7 +120,7 @@
                     <a
                       v-if="run.can_restart_from_scratch"
                       class="block px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-                      @click="restartRun(run.id, true)"
+                      @click="restartRun(run.number, true)"
                       >From start</a
                     >
                   </li>
@@ -128,7 +128,7 @@
                     <a
                       v-if="run.can_restart_from_failed_tasks"
                       class="block px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-                      @click="restartRun(run.id)"
+                      @click="restartRun(run.number)"
                       >From failed tasks</a
                     >
                   </li>
@@ -137,7 +137,7 @@
               <button
                 class="btn btn-red"
                 v-if="run.phase == 'queued'"
-                @click="cancelRun(run.id)"
+                @click="cancelRun(run.number)"
               >
                 Cancel
               </button>
@@ -145,7 +145,7 @@
                 class="btn btn-red"
                 v-if="run.phase == 'running'"
                 :disabled="run.stopping"
-                @click="stopRun(run.id)"
+                @click="stopRun(run.number)"
               >
                 Stop
               </button>
@@ -175,6 +175,8 @@ export default {
     clickOutside: vClickOutside.directive,
   },
   props: {
+    rungrouptype: String,
+    rungroupref: String,
     ownertype: String,
     ownername: String,
     projectref: Array,
@@ -207,10 +209,14 @@ export default {
       if (task.status == 'running') return 'running';
       return 'unknown';
     },
-    async stopRun(runid) {
+    async stopRun(runnumber) {
       this.resetErrors();
 
-      let { error } = await stopRun(runid);
+      let { error } = await stopRun(
+        this.rungrouptype,
+        this.rungroupref,
+        runnumber
+      );
       if (error) {
         this.stopRunError = error;
         return;
@@ -218,10 +224,14 @@ export default {
 
       this.run.stopping = true;
     },
-    async cancelRun(runid) {
+    async cancelRun(runnumber) {
       this.resetErrors();
 
-      let { error } = await cancelRun(runid);
+      let { error } = await cancelRun(
+        this.rungrouptype,
+        this.rungroupref,
+        runnumber
+      );
       if (error) {
         this.cancelRunError = error;
         return;
@@ -229,9 +239,14 @@ export default {
 
       this.run.phase = 'cancelled';
     },
-    async restartRun(runid, fromStart) {
+    async restartRun(runnumber, fromStart) {
       this.dropdownActive = false;
-      let { data, error } = await restartRun(runid, fromStart);
+      let { data, error } = await restartRun(
+        this.rungrouptype,
+        this.rungroupref,
+        runnumber,
+        fromStart
+      );
       if (error) {
         this.restartRunError = error;
         return;
@@ -243,10 +258,10 @@ export default {
           this.ownertype,
           this.ownername,
           this.projectref,
-          data.id
+          data.number
         );
       } else {
-        runLink = userDirectRunLink(this.ownername, data.id);
+        runLink = userDirectRunLink(this.ownername, data.number);
       }
       this.$router.push(runLink);
     },

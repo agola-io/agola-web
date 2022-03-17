@@ -9,6 +9,8 @@
       <div>Error fetching Task: {{ fetchTaskError }}</div>
     </div>
     <rundetail
+      :rungrouptype="rungrouptype"
+      :rungroupref="rungroupref"
       :run="run"
       :ownertype="ownertype"
       :ownername="ownername"
@@ -28,20 +30,24 @@
         <button
           v-if="task.waiting_approval"
           class="btn btn-blue"
-          @click="approveTask(run.id, task.id)"
+          @click="approveTask(run.number, task.id)"
         >
           Approve
         </button>
       </div>
       <step
-        v-bind:runid="runid"
+        v-bind:rungrouptype="rungrouptype"
+        v-bind:rungroupref="rungroupref"
+        v-bind:runnumber="runnumber"
         v-bind:taskid="taskid"
         v-bind:setup="true"
         v-bind:step="task.setup_step"
       />
       <div v-for="(step, index) in task.steps" v-bind:key="index">
         <step
-          v-bind:runid="runid"
+          v-bind:rungrouptype="rungrouptype"
+          v-bind:rungroupref="rungroupref"
+          v-bind:runnumber="runnumber"
           v-bind:taskid="taskid"
           v-bind:stepnum="index"
           v-bind:step="step"
@@ -67,7 +73,7 @@ export default {
     ownertype: String,
     ownername: String,
     projectref: Array,
-    runid: String,
+    runnumber: Number,
     taskid: String,
   },
   data() {
@@ -80,6 +86,20 @@ export default {
       run: null,
       task: null,
     };
+  },
+  computed: {
+    rungrouptype() {
+      if (this.projectref !== undefined) {
+        return 'projects';
+      }
+      return 'users';
+    },
+    rungroupref() {
+      if (this.projectref !== undefined) {
+        return [this.ownertype, this.ownername, ...this.projectref].join('/');
+      }
+      return this.ownername;
+    },
   },
   watch: {
     $route: async function () {
@@ -106,7 +126,9 @@ export default {
     },
     async fetchRun() {
       let { data, error, aborted } = await fetchRun(
-        this.runid,
+        this.rungrouptype,
+        this.rungroupref,
+        this.runnumber,
         this.fetchAbort.signal
       );
       if (aborted) {
@@ -123,7 +145,9 @@ export default {
     },
     async fetchTask() {
       let { data, error, aborted } = await fetchTask(
-        this.runid,
+        this.rungrouptype,
+        this.rungroupref,
+        this.runnumber,
         this.taskid,
         this.fetchAbort.signal
       );

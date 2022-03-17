@@ -7,6 +7,10 @@ export function parseRef(ref) {
   return ref.split('/');
 }
 
+export function parseRunNumber(runnumber) {
+  return parseInt(runnumber);
+}
+
 export function ownerLink(ownertype, ownername) {
   if (ownertype == 'user') {
     return { name: ownertype, params: { username: ownername } };
@@ -31,17 +35,17 @@ export function userDirectRunsLink(username) {
   return { name: 'user direct runs', params: { username: username } };
 }
 
-export function userDirectRunLink(username, runid) {
+export function userDirectRunLink(username, runnumber) {
   return {
     name: 'user direct run',
-    params: { username: username, runid: runid },
+    params: { username: username, runnumber: runnumber },
   };
 }
 
-export function userDirectRunTaskLink(username, runid, taskid) {
+export function userDirectRunTaskLink(username, runnumber, taskid) {
   return {
     name: 'user direct run task',
-    params: { username: username, runid: runid, taskid: taskid },
+    params: { username: username, runnumber: runnumber, taskid: taskid },
   };
 }
 
@@ -118,10 +122,10 @@ export function projectPRsRunsLink(ownertype, ownername, projectref) {
   };
 }
 
-export function projectRunLink(ownertype, ownername, projectref, runid) {
+export function projectRunLink(ownertype, ownername, projectref, runnumber) {
   let projectpath = projectref.join('/') + '.proj';
   return {
-    path: `/${ownertype}/${ownername}/projects/${projectpath}/runs/${runid}`,
+    path: `/${ownertype}/${ownername}/projects/${projectpath}/runs/${runnumber}`,
   };
 }
 
@@ -129,12 +133,12 @@ export function projectRunTaskLink(
   ownertype,
   ownername,
   projectref,
-  runid,
+  runnumber,
   taskid
 ) {
   let projectpath = projectref.join('/') + '.proj';
   return {
-    path: `/${ownertype}/${ownername}/projects/${projectpath}/runs/${runid}/tasks/${taskid}`,
+    path: `/${ownertype}/${ownername}/projects/${projectpath}/runs/${runnumber}/tasks/${taskid}`,
   };
 }
 

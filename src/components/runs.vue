@@ -16,7 +16,7 @@
         <li
           class="mb-2 border-l-5 rounded-l"
           v-for="run in runs"
-          v-bind:key="run.id"
+          v-bind:key="run.number"
           :class="runResultClass(run)"
         >
           <div class="pl-4 flex items-center border border-l-0 rounded-r">
@@ -51,7 +51,7 @@
             <router-link
               v-if="projectref"
               class="w-5/12 pl-3 mr-auto whitespace-no-wrap overflow-hidden"
-              :to="projectRunLink(ownertype, ownername, projectref, run.id)"
+              :to="projectRunLink(ownertype, ownername, projectref, run.number)"
             >
               <span class="font-bold">{{ run.name }}</span>
               <div>{{ run.annotations.message.split(/\r?\n/)[0] }}</div>
@@ -59,7 +59,7 @@
             <router-link
               v-else
               class="w-5/12 pl-3 mr-auto whitespace-no-wrap overflow-hidden"
-              :to="userDirectRunLink(ownername, run.id)"
+              :to="userDirectRunLink(ownername, run.number)"
             >
               <span class="font-bold">{{ run.name }}</span>
               <div>{{ run.annotations.message.split(/\r?\n/)[0] }}</div>
@@ -75,7 +75,7 @@
               >Still running</span
             >
             <div class="w-32">
-              <span>#{{ run.counter }}</span>
+              <span>#{{ run.number }}</span>
               <a
                 :href="run.annotations.commit_link"
                 class="block"
@@ -147,6 +147,20 @@ export default {
       project: null,
       user: null,
     };
+  },
+  computed: {
+    rungrouptype() {
+      if (this.projectref !== undefined) {
+        return 'projects';
+      }
+      return 'users';
+    },
+    rungroupref() {
+      if (this.projectref !== undefined) {
+        return [this.ownertype, this.ownername, ...this.projectref].join('/');
+      }
+      return this.ownername;
+    },
   },
   watch: {
     $route: function () {
@@ -233,34 +247,30 @@ export default {
     },
     // TODO(sgotti) use run events instead of refetching all runs everytime
     async fetchRuns(loading) {
-      let group;
-      let lastrun = false;
-      if (this.project !== null) {
+      let subgroup = '';
+      if (this.projectref) {
         if (this.query == 'branches') {
-          group = '/project/' + this.project.id + '/branch';
+          subgroup = 'branch';
         } else if (this.query == 'tags') {
-          group = '/project/' + this.project.id + '/tag';
+          subgroup = 'tag';
         } else if (this.query == 'pullrequests') {
-          group = '/project/' + this.project.id + '/pr';
-        } else {
-          group = '/project/' + this.project.id;
+          subgroup = 'pr';
         }
-      } else if (this.user !== null) {
-        group = '/user/' + this.user.id;
       }
 
       let newRuns = [];
       let hasMoreRuns = false;
       let stopFetch = false;
       let runCount = 0;
-      let startRunID = null;
+      let startRunNumber = null;
 
       if (loading) this.startFetchRunsLoading();
       while (!stopFetch) {
         let { data, error, aborted } = await fetchRuns(
-          group,
-          startRunID,
-          lastrun,
+          this.rungrouptype,
+          this.rungroupref,
+          subgroup,
+          startRunNumber,
           this.fetchAbort.signal
         );
         if (aborted) {
@@ -281,7 +291,7 @@ export default {
         }
         newRuns = newRuns.concat(data);
         if (newRuns.length) {
-          startRunID = newRuns[newRuns.length - 1].id;
+          startRunNumber = newRuns[newRuns.length - 1].number;
         }
       }
       this.stopFetchRunsLoading();

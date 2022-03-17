@@ -50,7 +50,9 @@ export default {
   name: 'Log',
   props: {
     show: Boolean,
-    runid: String,
+    rungrouptype: String,
+    rungroupref: String,
+    runnumber: Number,
     taskid: String,
     setup: Boolean,
     step: Number,
@@ -94,11 +96,21 @@ export default {
       this.logExists = null;
       this.error = null;
 
-      let path = '/logs?runID=' + this.runid + '&taskID=' + this.taskid;
+      let path =
+        '/' +
+        this.rungrouptype +
+        '/' +
+        encodeURIComponent(this.rungroupref) +
+        '/runs/' +
+        this.runnumber +
+        '/tasks/' +
+        this.taskid +
+        '/logs';
+
       if (this.setup) {
-        path += '&setup';
+        path += '?setup';
       } else {
-        path += '&step=' + this.step;
+        path += '?step=' + this.step;
       }
       if (follow) {
         path += '&follow';

@@ -8,6 +8,8 @@
       <div>{{ fetchRunError }}</div>
     </div>
     <rundetail
+      :rungrouptype="rungrouptype"
+      :rungroupref="rungroupref"
       :run="run"
       :ownertype="ownertype"
       :ownername="ownername"
@@ -70,7 +72,7 @@ export default {
     ownertype: String,
     ownername: String,
     projectref: Array,
-    runid: String,
+    runnumber: Number,
   },
   data() {
     return {
@@ -88,6 +90,20 @@ export default {
 
       tasksDisplay: 'graph',
     };
+  },
+  computed: {
+    rungrouptype() {
+      if (this.projectref !== undefined) {
+        return 'projects';
+      }
+      return 'users';
+    },
+    rungroupref() {
+      if (this.projectref !== undefined) {
+        return [this.ownertype, this.ownername, ...this.projectref].join('/');
+      }
+      return this.ownername;
+    },
   },
   watch: {
     $route: async function () {
@@ -108,11 +124,11 @@ export default {
           this.ownertype,
           this.ownername,
           this.projectref,
-          this.runid,
+          this.runnumber,
           task.id
         );
       } else {
-        return userDirectRunTaskLink(this.ownername, this.runid, task.id);
+        return userDirectRunTaskLink(this.ownername, this.runnumber, task.id);
       }
     },
     parents(task) {
@@ -129,7 +145,9 @@ export default {
     },
     async fetchRun() {
       let { data, error, aborted } = await fetchRun(
-        this.runid,
+        this.rungrouptype,
+        this.rungroupref,
+        this.runnumber,
         this.fetchAbort.signal
       );
       if (aborted) {

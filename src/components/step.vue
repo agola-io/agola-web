@@ -69,7 +69,9 @@
           :class="{ rounded: step.type != 'run' }"
         >
           <Log
-            v-bind:runid="runid"
+            v-bind:rungrouptype="rungrouptype"
+            v-bind:rungroupref="rungroupref"
+            v-bind:runnumber="runnumber"
             v-bind:taskid="taskid"
             v-bind:setup="setup"
             v-bind:step="stepnum"
@@ -102,7 +104,9 @@ export default {
     };
   },
   props: {
-    runid: String,
+    rungrouptype: String,
+    rungroupref: String,
+    runnumber: Number,
     taskid: String,
     setup: Boolean,
     stepnum: Number,

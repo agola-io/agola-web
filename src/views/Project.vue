@@ -107,13 +107,13 @@
                 ownertype,
                 ownername,
                 projectref,
-                $route.params.runid
+                $route.params.runnumber
               )
             "
           >
             <p>
               Run
-              <strong>#{{ run.counter }}</strong>
+              <strong>#{{ run.number }}</strong>
             </p>
           </router-link>
         </li>
@@ -135,7 +135,7 @@
                 ownertype,
                 ownername,
                 projectref,
-                $route.params.runid,
+                $route.params.runnumber,
                 $route.params.taskid
               )
             "
@@ -240,6 +240,14 @@ export default {
       run: null,
     };
   },
+  computed: {
+    rungrouptype() {
+      return 'projects';
+    },
+    rungroupref() {
+      return [this.ownertype, this.ownername, ...this.projectref].join('/');
+    },
+  },
   watch: {
     $route: async function (route) {
       if (this.fetchAbort) {
@@ -248,9 +256,11 @@ export default {
       this.fetchAbort = new AbortController();
 
       this.run = null;
-      if (route.params.runid) {
+      if (route.params.runnumber) {
         let { data, error, aborted } = await fetchRun(
-          route.params.runid,
+          this.rungrouptype,
+          this.rungroupref,
+          this.$route.params.runnumber,
           this.fetchAbort.signal
         );
         if (aborted) {
@@ -280,9 +290,11 @@ export default {
   created: async function () {
     this.fetchAbort = new AbortController();
 
-    if (this.$route.params.runid) {
+    if (this.$route.params.runnumber) {
       let { data, error, aborted } = await fetchRun(
-        this.$route.params.runid,
+        this.rungrouptype,
+        this.rungroupref,
+        this.$route.params.runnumber,
         this.fetchAbort.signal
       );
       if (aborted) {
