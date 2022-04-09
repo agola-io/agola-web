@@ -11,7 +11,7 @@
     "@mdi/font": "^4.9.95",
     "ansi_up": "^4.0.4",
     "core-js": "^3.9.1",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "moment-duration-format": "^2.3.2",
     "v-click-outside-x": "^4.1.0",
     "vue": "^2.6.12",
