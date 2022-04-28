@@ -1,24 +1,31 @@
-import '@/css/tailwind.scss';
-import { getUser } from '@/util/auth';
+// add twind as first entry in document head
+import './util/twind';
+
 import '@mdi/font/css/materialdesignicons.css';
-import Vue from 'vue';
-import Vue2Filters from 'vue2-filters';
+import './assets/style.scss';
+import './assets/ansi.scss';
+
+import { getUser } from './util/auth';
 import App from './App.vue';
 import router from './router';
-import store from './store';
+import { store } from './store';
+import { createApp } from 'vue';
 
-Vue.use(Vue2Filters);
+import 'anylogger-loglevel';
+import loglevel from 'loglevel';
 
-// TODO(sgotti) use vuex for login/logout
-new Vue({
-  router,
-  store,
-  created: function () {
-    let user = getUser();
-    if (user) {
-      store.dispatch('setUser', user);
-    }
-    store.dispatch('setRegisterUser', null);
-  },
-  render: (h) => h(App),
-}).$mount('#app');
+// loglevel.setDefaultLevel('debug');
+loglevel.setDefaultLevel('info');
+
+const app = createApp(App);
+
+const user = getUser();
+if (user) {
+  store.dispatch('setUser', user);
+}
+store.dispatch('setRegisterUser', null);
+
+app.use(router);
+app.use(store);
+
+app.mount('#app');

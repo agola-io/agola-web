@@ -54,10 +54,7 @@
           <div v-else class="w-full max-w-xs">
             <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
               <div class="flex justify-center">
-                <button
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  @click="doAuthorize(rs.name)"
-                >
+                <button class="btn btn-blue" @click="doAuthorize(rs.name)">
                   Register with {{ rs.name }}
                 </button>
               </div>
@@ -72,12 +69,12 @@
 <script>
 import { mapGetters } from 'vuex';
 
-import LoginForm from '@/components/loginform';
-import RegisterForm from '@/components/registerform';
+import LoginForm from '../components/loginform.vue';
+import RegisterForm from '../components/registerform.vue';
 
-import { fetchRemoteSources, register } from '@/util/data';
+import { fetchRemoteSources, register } from '../util/data';
 
-import { authorizeurl, fetch, doLogout } from '@/util/auth';
+import { authorizeurl, fetch, doLogout } from '../util/auth';
 
 export default {
   name: 'Register',

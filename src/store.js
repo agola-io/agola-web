@@ -1,7 +1,4 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-
-Vue.use(Vuex);
+import { createStore } from 'vuex';
 
 const state = {
   error: null,
@@ -46,7 +43,7 @@ const actions = {
   },
 };
 
-export default new Vuex.Store({
+export const store = createStore({
   state,
   getters,
   actions,

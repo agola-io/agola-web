@@ -22,6 +22,7 @@ export default {
   props: {
     remoterepos: Array,
   },
+  emits: ['reposelected'],
   data() {
     return {
       selectedrepo: null,

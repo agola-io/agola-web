@@ -87,7 +87,7 @@
 <script>
 import * as moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
-import Log from '@/components/log.vue';
+import Log from '../components/log.vue';
 
 momentDurationFormatSetup(moment);
 

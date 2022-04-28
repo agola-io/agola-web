@@ -1,8 +1,8 @@
 <template>
   <div>
     <h4 class="mb-4 text-xl font-bold">New Organization</h4>
-    <div class="field">
-      <div class="control">
+    <div>
+      <div>
         <input
           class="mb-4 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
@@ -34,9 +34,9 @@
 </template>
 
 <script>
-import { createOrganization } from '@/util/data.js';
+import { createOrganization } from '../util/data';
 
-import { ownerLink } from '@/util/link.js';
+import { ownerLink } from '../util/link';
 
 export default {
   components: {},
@@ -70,7 +70,6 @@ export default {
       this.$router.push(ownerLink('org', this.orgName));
     },
   },
-  created: async function () {},
 };
 </script>
 

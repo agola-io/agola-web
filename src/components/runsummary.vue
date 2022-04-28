@@ -58,12 +58,12 @@
 </template>
 
 <script>
-import { fetchRun } from '@/util/data.js';
-import { userDirectRunTaskLink, projectRunTaskLink } from '@/util/link.js';
+import { fetchRun } from '../util/data';
+import { userDirectRunTaskLink, projectRunTaskLink } from '../util/link';
 
-import rundetail from '@/components/rundetail.vue';
-import tasks from '@/components/tasks.vue';
-import tasksgraph from '@/components/tasksgraph.vue';
+import rundetail from '../components/rundetail.vue';
+import tasks from '../components/tasks.vue';
+import tasksgraph from '../components/tasksgraph.vue';
 
 export default {
   name: 'runsummary',
@@ -186,7 +186,7 @@ export default {
     this.fetchAbort = new AbortController();
     this.fetchRun();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.fetchAbort) {
       this.fetchAbort.abort();
     }

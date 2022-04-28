@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { fetchOrgMembers } from '@/util/data.js';
+import { fetchOrgMembers } from '../util/data';
 
 export default {
   components: {},

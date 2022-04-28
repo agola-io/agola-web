@@ -1,5 +1,5 @@
 <script>
-import { doLogout } from '@/util/auth';
+import { doLogout } from '../util/auth';
 
 export default {
   name: 'Logout',

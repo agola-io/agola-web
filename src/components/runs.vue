@@ -113,9 +113,9 @@
 </template>
 
 <script>
-import { fetchUser, fetchProject, fetchRuns } from '@/util/data.js';
-import { userDirectRunLink, projectRunLink } from '@/util/link.js';
-import { runResultClass } from '@/util/run.js';
+import { fetchUser, fetchProject, fetchRuns } from '../util/data';
+import { userDirectRunLink, projectRunLink } from '../util/link';
+import { runResultClass } from '../util/run';
 import * as moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
 
@@ -344,7 +344,7 @@ export default {
 
     this.update();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.fetchAbort) {
       this.fetchAbort.abort();
     }

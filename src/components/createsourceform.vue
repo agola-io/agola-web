@@ -147,10 +147,11 @@
 </template>
 
 <script>
-import { GITHUB_SSH_KEY, GITHUB_API_URL } from '@/util/data';
+import { GITHUB_SSH_KEY, GITHUB_API_URL } from '../util/data';
 
 export default {
   name: 'CreateSourceForm',
+  emits: ['createSource'],
   data: function () {
     return {
       name: null,

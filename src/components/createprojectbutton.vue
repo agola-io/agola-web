@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import * as vClickOutside from 'v-click-outside-x';
+import vClickOutside from 'click-outside-vue3';
 
 export default {
   components: {},
@@ -53,6 +53,7 @@ export default {
   },
   name: 'createprojectbutton',
   props: {},
+  emits: ['click'],
   data() {
     return {
       dropdownActive: false,

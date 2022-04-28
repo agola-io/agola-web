@@ -31,7 +31,7 @@
               <span
                 class="mr-3 rounded px-2 py-1 text-xs"
                 :class="'is-' + runResultClass(run)"
-                >{{ runStatus(run) | capitalize }}</span
+                >{{ capitalize(runStatus(run)) }}</span
               >
               <span
                 v-if="stillRunning(run)"
@@ -158,11 +158,11 @@
 </template>
 
 <script>
-import * as vClickOutside from 'v-click-outside-x';
+import vClickOutside from 'click-outside-vue3';
 
-import { cancelRun, stopRun, restartRun } from '@/util/data.js';
-import { userDirectRunLink, projectRunLink } from '@/util/link.js';
-import { runStatus, runResultClass } from '@/util/run.js';
+import { cancelRun, stopRun, restartRun } from '../util/data';
+import { userDirectRunLink, projectRunLink } from '../util/link';
+import { runStatus, runResultClass } from '../util/run';
 
 import * as moment from 'moment';
 import momentDurationFormatSetup from 'moment-duration-format';
@@ -222,7 +222,7 @@ export default {
         return;
       }
 
-      this.run.stopping = true;
+      // this.run.stopping = true;
     },
     async cancelRun(runnumber) {
       this.resetErrors();
@@ -237,7 +237,7 @@ export default {
         return;
       }
 
-      this.run.phase = 'cancelled';
+      // this.run.phase = 'cancelled';
     },
     async restartRun(runnumber, fromStart) {
       this.dropdownActive = false;
@@ -294,6 +294,9 @@ export default {
         return '';
       }
       return end.fromNow();
+    },
+    capitalize(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
     },
   },
   created: function () {

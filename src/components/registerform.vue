@@ -14,7 +14,7 @@
           type="text"
           placeholder="Username"
           :disabled="true"
-          v-model="remoteUsername"
+          :value="remoteUsername"
         />
       </div>
       <div class="mb-4">
@@ -26,7 +26,7 @@
           id="username"
           type="text"
           placeholder="Username"
-          v-model="username"
+          v-model="curUsername"
         />
       </div>
       <div class="flex justify-center">
@@ -47,6 +47,12 @@ export default {
   props: {
     remoteUsername: String,
     username: String,
+  },
+  emits: ['login'],
+  data: function () {
+    return {
+      curUsername: username,
+    };
   },
 };
 </script>

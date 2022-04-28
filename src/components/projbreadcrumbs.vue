@@ -1,6 +1,6 @@
 <template>
-  <nav class="mb-4 bg-grey-light rounded font-sans w-full">
-    <ol class="list-reset flex text-grey-dark">
+  <nav class="mb-4 rounded font-sans w-full">
+    <ol class="list-none flex">
       <li>
         <a>{{ ownertype }}</a>
       </li>
@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import { ownerLink, projectLink, projectGroupLink } from '@/util/link.js';
+import { ownerLink, projectLink, projectGroupLink } from '../util/link';
 
 export default {
   name: 'projbreadcrumbs',

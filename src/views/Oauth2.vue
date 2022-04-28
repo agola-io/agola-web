@@ -11,14 +11,14 @@
 </template>
 
 <script>
-import { fetch } from '@/util/data';
+import { fetch } from '../util/data';
 
 import {
   oauth2callbackurl,
   setLoggedUser,
   unsetLoginRedirect,
   getLoginRedirect,
-} from '@/util/auth';
+} from '../util/auth';
 
 export default {
   components: {},
@@ -46,7 +46,7 @@ export default {
 
       if (data.request_type === 'loginuser') {
         setLoggedUser(data.response.token, data.response.user);
-        let redirect = getLoginRedirect(redirect);
+        let redirect = getLoginRedirect();
         if (redirect) {
           unsetLoginRedirect();
           this.$router.push(redirect);

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <nav class="mb-4 bg-grey-light rounded font-sans w-full">
-      <ol class="list-reset flex text-grey-dark">
+    <nav class="mb-4 rounded font-sans w-full">
+      <ol class="list-none flex">
         <li>
           <a>user</a>
         </li>
@@ -114,7 +114,7 @@
           ]"
         >
           <router-link :to="projectGroupSettingsLink('user', username, [])">
-            <i class="mr-1 mdi mdi-settings" />
+            <i class="mr-1 mdi mdi-cog" />
             <span>Root Project Group Settings</span>
           </router-link>
         </li>
@@ -126,7 +126,7 @@
           ]"
         >
           <router-link :to="ownerSettingsLink('user', username)">
-            <i class="mr-1 mdi mdi-settings" />
+            <i class="mr-1 mdi mdi-cog" />
             <span>User Settings</span>
           </router-link>
         </li>
@@ -142,7 +142,7 @@
               <button
                 class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
               >
-                <i class="mr-4 mdi mdi-settings" />
+                <i class="mr-4 mdi mdi-cog" />
                 <i class="mdi mdi-chevron-down"></i>
               </button>
             </div>
@@ -156,7 +156,7 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="projectGroupSettingsLink('user', username, [])"
                   >
-                    <i class="mr-1 mdi mdi-settings" />
+                    <i class="mr-1 mdi mdi-cog" />
                     <span>Root Project Group Settings</span>
                   </router-link>
                 </li>
@@ -171,7 +171,7 @@
 </template>
 
 <script>
-import * as vClickOutside from 'v-click-outside-x';
+import vClickOutside from 'click-outside-vue3';
 
 import {
   ownerLink,
@@ -183,12 +183,12 @@ import {
   projectGroupCreateProjectGroupLink,
   projectGroupCreateProjectLink,
   projectGroupSettingsLink,
-} from '@/util/link.js';
+} from '../util/link';
 
-import { fetchRun } from '@/util/data.js';
+import { fetchRun } from '../util/data';
 
-import createprojectbutton from '@/components/createprojectbutton.vue';
-import tabarrow from '@/components/tabarrow.vue';
+import createprojectbutton from '../components/createprojectbutton.vue';
+import tabarrow from '../components/tabarrow.vue';
 
 export default {
   name: 'User',
@@ -279,7 +279,7 @@ export default {
       this.run = data;
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.fetchAbort) {
       this.fetchAbort.abort();
     }

@@ -1,11 +1,8 @@
-import store from '@/store';
+import { store } from '../store';
 
 const ID_TOKEN_KEY = 'id_token';
 const USER_KEY = 'user';
 const LOGIN_REDIRECT_KEY = 'login_redirect';
-
-let API_URL = window.CONFIG.API_URL;
-let API_BASE_PATH = window.CONFIG.API_BASE_PATH;
 
 export function setLoggedUser(token, user) {
   setIdToken(token);
@@ -19,17 +16,32 @@ export function doLogout() {
   store.dispatch('setUser', null);
 }
 
-export function apiurlwithtoken(path) {
-  let u = new URL(API_URL + API_BASE_PATH + path);
-  let idToken = getIdToken();
-  if (idToken) {
-    u.searchParams.append('access_token', idToken);
-  }
-  return u;
+export function apiurl(path) {
+  let apiURLString = genBaseURLString();
+  apiURLString += path;
+
+  return new URL(apiURLString);
 }
 
-export function apiurl(path) {
-  return new URL(API_URL + API_BASE_PATH + path);
+function genBaseURLString() {
+  // default base url with port set to 8000
+  const API_BASE_PATH = '/api/v1alpha';
+  // let API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string | undefined;
+  let API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  if (!API_BASE_URL) {
+    API_BASE_URL =
+      window.location.protocol +
+      '//' +
+      window.location.hostname +
+      ':' +
+      window.location.port;
+  }
+
+  const apiURL = new URL(API_BASE_URL);
+  apiURL.pathname = API_BASE_PATH;
+
+  return apiURL;
 }
 
 export function loginurl() {

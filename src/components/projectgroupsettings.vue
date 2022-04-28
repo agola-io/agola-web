@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="mb-4">
-          <label class="checkbox">
+          <label>
             <input type="checkbox" v-model="projectGroupIsPrivate" />
             Private
           </label>
@@ -108,12 +108,12 @@ import {
   fetchVariables,
   updateProjectGroup,
   deleteProjectGroup,
-} from '@/util/data.js';
+} from '../util/data';
 
-import { projectGroupLink } from '@/util/link.js';
+import { projectGroupLink } from '../util/link';
 
-import projectsecrets from '@/components/projectsecrets';
-import projectvars from '@/components/projectvars';
+import projectsecrets from './projectsecrets.vue';
+import projectvars from './projectvars.vue';
 
 export default {
   components: { projectsecrets, projectvars },

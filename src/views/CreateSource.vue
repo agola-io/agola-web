@@ -18,9 +18,9 @@
 </template>
 
 <script>
-import CreateSourceForm from '@/components/createsourceform';
-import { createRemoteSource } from '@/util/data.js';
-import router from '@/router';
+import CreateSourceForm from '../components/createsourceform.vue';
+import { createRemoteSource } from '../util/data';
+import router from '../router';
 
 export default {
   name: 'CreateSource',

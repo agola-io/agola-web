@@ -24,7 +24,7 @@
           <span
             class="mr-3 rounded px-2 py-1 text-xs"
             :class="taskClass(task)"
-            >{{ task.status | capitalize }}</span
+            >{{ capitalize(task.status) }}</span
           >
         </div>
         <button
@@ -58,10 +58,10 @@
 </template>
 
 <script>
-import { fetchRun, fetchTask, approveTask } from '@/util/data.js';
+import { fetchRun, fetchTask, approveTask } from '../util/data';
 
-import step from '@/components/step.vue';
-import rundetail from '@/components/rundetail.vue';
+import step from '../components/step.vue';
+import rundetail from '../components/rundetail.vue';
 
 export default {
   components: {
@@ -176,6 +176,9 @@ export default {
       }, 2000);
     },
     approveTask: approveTask,
+    capitalize(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    },
   },
   created: function () {
     this.fetchAbort = new AbortController();
@@ -183,7 +186,7 @@ export default {
     this.fetchRun();
     this.fetchTask();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.fetchAbort) {
       this.fetchAbort.abort();
     }

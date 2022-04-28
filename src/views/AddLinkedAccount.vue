@@ -34,9 +34,9 @@
 </template>
 
 <script>
-import LoginForm from '@/components/loginform';
+import LoginForm from '../components/loginform.vue';
 
-import { fetchRemoteSources, createUserLinkedAccount } from '@/util/data';
+import { fetchRemoteSources, createUserLinkedAccount } from '../util/data';
 
 export default {
   name: 'AddLinkedAccount',

@@ -2,14 +2,14 @@
   <div>
     <span
       v-if="logExists == false"
-      class="bg-gray-700 border border-yellow-600 rounded px-3 py-1 text-center font-semibold"
+      class="bg-gray-700 border border-yellow-500 rounded px-3 py-1 text-center font-semibold"
     >
       Log doesn't exist
     </span>
     <template v-else>
       <div
         v-if="(streaming || done) && items.length == 0 && lastitem.length == 0"
-        class="bg-gray-700 border border-yellow-600 rounded mb-1 px-3 py-1 text-center font-semibold"
+        class="bg-gray-700 border border-yellow-500 rounded mb-1 px-3 py-1 text-center font-semibold"
       >
         No lines
       </div>
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { apiurl, fetch } from '@/util/auth';
+import { apiurl, fetch } from '../util/auth';
 import AnsiUp from 'ansi_up';
 
 export default {
@@ -221,7 +221,7 @@ export default {
       this.fetch();
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.fetchAbort) {
       this.fetchAbort.abort();
     }

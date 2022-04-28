@@ -5,7 +5,7 @@
         <div
           class="px-4 py-4 flex justify-between items-center border border-l-0 rounded-r"
         >
-          <router-link class="w-1/3 font-bold" tag="a" :to="task.link">
+          <router-link class="w-1/3 font-bold" :to="task.link">
             <span class="w-1/3 font-bold">{{ task.name }}</span>
           </router-link>
           <div class="w-1/4">

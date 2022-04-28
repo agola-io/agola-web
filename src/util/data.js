@@ -1,5 +1,10 @@
-import router from '@/router';
-import { apiurl, fetch as authfetch, loginapi, registerapi } from '@/util/auth';
+import router from '../router';
+import {
+  apiurl,
+  fetch as authfetch,
+  loginapi,
+  registerapi,
+} from '../util/auth';
 
 export const GITHUB_API_URL = 'https://api.github.com';
 export const GITHUB_SSH_KEY =

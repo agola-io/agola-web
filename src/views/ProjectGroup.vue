@@ -48,7 +48,7 @@
               projectGroupSettingsLink(ownertype, ownername, projectgroupref)
             "
           >
-            <i class="mdi mdi-settings" />
+            <i class="mdi mdi-cog" />
             <span>Project Group Settings</span>
           </router-link>
         </li>
@@ -64,7 +64,7 @@
               <button
                 class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
               >
-                <i class="mr-4 mdi mdi-settings" />
+                <i class="mr-4 mdi mdi-cog" />
                 <i class="mdi mdi-chevron-down"></i>
               </button>
             </div>
@@ -84,7 +84,7 @@
                       )
                     "
                   >
-                    <i class="mdi mdi-settings" />
+                    <i class="mdi mdi-cog" />
                     <span>Project Group Settings</span>
                   </router-link>
                 </li>
@@ -99,17 +99,17 @@
 </template>
 
 <script>
-import * as vClickOutside from 'v-click-outside-x';
+import vClickOutside from 'click-outside-vue3';
 
 import {
   projectGroupProjectsLink,
   projectGroupSettingsLink,
   projectGroupCreateProjectGroupLink,
   projectGroupCreateProjectLink,
-} from '@/util/link.js';
+} from '../util/link';
 
-import projbreadcrumbs from '@/components/projbreadcrumbs.vue';
-import createprojectbutton from '@/components/createprojectbutton.vue';
+import projbreadcrumbs from '../components/projbreadcrumbs.vue';
+import createprojectbutton from '../components/createprojectbutton.vue';
 
 export default {
   name: 'ProjectGroup',

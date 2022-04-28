@@ -13,13 +13,13 @@
           />
         </div>
         <div class="mb-4">
-          <label class="checkbox">
+          <label>
             <input type="checkbox" v-model="projectIsPrivate" />
             Private
           </label>
         </div>
         <div class="mb-4">
-          <label class="checkbox">
+          <label>
             <input type="checkbox" v-model="project.pass_vars_to_forked_pr" />
             Pass variables to run even if triggered by PR from forked repo
             (DANGEROUS)
@@ -139,12 +139,12 @@ import {
   updateProject,
   deleteProject,
   projectUpdateRepoLinkedAccount,
-} from '@/util/data.js';
+} from '../util/data';
 
-import { projectGroupLink } from '@/util/link.js';
+import { projectGroupLink } from '../util/link';
 
-import projectsecrets from '@/components/projectsecrets';
-import projectvars from '@/components/projectvars';
+import projectsecrets from './projectsecrets.vue';
+import projectvars from './projectvars.vue';
 
 export default {
   components: { projectsecrets, projectvars },

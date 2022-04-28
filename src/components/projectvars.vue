@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import vars from '@/components/vars';
+import vars from './vars.vue';
 
 export default {
   components: { vars },

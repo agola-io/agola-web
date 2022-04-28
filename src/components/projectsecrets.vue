@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import secrets from '@/components/secrets';
+import secrets from './secrets.vue';
 
 export default {
   components: { secrets },

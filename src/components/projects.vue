@@ -52,9 +52,9 @@
 import {
   fetchProjectGroupProjects,
   fetchProjectGroupSubgroups,
-} from '@/util/data.js';
+} from '../util/data';
 
-import { projectLink, projectGroupLink } from '@/util/link.js';
+import { projectLink, projectGroupLink } from '../util/link';
 
 export default {
   components: {},
@@ -155,7 +155,7 @@ export default {
     this.fetchProjects(this.ownertype, this.ownername);
     this.fetchProjectGroups(this.ownertype, this.ownername);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.fetchAbort) {
       this.fetchAbort.abort();
     }

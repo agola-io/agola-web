@@ -34,9 +34,9 @@
 </template>
 
 <script>
-import { createProjectGroup } from '@/util/data.js';
+import { createProjectGroup } from '../util/data';
 
-import { projectGroupLink } from '@/util/link.js';
+import { projectGroupLink } from '../util/link';
 
 export default {
   components: {},

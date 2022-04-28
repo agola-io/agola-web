@@ -37,7 +37,6 @@
               @mouseleave="hoverTask = null"
             >
               <router-link
-                tag="a"
                 :to="task.link"
                 class="px-1 flex flex-col border border-l-0 rounded-r"
                 :style="{ height: taskHeight + 'px' }"
