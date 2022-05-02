@@ -9,7 +9,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "allowJs": true,
     "experimentalDecorators": true,
     "sourceMap": true,
     "baseUrl": ".",

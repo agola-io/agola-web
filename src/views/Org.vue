@@ -47,13 +47,13 @@
           </router-link>
         </li>
         <li
-          v-if="$route.name.endsWith('org project group settings')"
+          v-if="$route.name?.toString().endsWith('org project group settings')"
           class="tab-element"
           :class="[
             {
-              'tab-element-selected': $route.name.endsWith(
-                'org project group settings'
-              ),
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('org project group settings'),
             },
           ]"
         >
@@ -63,10 +63,14 @@
           </router-link>
         </li>
         <li
-          v-if="$route.name.endsWith('org settings')"
+          v-if="$route.name?.toString().endsWith('org settings')"
           class="tab-element"
           :class="[
-            { 'tab-element-selected': $route.name.endsWith('org settings') },
+            {
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('org settings'),
+            },
           ]"
         >
           <router-link :to="ownerSettingsLink('org', orgname)">
@@ -104,7 +108,7 @@
                     <span>Root Project Group Settings</span>
                   </router-link>
                 </li>
-                <li>
+                <!-- <li>
                   <router-link
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="ownerSettingsLink('org', orgname)"
@@ -112,7 +116,7 @@
                     <i class="mr-1 mdi mdi-cog" />
                     <span>Organization Settings</span>
                   </router-link>
-                </li>
+                </li> -->
               </ul>
             </div>
           </div>
@@ -123,7 +127,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import vClickOutside from 'click-outside-vue3';
 
 import {
@@ -137,42 +141,45 @@ import {
 } from '../util/link';
 
 import createprojectbutton from '../components/createprojectbutton.vue';
+import { useRouter } from 'vue-router';
+import { defineComponent, ref, toRefs } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'Org',
   components: { createprojectbutton },
   directives: {
     clickOutside: vClickOutside.directive,
   },
   props: {
-    orgname: String,
+    orgname: { type: String, required: true },
   },
-  data() {
-    return {
-      dropdownActive: false,
-    };
-  },
-  methods: {
-    ownerLink: ownerLink,
-    ownerProjectsLink: ownerProjectsLink,
-    ownerSettingsLink: ownerSettingsLink,
-    orgMembersLink: orgMembersLink,
-    projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
-    projectGroupCreateProjectLink: projectGroupCreateProjectLink,
-    projectGroupSettingsLink: projectGroupSettingsLink,
-    goToCreate(type) {
+  setup(props) {
+    const { orgname } = toRefs(props);
+    const router = useRouter();
+
+    const dropdownActive = ref(false);
+
+    const goToCreate = (type: string) => {
       if (type == 'project') {
-        this.$router.push(
-          projectGroupCreateProjectLink('org', this.orgname, [])
-        );
+        router.push(projectGroupCreateProjectLink('org', orgname.value, []));
         return;
       }
-      this.$router.push(
-        projectGroupCreateProjectGroupLink('org', this.orgname, [])
-      );
-    },
-  },
-};
-</script>
+      router.push(projectGroupCreateProjectGroupLink('org', orgname.value, []));
+    };
 
-<style scoped lang="scss"></style>
+    return {
+      dropdownActive,
+
+      ownerLink,
+      ownerProjectsLink,
+      ownerSettingsLink,
+      orgMembersLink,
+      projectGroupCreateProjectGroupLink,
+      projectGroupCreateProjectLink,
+      projectGroupSettingsLink,
+
+      goToCreate,
+    };
+  },
+});
+</script>

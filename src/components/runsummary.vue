@@ -8,6 +8,7 @@
       <div>{{ fetchRunError }}</div>
     </div>
     <rundetail
+      v-if="run"
       :rungrouptype="rungrouptype"
       :rungroupref="rungroupref"
       :run="run"
@@ -47,7 +48,7 @@
         <div class="p-3 rounded bg-gray-800 text-white">
           <pre
             class="font-mono leading-snug text-xs"
-            v-for="(error, i) in run.setup_errors"
+            v-for="(error, i) in run.setupErrors"
             v-bind:key="i"
             >{{ error }}</pre
           >
@@ -57,142 +58,191 @@
   </div>
 </template>
 
-<script>
-import { fetchRun } from '../util/data';
-import { userDirectRunTaskLink, projectRunTaskLink } from '../util/link';
-
+<script lang="ts">
+import { useAsyncState, useTimeoutFn } from '@vueuse/core';
+import {
+  computed,
+  defineComponent,
+  onUnmounted,
+  PropType,
+  Ref,
+  ref,
+  toRefs,
+  watch,
+} from 'vue';
+import { RouteLocationRaw } from 'vue-router';
+import {
+  ApiError,
+  errorToString,
+  RunResponse,
+  RunResponseTask,
+  useAPI,
+} from '../app/api';
 import rundetail from '../components/rundetail.vue';
 import tasks from '../components/tasks.vue';
 import tasksgraph from '../components/tasksgraph.vue';
+import { projectRunTaskLink, userDirectRunTaskLink } from '../util/link';
 
-export default {
+export class Task extends RunResponseTask {
+  link: RouteLocationRaw = '';
+  parents: string[] = [];
+  waitingApproval = false;
+  duration = '';
+  row = -1;
+}
+
+export class Run extends RunResponse {
+  tasks: Record<string, Task> = {};
+}
+
+export default defineComponent({
   name: 'runsummary',
   components: { rundetail, tasks, tasksgraph },
   props: {
-    ownertype: String,
-    ownername: String,
-    projectref: Array,
-    runnumber: Number,
+    ownertype: { type: String, required: true },
+    ownername: { type: String, required: true },
+    projectref: Array as PropType<Array<string>>,
+    runnumber: { type: Number, required: true },
   },
-  data() {
-    return {
-      fetchAbort: null,
+  setup(props) {
+    const { ownertype, ownername, projectref, runnumber } = toRefs(props);
 
-      fetchRunError: null,
-      fetchRunSchedule: null,
-      run: null,
+    const api = useAPI();
 
-      taskWidth: 200,
-      taskHeight: 40,
-      taskXSpace: 60,
-      taskYSpace: 20,
-      hoverTask: null,
+    let fetchAbort = new AbortController();
 
-      tasksDisplay: 'graph',
+    const fetchRunError: Ref<unknown | undefined> = ref();
+    const tasksDisplay = ref('graph');
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
     };
-  },
-  computed: {
-    rungrouptype() {
-      if (this.projectref !== undefined) {
+
+    const { start: startRefreshTimeout, stop: stopRefreshTimeout } =
+      useTimeoutFn(
+        async () => {
+          abortFetch();
+          await refreshRun();
+          startRefreshTimeout();
+        },
+        2000,
+        { immediate: false }
+      );
+
+    const update = () => {
+      stopRefreshTimeout();
+      abortFetch();
+
+      refreshRun();
+      startRefreshTimeout();
+    };
+
+    const rungrouptype = computed(() => {
+      if (projectref.value) {
         return 'projects';
       }
+
       return 'users';
-    },
-    rungroupref() {
-      if (this.projectref !== undefined) {
-        return [this.ownertype, this.ownername, ...this.projectref].join('/');
-      }
-      return this.ownername;
-    },
-  },
-  watch: {
-    $route: async function () {
-      if (this.fetchAbort) {
-        this.fetchAbort.abort();
-      }
-      clearTimeout(this.fetchRunSchedule);
+    });
 
-      this.fetchAbort = new AbortController();
+    const rungroupref = computed(() => {
+      if (projectref.value) {
+        return [ownertype.value, ownername.value, ...projectref.value].join(
+          '/'
+        );
+      }
 
-      this.fetchRun();
-    },
-  },
-  methods: {
-    runTaskLink(task) {
-      if (this.projectref) {
+      return ownername.value;
+    });
+
+    const runTaskLink = (task: RunResponseTask) => {
+      if (projectref.value) {
         return projectRunTaskLink(
-          this.ownertype,
-          this.ownername,
-          this.projectref,
-          this.runnumber,
+          ownertype.value,
+          ownername.value,
+          projectref.value,
+          runnumber.value,
           task.id
         );
       } else {
-        return userDirectRunTaskLink(this.ownername, this.runnumber, task.id);
+        return userDirectRunTaskLink(ownername.value, runnumber.value, task.id);
       }
-    },
-    parents(task) {
+    };
+
+    const parents = (run: RunResponse, task: RunResponseTask) => {
       return Object.keys(task.depends).map((key) => {
-        return this.run.tasks[task.depends[key].task_id].name;
+        return run.tasks[key].name;
       });
-    },
-    taskClass(task) {
-      if (task.status == 'success') return 'success';
-      if (task.status == 'failed') return 'failed';
-      if (task.status == 'stopped') return 'failed';
-      if (task.status == 'running') return 'running';
-      return 'unknown';
-    },
-    async fetchRun() {
-      let { data, error, aborted } = await fetchRun(
-        this.rungrouptype,
-        this.rungroupref,
-        this.runnumber,
-        this.fetchAbort.signal
-      );
-      if (aborted) {
-        return;
+    };
+
+    const getRun = async () => {
+      try {
+        const run = await api.getRun(
+          rungrouptype.value,
+          rungroupref.value,
+          runnumber.value,
+          fetchAbort.signal
+        );
+
+        const erun: Run = new Run();
+        Object.assign(erun, run);
+
+        // let tasks = erun.tasks;
+
+        // add additional properties to every task
+        for (const [taskID, task] of Object.entries(run.tasks)) {
+          const etask: Task = new Task();
+          Object.assign(etask, task);
+          etask.link = runTaskLink(task);
+          etask.parents = parents(run, task);
+          etask.waitingApproval = run.tasksWaitingApproval.includes(taskID);
+          erun.tasks[taskID] = etask;
+        }
+
+        fetchRunError.value = undefined;
+
+        return erun;
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        fetchRunError.value = e;
       }
-      if (error) {
-        this.fetchRunError = error;
+    };
 
-        this.scheduleFetchRun();
-        return;
-      }
-      this.fetchRunError = null;
-      this.run = data;
+    const {
+      state: run,
+      // isReady: fetchedRun,
+      execute: refreshRun,
+    } = useAsyncState(
+      async () => {
+        return await getRun();
+      },
+      undefined,
+      { immediate: false, resetOnExecute: false }
+    );
 
-      let tasks = this.run.tasks;
+    watch(
+      props,
+      () => {
+        run.value = undefined;
+        update();
+      },
+      { immediate: true }
+    );
 
-      // add additional properties to every task
-      for (let taskID in tasks) {
-        let task = tasks[taskID];
-        task.link = this.runTaskLink(task);
-        task.parents = this.parents(task);
-        task.waiting_approval =
-          this.run.tasks_waiting_approval.includes(taskID);
-      }
-
-      this.scheduleFetchRun();
-    },
-    scheduleFetchRun() {
-      clearTimeout(this.fetchRunSchedule);
-      this.fetchRunSchedule = setTimeout(() => {
-        this.fetchRun();
-      }, 2000);
-    },
+    return {
+      fetchRunError: computed(() => errorToString(fetchRunError.value)),
+      run,
+      rungrouptype,
+      rungroupref,
+      tasksDisplay,
+    };
   },
-  created: function () {
-    this.fetchAbort = new AbortController();
-    this.fetchRun();
-  },
-  beforeUnmount() {
-    if (this.fetchAbort) {
-      this.fetchAbort.abort();
-    }
-    clearTimeout(this.fetchRunSchedule);
-  },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>

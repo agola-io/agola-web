@@ -14,7 +14,7 @@
       class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
       @submit.prevent="
         $emit('createSource', {
-          token,
+          admintoken,
           name,
           type,
           clientId,
@@ -27,15 +27,15 @@
       "
     >
       <div class="mb-4">
-        <label class="block text-sm font-bold mb-2" for="token"
+        <label class="block text-sm font-bold mb-2" for="admintoken"
           >Agola Admin token</label
         >
         <input
           class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
-          id="token"
+          id="admintoken"
           type="password"
           placeholder="Agola Admin token"
-          v-model="token"
+          v-model="admintoken"
         />
       </div>
       <div class="mb-4">
@@ -146,34 +146,44 @@
   </div>
 </template>
 
-<script>
-import { GITHUB_SSH_KEY, GITHUB_API_URL } from '../util/data';
+<script lang="ts">
+import { defineComponent, ref, watch } from 'vue';
+import { GITHUB_API_URL, GITHUB_SSH_KEY } from '../app/api';
 
-export default {
+export default defineComponent({
   name: 'CreateSourceForm',
   emits: ['createSource'],
-  data: function () {
+  setup() {
+    const name = ref('');
+    const admintoken = ref('');
+    const url = ref('');
+    const sshHostKey = ref('');
+    const skipVerify = ref(false);
+    const skipSshHostKeyCheck = ref(false);
+    const type = ref('gitea');
+    const clientId = ref('');
+    const clientSecret = ref('');
+
+    watch(type, (value) => {
+      if (value === 'github') {
+        url.value = GITHUB_API_URL;
+        sshHostKey.value = GITHUB_SSH_KEY;
+        skipVerify.value = false;
+        skipSshHostKeyCheck.value = false;
+      }
+    });
+
     return {
-      name: null,
-      token: null,
-      url: null,
-      sshHostKey: null,
-      skipVerify: false,
-      skipSshHostKeyCheck: false,
-      type: 'gitea', // default value for select
-      clientId: null,
-      clientSecret: null,
+      name,
+      admintoken,
+      url,
+      sshHostKey,
+      skipVerify,
+      skipSshHostKeyCheck,
+      type,
+      clientId,
+      clientSecret,
     };
   },
-  watch: {
-    type: function (value) {
-      if (value === 'github') {
-        this.url = GITHUB_API_URL;
-        this.sshHostKey = GITHUB_SSH_KEY;
-        this.skipVerify = false;
-        this.skipSshHostKeyCheck = false;
-      }
-    },
-  },
-};
+});
 </script>

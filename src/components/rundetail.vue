@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="run != null">
+    <div v-if="run">
       <div
         v-if="stopRunError"
         class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
@@ -94,8 +94,7 @@
             <div class="relative ml-auto mr-3">
               <div
                 v-if="
-                  run.can_restart_from_scratch ||
-                  run.can_restart_from_failed_tasks
+                  run.canRestartFromScratch || run.canRestartFromFailedTasks
                 "
                 class="flex"
                 v-click-outside="() => (dropdownActive = false)"
@@ -118,7 +117,7 @@
                 <ul>
                   <li>
                     <a
-                      v-if="run.can_restart_from_scratch"
+                      v-if="run.canRestartFromScratch"
                       class="block px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
                       @click="restartRun(run.number, true)"
                       >From start</a
@@ -126,9 +125,9 @@
                   </li>
                   <li>
                     <a
-                      v-if="run.can_restart_from_failed_tasks"
+                      v-if="run.canRestartFromFailedTasks"
                       class="block px-4 py-2 hover:bg-blue-500 hover:text-white cursor-pointer"
-                      @click="restartRun(run.number)"
+                      @click="restartRun(run.number, false)"
                       >From failed tasks</a
                     >
                   </li>
@@ -157,154 +156,165 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { useNow } from '@vueuse/core';
 import vClickOutside from 'click-outside-vue3';
+import {
+  computed,
+  defineComponent,
+  onUnmounted,
+  PropType,
+  Ref,
+  ref,
+  toRefs,
+} from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  ApiError,
+  errorToString,
+  RunResponse,
+  RunResponseTask,
+  useAPI,
+} from '../app/api';
+import { projectRunLink, userDirectRunLink } from '../util/link';
+import { runResultClass, runStatus } from '../util/run';
+import { endTime, endTimeHuman, formatDuration } from '../util/time';
 
-import { cancelRun, stopRun, restartRun } from '../util/data';
-import { userDirectRunLink, projectRunLink } from '../util/link';
-import { runStatus, runResultClass } from '../util/run';
-
-import * as moment from 'moment';
-import momentDurationFormatSetup from 'moment-duration-format';
-
-momentDurationFormatSetup(moment);
-
-export default {
+export default defineComponent({
   name: 'rundetail',
   directives: {
     clickOutside: vClickOutside.directive,
   },
   props: {
-    rungrouptype: String,
-    rungroupref: String,
-    ownertype: String,
-    ownername: String,
-    projectref: Array,
-    run: Object,
+    rungrouptype: { type: String, required: true },
+    rungroupref: { type: String, required: true },
+    ownertype: { type: String, required: true },
+    ownername: { type: String, required: true },
+    projectref: Array as PropType<Array<string>>,
+    run: {
+      type: Object as PropType<RunResponse>,
+      required: true,
+    },
   },
-  data() {
-    return {
-      now: moment(),
-      stopRunError: null,
-      cancelRunError: null,
-      restartRunError: null,
-      dropdownActive: false,
+  setup(props) {
+    const { rungrouptype, rungroupref, ownertype, ownername, projectref } =
+      toRefs(props);
+
+    const api = useAPI();
+    const router = useRouter();
+
+    const fetchAbort: Ref<AbortController | undefined> = ref();
+
+    const now = useNow();
+    const dropdownActive = ref(false);
+    const stopRunError: Ref<unknown | undefined> = ref();
+    const cancelRunError: Ref<unknown | undefined> = ref();
+    const restartRunError: Ref<unknown | undefined> = ref();
+
+    onUnmounted(() => {
+      fetchAbort.value?.abort();
+    });
+
+    const resetErrors = () => {
+      stopRunError.value = undefined;
+      cancelRunError.value = undefined;
+      restartRunError.value = undefined;
     };
-  },
-  methods: {
-    runStatus: runStatus,
-    runResultClass: runResultClass,
-    resetErrors() {
-      this.stopRunError = null;
-      this.cancelRunError = null;
-      this.restartRunError = null;
-    },
-    stillRunning(run) {
+
+    const stillRunning = (run: RunResponse) => {
       return run.result != 'unknown' && run.phase == 'running';
-    },
-    taskClass(task) {
+    };
+
+    const taskClass = (task: RunResponseTask) => {
       if (task.status == 'success') return 'success';
       if (task.status == 'failed') return 'failed';
       if (task.status == 'stopped') return 'failed';
       if (task.status == 'running') return 'running';
       return 'unknown';
-    },
-    async stopRun(runnumber) {
-      this.resetErrors();
+    };
 
-      let { error } = await stopRun(
-        this.rungrouptype,
-        this.rungroupref,
-        runnumber
-      );
-      if (error) {
-        this.stopRunError = error;
-        return;
+    const stopRun = async (runnumber: number) => {
+      resetErrors();
+
+      try {
+        await api.stopRun(rungrouptype.value, rungroupref.value, runnumber);
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        stopRunError.value = e;
       }
+    };
 
-      // this.run.stopping = true;
-    },
-    async cancelRun(runnumber) {
-      this.resetErrors();
+    const cancelRun = async (runnumber: number) => {
+      resetErrors();
 
-      let { error } = await cancelRun(
-        this.rungrouptype,
-        this.rungroupref,
-        runnumber
-      );
-      if (error) {
-        this.cancelRunError = error;
-        return;
+      try {
+        await api.cancelRun(rungrouptype.value, rungroupref.value, runnumber);
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        cancelRunError.value = e;
       }
+    };
 
-      // this.run.phase = 'cancelled';
-    },
-    async restartRun(runnumber, fromStart) {
-      this.dropdownActive = false;
-      let { data, error } = await restartRun(
-        this.rungrouptype,
-        this.rungroupref,
-        runnumber,
-        fromStart
-      );
-      if (error) {
-        this.restartRunError = error;
-        return;
-      }
-
-      let runLink;
-      if (this.projectref) {
-        runLink = projectRunLink(
-          this.ownertype,
-          this.ownername,
-          this.projectref,
-          data.number
+    const restartRun = async (runnumber: number, fromStart: boolean) => {
+      dropdownActive.value = false;
+      try {
+        const newRun = await api.restartRun(
+          rungrouptype.value,
+          rungroupref.value,
+          runnumber,
+          fromStart
         );
-      } else {
-        runLink = userDirectRunLink(this.ownername, data.number);
-      }
-      this.$router.push(runLink);
-    },
-    duration(run) {
-      let formatString = 'h:mm:ss[s]';
-      let start = moment(run.start_time);
-      let end = moment(run.end_time);
 
-      if (run.start_time === null) {
-        return moment.duration(0).format(formatString);
+        let runLink;
+        if (projectref.value) {
+          runLink = projectRunLink(
+            ownertype.value,
+            ownername.value,
+            projectref.value,
+            newRun.number
+          );
+        } else {
+          runLink = userDirectRunLink(ownername.value, newRun.number);
+        }
+        router.push(runLink);
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        restartRunError.value = e;
       }
-      if (run.end_time === null) {
-        return moment.duration(this.now.diff(start)).format(formatString);
-      }
-      return moment.duration(end.diff(start)).format(formatString);
-    },
-    endTime(run) {
-      let formatString = 'lll';
-      let end = moment(run.end_time);
+    };
 
-      if (run.end_time === null) {
-        return '';
-      }
-      return 'Finished ' + end.format(formatString);
-    },
-    endTimeHuman(run) {
-      let end = moment(run.end_time);
+    const duration = (run: RunResponse) => {
+      return formatDuration(run, now.value);
+    };
 
-      if (run.end_time === null) {
-        return '';
-      }
-      return end.fromNow();
-    },
-    capitalize(s) {
+    const capitalize = (s: string) => {
       return s.charAt(0).toUpperCase() + s.slice(1);
-    },
-  },
-  created: function () {
-    window.setInterval(() => {
-      this.now = moment();
-    }, 500);
-  },
-};
-</script>
+    };
 
-<style scoped lang="scss"></style>
+    return {
+      stopRunError: computed(() => errorToString(stopRunError.value)),
+      cancelRunError: computed(() => errorToString(cancelRunError.value)),
+      restartRunError: computed(() => errorToString(restartRunError.value)),
+      dropdownActive,
+      taskClass,
+      stillRunning,
+      duration,
+      endTime,
+      endTimeHuman,
+      capitalize,
+
+      runStatus,
+      runResultClass,
+      stopRun,
+      cancelRun,
+      restartRun,
+    };
+  },
+});
+</script>

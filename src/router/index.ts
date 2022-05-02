@@ -1,34 +1,33 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { until } from '@vueuse/shared';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { API, ApiError } from '../app/api';
+import { AppState } from '../app/appstate';
+import { Auth } from '../app/auth';
+import createorganization from '../components/createorganization.vue';
+import createproject from '../components/createproject.vue';
+import createprojectgroup from '../components/createprojectgroup.vue';
+import orgmembers from '../components/orgmembers.vue';
+import projectgroupsettings from '../components/projectgroupsettings.vue';
+import projects from '../components/projects.vue';
+import projectsettings from '../components/projectsettings.vue';
+import runs from '../components/runs.vue';
+import runsummary from '../components/runsummary.vue';
+import tasksummary from '../components/tasksummary.vue';
+import usersettings from '../components/usersettings.vue';
+import { parseRef, parseRunNumber, projectRunLink } from '../util/link';
+import AddLinkedAccount from '../views/AddLinkedAccount.vue';
+import CreateSource from '../views/CreateSource.vue';
+import Home from '../views/Home.vue';
+import Login from '../views/Login.vue';
+import Logout from '../views/Logout.vue';
+import Oauth2 from '../views/Oauth2.vue';
+import Org from '../views/Org.vue';
+import Project from '../views/Project.vue';
+import ProjectGroup from '../views/ProjectGroup.vue';
+import Register from '../views/Register.vue';
+import User from '../views/User.vue';
 
-import Home from './views/Home.vue';
-import User from './views/User.vue';
-import Org from './views/Org.vue';
-import Project from './views/Project.vue';
-import ProjectGroup from './views/ProjectGroup.vue';
-import AddLinkedAccount from './views/AddLinkedAccount.vue';
-import usersettings from './components/usersettings.vue';
-import projects from './components/projects.vue';
-import projectsettings from './components/projectsettings.vue';
-import projectgroupsettings from './components/projectgroupsettings.vue';
-import createproject from './components/createproject.vue';
-import createprojectgroup from './components/createprojectgroup.vue';
-import createorganization from './components/createorganization.vue';
-import orgmembers from './components/orgmembers.vue';
-import runs from './components/runs.vue';
-import runsummary from './components/runsummary.vue';
-import tasksummary from './components/tasksummary.vue';
-import Oauth2 from './views/Oauth2.vue';
-import Register from './views/Register.vue';
-import Login from './views/Login.vue';
-import Logout from './views/Logout.vue';
-import CreateSource from './views/CreateSource.vue';
-
-import { parseRef, parseRunNumber, projectRunLink } from './util/link';
-import { fetchProject } from './util/data';
-
-import { store } from './store';
-
-const routes = [
+const routes: Array<RouteRecordRaw> = [
   {
     path: '/register',
     name: 'register',
@@ -51,7 +50,7 @@ const routes = [
   },
   {
     path: '/oauth2/callback',
-    name: 'oauth2callback',
+    name: 'oauth2',
     component: Oauth2,
   },
   {
@@ -66,7 +65,11 @@ const routes = [
   {
     path: '/user/:username',
     component: User,
-    props: (route) => ({ username: route.params.username }),
+    props: (route) => ({
+      username: firstEntry(route.params.username),
+      runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
+      taskid: firstEntry(route.params.taskid),
+    }),
     children: [
       {
         path: '',
@@ -74,7 +77,7 @@ const routes = [
         component: projects,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
+          ownername: firstEntry(route.params.username),
         }),
       },
       {
@@ -83,7 +86,7 @@ const routes = [
         component: projects,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
+          ownername: firstEntry(route.params.username),
         }),
       },
       {
@@ -92,7 +95,7 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
+          ownername: firstEntry(route.params.username),
         }),
       },
       {
@@ -101,8 +104,8 @@ const routes = [
         component: runsummary,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          runnumber: parseRunNumber(route.params.runnumber),
+          ownername: firstEntry(route.params.username),
+          runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
         }),
       },
       {
@@ -111,24 +114,26 @@ const routes = [
         component: tasksummary,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          runnumber: parseRunNumber(route.params.runnumber),
-          taskid: route.params.taskid,
+          ownername: firstEntry(route.params.username),
+          runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
+          taskid: firstEntry(route.params.taskid),
         }),
       },
       {
         path: 'settings',
         name: 'user settings',
         component: usersettings,
-        props: (route) => ({ username: route.params.username }),
+        props: (route) => ({
+          username: firstEntry(route.params.username),
+        }),
       },
       {
         path: 'linkedaccounts/add/:remotesource',
         name: 'user add linked account',
         component: AddLinkedAccount,
         props: (route) => ({
-          username: route.params.username,
-          remoteSourceName: route.params.remotesource,
+          username: firstEntry(route.params.username),
+          remoteSourceName: firstEntry(route.params.remotesource),
         }),
       },
       {
@@ -137,7 +142,7 @@ const routes = [
         component: createprojectgroup,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
+          ownername: firstEntry(route.params.username),
         }),
       },
       {
@@ -146,7 +151,7 @@ const routes = [
         component: createproject,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
+          ownername: firstEntry(route.params.username),
         }),
       },
     ],
@@ -156,8 +161,10 @@ const routes = [
     component: Project,
     props: (route) => ({
       ownertype: 'user',
-      ownername: route.params.username,
-      projectref: parseRef(route.params.projectref),
+      ownername: firstEntry(route.params.username),
+      projectref: parseRef(firstEntry(route.params.projectref)),
+      runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
+      taskid: firstEntry(route.params.taskid),
     }),
     children: [
       {
@@ -166,8 +173,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.username),
+          projectref: parseRef(firstEntry(route.params.projectref)),
         }),
       },
       {
@@ -176,8 +183,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.username),
+          projectref: parseRef(firstEntry(route.params.projectref)),
         }),
       },
       {
@@ -186,8 +193,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.username),
+          projectref: parseRef(firstEntry(route.params.projectref)),
           query: 'branches',
         }),
       },
@@ -197,8 +204,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.username),
+          projectref: parseRef(firstEntry(route.params.projectref)),
           query: 'tags',
         }),
       },
@@ -208,8 +215,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.username),
+          projectref: parseRef(firstEntry(route.params.projectref)),
           query: 'pullrequests',
         }),
       },
@@ -219,9 +226,9 @@ const routes = [
         component: runsummary,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectref: parseRef(route.params.projectref),
-          runnumber: parseRunNumber(route.params.runnumber),
+          ownername: firstEntry(route.params.username),
+          projectref: parseRef(firstEntry(route.params.projectref)),
+          runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
         }),
       },
       {
@@ -230,10 +237,10 @@ const routes = [
         component: tasksummary,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectref: parseRef(route.params.projectref),
-          runnumber: parseRunNumber(route.params.runnumber),
-          taskid: route.params.taskid,
+          ownername: firstEntry(route.params.username),
+          projectref: parseRef(firstEntry(route.params.projectref)),
+          runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
+          taskid: firstEntry(route.params.taskid),
         }),
       },
       {
@@ -242,8 +249,8 @@ const routes = [
         component: projectsettings,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.username),
+          projectref: parseRef(firstEntry(route.params.projectref)),
         }),
       },
     ],
@@ -254,8 +261,8 @@ const routes = [
     component: ProjectGroup,
     props: (route) => ({
       ownertype: 'user',
-      ownername: route.params.username,
-      projectgroupref: parseRef(route.params.projectgroupref),
+      ownername: firstEntry(route.params.username),
+      projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
     }),
     children: [
       {
@@ -264,8 +271,8 @@ const routes = [
         component: projects,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.username),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
       {
@@ -274,8 +281,8 @@ const routes = [
         component: projects,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.username),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
       {
@@ -284,8 +291,8 @@ const routes = [
         component: projectgroupsettings,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.username),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
       {
@@ -294,8 +301,8 @@ const routes = [
         component: createprojectgroup,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.username),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
       {
@@ -304,8 +311,8 @@ const routes = [
         component: createproject,
         props: (route) => ({
           ownertype: 'user',
-          ownername: route.params.username,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.username),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
     ],
@@ -314,7 +321,7 @@ const routes = [
   {
     path: '/org/:orgname',
     component: Org,
-    props: (route) => ({ orgname: route.params.orgname }),
+    props: (route) => ({ orgname: firstEntry(route.params.orgname) }),
     children: [
       {
         path: '',
@@ -322,7 +329,7 @@ const routes = [
         component: projects,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
+          ownername: firstEntry(route.params.orgname),
         }),
       },
       {
@@ -331,28 +338,30 @@ const routes = [
         component: projects,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
+          ownername: firstEntry(route.params.orgname),
         }),
       },
       {
         path: 'members',
         name: 'org members',
         component: orgmembers,
-        props: (route) => ({ orgname: route.params.orgname }),
+        props: (route) => ({ orgname: firstEntry(route.params.orgname) }),
       },
-      /*         {
-                  path: "settings",
-                  name: "org settings",
-                  component: orgsettings,
-                  props: (route) => ({ username: route.params.username }),
-                }, */
+      // {
+      //   path: 'settings',
+      //   name: 'org settings',
+      //   component: orgsettings,
+      //   props: (route) => ({
+      //     username: firstEntry(route.params.username),
+      //   }),
+      // },
       {
         path: 'createprojectgroup',
         name: 'org create project group',
         component: createprojectgroup,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
+          ownername: firstEntry(route.params.orgname),
         }),
       },
       {
@@ -361,7 +370,7 @@ const routes = [
         component: createproject,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
+          ownername: firstEntry(route.params.orgname),
         }),
       },
     ],
@@ -372,8 +381,8 @@ const routes = [
     component: Project,
     props: (route) => ({
       ownertype: 'org',
-      ownername: route.params.orgname,
-      projectref: parseRef(route.params.projectref),
+      ownername: firstEntry(route.params.orgname),
+      projectref: parseRef(firstEntry(route.params.projectref)),
     }),
     children: [
       {
@@ -382,8 +391,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.orgname),
+          projectref: parseRef(firstEntry(route.params.projectref)),
         }),
       },
       {
@@ -392,8 +401,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.orgname),
+          projectref: parseRef(firstEntry(route.params.projectref)),
         }),
       },
       {
@@ -402,8 +411,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.orgname),
+          projectref: parseRef(firstEntry(route.params.projectref)),
           query: 'branches',
         }),
       },
@@ -413,8 +422,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.orgname),
+          projectref: parseRef(firstEntry(route.params.projectref)),
           query: 'tags',
         }),
       },
@@ -424,8 +433,8 @@ const routes = [
         component: runs,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.orgname),
+          projectref: parseRef(firstEntry(route.params.projectref)),
           query: 'pullrequests',
         }),
       },
@@ -435,9 +444,9 @@ const routes = [
         component: runsummary,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectref: parseRef(route.params.projectref),
-          runnumber: parseRunNumber(route.params.runnumber),
+          ownername: firstEntry(route.params.orgname),
+          projectref: parseRef(firstEntry(route.params.projectref)),
+          runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
         }),
       },
       {
@@ -446,10 +455,10 @@ const routes = [
         component: tasksummary,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectref: parseRef(route.params.projectref),
-          runnumber: parseRunNumber(route.params.runnumber),
-          taskid: route.params.taskid,
+          ownername: firstEntry(route.params.orgname),
+          projectref: parseRef(firstEntry(route.params.projectref)),
+          runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
+          taskid: firstEntry(route.params.taskid),
         }),
       },
       {
@@ -458,8 +467,8 @@ const routes = [
         component: projectsettings,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectref: parseRef(route.params.projectref),
+          ownername: firstEntry(route.params.orgname),
+          projectref: parseRef(firstEntry(route.params.projectref)),
         }),
       },
     ],
@@ -470,8 +479,8 @@ const routes = [
     component: ProjectGroup,
     props: (route) => ({
       ownertype: 'org',
-      ownername: route.params.orgname,
-      projectgroupref: parseRef(route.params.projectgroupref),
+      ownername: firstEntry(route.params.orgname),
+      projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
     }),
     children: [
       {
@@ -480,8 +489,8 @@ const routes = [
         component: projects,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.orgname),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
       {
@@ -490,8 +499,8 @@ const routes = [
         component: projects,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.orgname),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
       {
@@ -500,8 +509,8 @@ const routes = [
         component: projectgroupsettings,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.orgname),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
       {
@@ -510,8 +519,8 @@ const routes = [
         component: createprojectgroup,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.orgname),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
       {
@@ -520,8 +529,8 @@ const routes = [
         component: createproject,
         props: (route) => ({
           ownertype: 'org',
-          ownername: route.params.orgname,
-          projectgroupref: parseRef(route.params.projectgroupref),
+          ownername: firstEntry(route.params.orgname),
+          projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
       },
     ],
@@ -533,36 +542,62 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, from, next) => {
-  store.dispatch('setError', null);
+export const setupNavigationGuards = (
+  auth: Auth,
+  api: API,
+  appState: AppState
+) => {
+  router.beforeEach(async (to) => {
+    appState.setGlobalError();
+    await until(auth.isReady).toBe(true);
 
-  const { path, query } = to;
-
-  if (path == '/run') {
-    // generic run handler by projectref and runnumber
-    const projectref = query.projectref;
-    const runnumber = query.runnumber;
-
-    const { data, error } = await fetchProject(projectref);
-    if (error) {
-      this.$store.dispatch('setError', error);
-      return;
+    if (
+      !auth.authenticated.value &&
+      !['login', 'oauth2'].includes(to.name?.toString() || '')
+    ) {
+      auth.setLoginReturnPath();
     }
 
-    const project = data;
+    if (
+      !auth.authenticated.value &&
+      !['home', 'register', 'login', 'oauth2', 'newsource'].includes(
+        to.name?.toString() || ''
+      )
+    ) {
+      return { name: 'home' };
+    }
 
-    const parts = project.path.split('/');
-    const nextPath = projectRunLink(
-      parts[0],
-      parts[1],
-      parts.slice(2),
-      runnumber
-    );
+    const { path, query } = to;
 
-    next({ path: nextPath.path, replace: true });
-  }
+    if (path == '/run') {
+      // generic run handler by projectref and runnumber
+      const projectref = query.projectref?.toString() || '';
+      const runnumber = parseRunNumber(query.runnumber?.toString() || '');
 
-  next();
-});
+      try {
+        const project = await api.getProject(projectref);
+
+        const parts = project.path.split('/');
+        const nextPath = projectRunLink(
+          parts[0],
+          parts[1],
+          parts.slice(2),
+          runnumber
+        );
+
+        return { path: nextPath.path, replace: true };
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    }
+  });
+};
 
 export default router;
+
+function firstEntry(v: string | string[]): string {
+  return Array.isArray(v) ? v[0] ?? undefined : v;
+}

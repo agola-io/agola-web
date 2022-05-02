@@ -7,7 +7,7 @@
     >
       <span class="block sm:inline">{{ error }}</span>
     </div>
-    <div>
+    <template v-if="fetchedRemoteSources">
       <div
         v-if="!hasRemoteSources"
         class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
@@ -26,23 +26,22 @@
       <div v-else>
         <div
           class="my-6 flex justify-center items-center"
-          v-for="rs in remotesources"
+          v-for="rs in remoteSources"
           v-bind:key="rs.id"
         >
-          <div v-if="rs.login_enabled">
+          <div v-if="rs.loginEnabled">
             <LoginForm
               action="Login"
               :name="rs.name"
-              v-if="rs.auth_type == 'password'"
-              v-on:login="doLogin($event.username, $event.password, rs.name)"
+              v-if="rs.authType == 'password'"
+              @login="
+                (username, password) => doLogin(username, password, rs.name)
+              "
             />
             <div v-else class="w-full max-w-xs">
               <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
                 <div class="flex justify-center">
-                  <button
-                    class="btn btn-blue"
-                    @click="doLogin(null, null, rs.name)"
-                  >
+                  <button class="btn btn-blue" @click="doLogin(rs.name)">
                     Login with {{ rs.name }}
                   </button>
                 </div>
@@ -51,91 +50,82 @@
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
-<script>
-import { fetchRemoteSources, login } from '../util/data';
-import {
-  setLoggedUser,
-  unsetLoginRedirect,
-  setLoginRedirect,
-  doLogout,
-} from '../util/auth';
-
+<script lang="ts">
+import { useAsyncState } from '@vueuse/core';
+import { computed, defineComponent } from 'vue';
+import { ApiError, errorToString, useAPI } from '../app/api';
+import { useAppState } from '../app/appstate';
+import { useAuth } from '../app/auth';
 import LoginForm from '../components/loginform.vue';
 
-export default {
+export default defineComponent({
   name: 'Login',
   components: {
     LoginForm,
   },
-  data: function () {
-    return {
-      error: null,
-      remotesources: null,
-    };
-  },
-  computed: {
-    hasRemoteSources() {
-      if (this.remotesources) {
-        return this.remotesources.length > 0;
+  setup() {
+    const appState = useAppState();
+    const auth = useAuth();
+    const api = useAPI();
+
+    const {
+      state: remoteSources,
+      isReady: fetchedRemoteSources,
+      // execute: refreshRemoteSources,
+    } = useAsyncState(async () => {
+      try {
+        return await api.getRemoteSources();
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
       }
-      return false;
-    },
-    hasLoginRemoteSources() {
-      for (let rs of this.remotesources) {
-        if (rs.login_enabled) {
+    }, undefined);
+
+    const hasRemoteSources = computed(() => {
+      if (!remoteSources.value) return false;
+
+      return remoteSources.value.length > 0;
+    });
+
+    const hasLoginRemoteSources = computed(() => {
+      if (!remoteSources.value) return false;
+
+      for (let rs of remoteSources.value) {
+        if (rs.loginEnabled) {
           return true;
         }
       }
+
       return false;
-    },
-  },
-  methods: {
-    async fetchRemoteSources() {
-      let { data, error } = await fetchRemoteSources();
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
-      }
-      this.remotesources = data;
-    },
-    async doLogin(username, password, remotesourcename) {
-      unsetLoginRedirect();
-      let redirect = this.$route.query['redirect'];
+    });
 
-      this.error = null;
+    const doLogin = async (
+      remoteSourceName: string,
+      username?: string,
+      password?: string
+    ) => {
+      try {
+        await auth.login(remoteSourceName, username, password);
+      } catch (e) {
+        appState.setGlobalError(e);
+      }
+    };
 
-      let { data, error } = await login(username, password, remotesourcename);
-      if (error) {
-        // set local login error on failed login.
-        this.error = error;
-        return;
-      }
-      if (data.oauth2_redirect) {
-        if (redirect) {
-          setLoginRedirect(redirect);
-        }
-        window.location = data.oauth2_redirect;
-        return;
-      }
-      setLoggedUser(data.token, data.user);
-      if (redirect) {
-        unsetLoginRedirect();
-        this.$router.push(redirect);
-      } else {
-        this.$router.push({ name: 'home' });
-      }
-    },
+    return {
+      error: computed(() => errorToString(appState.globalError.value)),
+      remoteSources,
+      fetchedRemoteSources,
+      hasRemoteSources,
+      hasLoginRemoteSources,
+
+      doLogin,
+    };
   },
-  mounted: function () {
-    this.$store.dispatch('setError', null);
-  },
-  created: function () {
-    doLogout();
-    this.fetchRemoteSources();
-  },
-};
+});
 </script>

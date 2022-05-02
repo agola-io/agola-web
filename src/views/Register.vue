@@ -1,176 +1,226 @@
 <template>
   <div>
     <div
-      v-if="error"
+      v-if="registerUserError"
       class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
       role="alert"
     >
-      <span class="block sm:inline">{{ error }}</span>
+      <span class="block sm:inline">{{ registerUserError }}</span>
     </div>
-    <div v-if="registeruser" class="my-6 flex justify-center items-center">
+    <div v-if="registerUser" class="my-6 flex justify-center items-center">
       <div>
         <RegisterForm
-          :remote-username="registeruser.remote_user_info.LoginName"
-          :username="registeruser.remote_user_info.LoginName"
-          v-on:login="
-            doRegister(
-              registeruser.remote_source_name,
-              $event.username,
-              registeruser.remote_source_login_name,
-              registeruser.remote_source_login_password
-            )
+          :remote-username="registerUser.remoteUserInfo.loginName"
+          :username="registerUser.remoteUserInfo.loginName"
+          @register="
+            (username) => {
+              registerUser &&
+                doRegister(
+                  registerUser.remoteSourceName,
+                  username,
+                  registerUser.remoteSourceLoginName,
+                  registerUser.remoteSourceLoginPassword
+                );
+            }
           "
         />
       </div>
     </div>
-    <div
-      v-else-if="!hasRemoteSources"
-      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-    >
-      No remote sources defined
-      <router-link class="underline text-blue-600 block" to="/newsource">
-        <button class="btn btn-blue">Create one</button>
-      </router-link>
-    </div>
-    <div
-      v-else-if="!hasRegisterRemoteSources"
-      class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-    >
-      No remote sources enabled for registration
-    </div>
-    <div v-else>
+    <template v-else-if="fetchedRemoteSources">
       <div
-        class="my-6 flex justify-center items-center"
-        v-for="rs in remotesources"
-        v-bind:key="rs.id"
+        v-if="!hasRemoteSources"
+        class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
       >
-        <div v-if="rs.registration_enabled">
-          <LoginForm
-            action="Register"
-            :name="rs.name"
-            v-if="rs.auth_type == 'password'"
-            v-on:login="doAuthorize(rs.name, $event.username, $event.password)"
-          />
-          <div v-else class="w-full max-w-xs">
-            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-              <div class="flex justify-center">
-                <button class="btn btn-blue" @click="doAuthorize(rs.name)">
-                  Register with {{ rs.name }}
-                </button>
+        No remote sources defined
+        <router-link class="underline text-blue-600 block" to="/newsource">
+          <button class="btn btn-blue">Create one</button>
+        </router-link>
+      </div>
+      <div
+        v-else-if="!hasRegisterRemoteSources"
+        class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      >
+        No remote sources enabled for registration
+      </div>
+      <div v-else>
+        <div
+          class="my-6 flex justify-center items-center"
+          v-for="rs in remoteSources"
+          v-bind:key="rs.id"
+        >
+          <div v-if="rs.registrationEnabled">
+            <LoginForm
+              action="Register"
+              :name="rs.name"
+              v-if="rs.authType == 'password'"
+              @login="
+                (username, password) => doAuthorize(rs.name, username, password)
+              "
+            />
+            <div v-else class="w-full max-w-xs">
+              <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <div class="flex justify-center">
+                  <button class="btn btn-blue" @click="doAuthorize(rs.name)">
+                    Register with {{ rs.name }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
-
+<script lang="ts">
+import { useAsyncState } from '@vueuse/core';
+import { computed, defineComponent, onUnmounted, Ref, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ApiError, errorToString, useAPI } from '../app/api';
+import { useAppState } from '../app/appstate';
+import { useAuth } from '../app/auth';
 import LoginForm from '../components/loginform.vue';
 import RegisterForm from '../components/registerform.vue';
 
-import { fetchRemoteSources, register } from '../util/data';
-
-import { authorizeurl, fetch, doLogout } from '../util/auth';
-
-export default {
+export default defineComponent({
   name: 'Register',
   components: {
     LoginForm,
     RegisterForm,
   },
-  data: function () {
-    return {
-      error: null,
-      remotesources: null,
-    };
-  },
-  computed: {
-    ...mapGetters(['registeruser']),
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+    const appState = useAppState();
+    const api = useAPI();
+    const auth = useAuth();
 
-    hasRemoteSources() {
-      if (this.remotesources) {
-        return this.remotesources.length > 0;
+    let fetchAbort = new AbortController();
+
+    const registerUserError: Ref<unknown | undefined> = ref();
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
+    };
+
+    const update = async () => {
+      abortFetch();
+
+      refreshRemoteSources();
+    };
+
+    const resetErrors = () => {
+      registerUserError.value = undefined;
+    };
+
+    const fetchRemoteSources = async () => {
+      try {
+        return await api.getRemoteSources();
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
       }
-      return false;
-    },
-    hasRegisterRemoteSources() {
-      for (let rs of this.remotesources) {
-        if (rs.registration_enabled) {
+    };
+
+    const {
+      state: remoteSources,
+      isReady: fetchedRemoteSources,
+      execute: refreshRemoteSources,
+    } = useAsyncState(
+      async () => {
+        return await fetchRemoteSources();
+      },
+      undefined,
+      { immediate: false, shallow: false }
+    );
+
+    const hasRemoteSources = computed(() => {
+      if (!remoteSources.value) return false;
+
+      return remoteSources.value.length > 0;
+    });
+
+    const hasRegisterRemoteSources = computed(() => {
+      if (!remoteSources.value) return false;
+
+      for (let rs of remoteSources.value) {
+        if (rs.registrationEnabled) {
           return true;
         }
       }
       return false;
-    },
-  },
-  methods: {
-    async fetchRemoteSources() {
-      let { data, error } = await fetchRemoteSources();
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
-      }
-      this.remotesources = data;
-    },
-    async doAuthorize(remotesourcename, username, password) {
-      let u = authorizeurl();
-      let res = await (
-        await fetch(u, {
-          method: 'POST',
-          body: JSON.stringify({
-            remote_source_name: remotesourcename,
-            login_name: username,
-            password: password,
-          }),
-        })
-      ).json();
+    });
 
-      if (res.oauth2_redirect) {
-        window.location = res.oauth2_redirect;
-        return;
-      }
-      this.$store.dispatch('setRegisterUser', {
-        remote_user_info: res.remote_user_info,
-        remote_source_name: res.remote_source_name,
-        remote_source_login_name: username,
-        remote_source_login_password: password,
-      });
-    },
-    async doRegister(
-      remotesourcename,
-      username,
-      remote_login_name,
-      remote_login_password
-    ) {
-      this.error = null;
+    const doAuthorize = async (
+      remoteSourceName: string,
+      username?: string,
+      password?: string
+    ) => {
+      resetErrors();
 
-      let { data, error } = await register(
-        username,
-        remotesourcename,
-        remote_login_name,
-        remote_login_password
-      );
-      if (error) {
-        // set local login error on failed login.
-        this.error = error;
-        return;
+      try {
+        await auth.authorize(remoteSourceName, username, password);
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        registerUserError.value = e;
       }
-      if (data.oauth2_redirect) {
-        window.location = data.oauth2_redirect;
-        return;
+    };
+
+    const doRegister = async (
+      remoteSourceName: string,
+      username: string,
+      remoteLoginName?: string,
+      remoteLoginPassword?: string
+    ) => {
+      resetErrors();
+
+      try {
+        await api.register(
+          remoteSourceName,
+          username,
+          remoteLoginName,
+          remoteLoginPassword,
+          fetchAbort.signal
+        );
+
+        router.push({ name: 'home' });
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        registerUserError.value = e;
       }
-      this.$router.push({ name: 'home' });
-    },
+    };
+
+    watch(
+      () => route.fullPath,
+      () => {
+        update();
+      },
+      { immediate: true }
+    );
+
+    return {
+      registerUserError: computed(() => errorToString(registerUserError.value)),
+      registerUser: computed(() => auth.registerUser.value),
+      remoteSources,
+      fetchedRemoteSources,
+      hasRemoteSources,
+      hasRegisterRemoteSources,
+
+      doAuthorize,
+      doRegister,
+    };
   },
-  mounted: function () {
-    this.$store.dispatch('setError', null);
-  },
-  created: function () {
-    doLogout();
-    this.fetchRemoteSources();
-  },
-};
+});
 </script>

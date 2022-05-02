@@ -24,19 +24,17 @@
     "core-js": "^3.9.1",
     "lodash": "^4.17.21",
     "loglevel": "^1.7.1",
-    "moment": "^2.29.1",
-    "moment-duration-format": "^2.3.2",
+    "luxon": "^3.0.1",
     "reflect-metadata": "^0.1.13",
     "tslib": "^2.4.0",
     "typedjson": "^1.8.0",
     "v-click-outside-x": "^4.1.0",
     "vue": "^3.2.45",
-    "vue-router": "^4.0.11",
-    "vuex": "^4.0.2"
+    "vue-router": "^4.0.11"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.182",
-    "@types/moment-duration-format": "^2.2.3",
+    "@types/luxon": "^2.3.2",
     "@types/react": "file:stub/types__react",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",

@@ -2,7 +2,7 @@
   <div class="w-full max-w-xs">
     <form
       class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-      @submit.prevent="$emit('login', { username })"
+      @submit.prevent="$emit('register', curUsername)"
     >
       <div class="mb-4">
         <label class="block text-sm font-bold mb-2" for="username"
@@ -41,18 +41,27 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, ref, toRefs } from 'vue';
+
+export default defineComponent({
   name: 'RegisterForm',
   props: {
     remoteUsername: String,
     username: String,
   },
-  emits: ['login'],
-  data: function () {
+  emits: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    register: (username: string) => true,
+  },
+  setup(props) {
+    const { username } = toRefs(props);
+
+    const curUsername = ref(username.value || '');
+
     return {
-      curUsername: username,
+      curUsername,
     };
   },
-};
+});
 </script>

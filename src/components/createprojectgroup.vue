@@ -33,82 +33,97 @@
   </div>
 </template>
 
-<script>
-import { createProjectGroup } from '../util/data';
-
+<script lang="ts">
+import { computed, defineComponent, PropType, ref, Ref, toRefs } from 'vue';
+import { useRouter } from 'vue-router';
+import { ApiError, useAPI } from '../app/api';
 import { projectGroupLink } from '../util/link';
 
-export default {
+export default defineComponent({
   components: {},
   name: 'createprojectgroup',
   props: {
-    ownertype: String,
-    ownername: String,
-    projectgroupref: Array,
+    ownertype: {
+      type: String,
+      required: true,
+    },
+    ownername: {
+      type: String,
+      required: true,
+    },
+    projectgroupref: { type: Array as PropType<Array<string>>, required: true },
   },
-  data() {
-    return {
-      createProjectGroupError: null,
-      createProjectGroupLoading: false,
-      createProjectGroupLoadingTimeout: null,
-      projectGroupName: '',
-      projectGroupIsPrivate: false,
-    };
-  },
-  computed: {
-    createProjectGroupButtonEnabled: function () {
-      return this.projectGroupName.length;
-    },
-  },
-  methods: {
-    resetErrors() {
-      this.createProjectGroupError = null;
-    },
-    startProjectGroupLoading() {
-      this.createProjectGroupLoadingTimeout = setTimeout(() => {
-        this.createProjectGroupLoading = true;
-      }, 300);
-    },
-    stopProjectGroupLoading() {
-      clearTimeout(this.createProjectGroupLoadingTimeout);
-      this.createProjectGroupLoading = false;
-    },
-    async createProjectGroup() {
-      this.resetErrors();
+  setup(props) {
+    const { ownertype, ownername, projectgroupref } = toRefs(props);
 
-      let refArray = [this.ownertype, this.ownername];
-      if (this.projectgroupref) {
-        refArray = [...refArray, ...this.projectgroupref];
+    const router = useRouter();
+    const api = useAPI();
+
+    const projectGroupName = ref('');
+    const projectGroupIsPrivate = ref(false);
+
+    const createProjectGroupError: Ref<unknown | undefined> = ref();
+
+    const createProjectGroupLoading = ref(false);
+
+    const resetErrors = () => {
+      createProjectGroupError.value = undefined;
+    };
+
+    const createProjectGroup = async () => {
+      createProjectGroupLoading.value = true;
+      resetErrors();
+
+      let refArray = [ownertype.value, ownername.value];
+      if (projectgroupref) {
+        refArray = [...refArray, ...projectgroupref.value];
       }
       let parentref = refArray.join('/');
 
       let visibility = 'public';
-      if (this.projectGroupIsPrivate) {
+      if (projectGroupIsPrivate.value) {
         visibility = 'private';
       }
 
-      this.startProjectGroupLoading();
-      let { error } = await createProjectGroup(
-        parentref,
-        this.projectGroupName,
-        visibility
-      );
-      this.stopProjectGroupLoading();
-      if (error) {
-        this.createProjectGroupError = error;
-        return;
-      }
+      try {
+        await api.createProjectGroup(
+          parentref,
+          projectGroupName.value,
+          visibility
+        );
 
-      let projectgroupref = [this.projectGroupName];
-      if (this.projectgroupref) {
-        projectgroupref = this.projectgroupref.concat(this.projectGroupName);
+        let newProjectgroupref = [projectGroupName.value];
+        if (projectgroupref.value) {
+          newProjectgroupref = projectgroupref.value.concat(
+            projectGroupName.value
+          );
+        }
+        router.push(
+          projectGroupLink(ownertype.value, ownername.value, newProjectgroupref)
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        createProjectGroupError.value = e;
+      } finally {
+        createProjectGroupLoading.value = false;
       }
-      this.$router.push(
-        projectGroupLink(this.ownertype, this.ownername, projectgroupref)
-      );
-    },
+    };
+
+    const createProjectGroupButtonEnabled = computed(() => {
+      return projectGroupName.value;
+    });
+
+    return {
+      createProjectGroupError,
+      projectGroupName,
+      projectGroupIsPrivate,
+      createProjectGroupButtonEnabled,
+      createProjectGroupLoading,
+
+      createProjectGroup,
+    };
   },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>

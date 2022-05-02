@@ -1,10 +1,10 @@
 <template>
   <div>
     <h4 class="text-xl my-3">Projects</h4>
-    <div v-if="fetchProjectsLoading" class="ml-6 flex w-48">
-      <div v-bind:class="{ spinner: fetchProjectsLoading }"></div>
+    <div v-if="!fetchedProjects" class="ml-6 flex w-48">
+      <div v-bind:class="{ spinner: !fetchedProjects }"></div>
     </div>
-    <ul v-else-if="projects.length > 0">
+    <ul v-else-if="projects && projects.length > 0">
       <li
         class="mb-2 border rounded-l"
         v-for="project in projects"
@@ -13,7 +13,7 @@
         <div class="pl-4 py-4 flex items-center">
           <router-link
             class="item"
-            :to="projectLink(ownertype, ownername, ref(project.name))"
+            :to="projectLink(ownertype, ownername, projectRef(project.name))"
           >
             <span class="font-bold">{{ project.name }}</span>
           </router-link>
@@ -25,21 +25,27 @@
     <hr class="my-6 border-t" />
 
     <h4 class="text-xl my-3">Project Groups</h4>
-    <div v-if="fetchProjectGroupsLoading" class="ml-6 flex w-48">
-      <div v-bind:class="{ spinner: fetchProjectGroupsLoading }"></div>
+    <div v-if="!fetchedProjectGroups" class="ml-6 flex w-48">
+      <div v-bind:class="{ spinner: !fetchedProjectGroups }"></div>
     </div>
-    <ul v-else-if="projectgroups.length > 0">
+    <ul v-else-if="projectGroups && projectGroups.length > 0">
       <li
         class="mb-2 border rounded-l"
-        v-for="projectgroup in projectgroups"
-        v-bind:key="projectgroup.id"
+        v-for="projectGroup in projectGroups"
+        v-bind:key="projectGroup.id"
       >
         <div class="pl-4 py-4 flex items-center">
           <router-link
             class="item"
-            :to="projectGroupLink(ownertype, ownername, ref(projectgroup.name))"
+            :to="
+              projectGroupLink(
+                ownertype,
+                ownername,
+                projectRef(projectGroup.name)
+              )
+            "
           >
-            <span class="font-bold">{{ projectgroup.name }}</span>
+            <span class="font-bold">{{ projectGroup.name }}</span>
           </router-link>
         </div>
       </li>
@@ -48,119 +54,145 @@
   </div>
 </template>
 
-<script>
-import {
-  fetchProjectGroupProjects,
-  fetchProjectGroupSubgroups,
-} from '../util/data';
+<script lang="ts">
+import { useAsyncState } from '@vueuse/core';
+import { defineComponent, onUnmounted, PropType, toRefs, watch } from 'vue';
+import { ApiError, useAPI } from '../app/api';
+import { useAppState } from '../app/appstate';
+import { projectGroupLink, projectLink } from '../util/link';
 
-import { projectLink, projectGroupLink } from '../util/link';
-
-export default {
+export default defineComponent({
   components: {},
   name: 'Projects',
   props: {
-    ownertype: String,
-    ownername: String,
-    projectgroupref: Array,
+    ownertype: {
+      type: String,
+      required: true,
+    },
+    ownername: {
+      type: String,
+      required: true,
+    },
+    projectgroupref: Array as PropType<Array<string>>,
   },
-  data() {
-    return {
-      fetchAbort: null,
+  setup(props) {
+    const { ownertype, ownername, projectgroupref } = toRefs(props);
 
-      fetchProjectGroupsLoading: false,
-      fetchProjectsLoading: false,
+    const appState = useAppState();
+    const api = useAPI();
 
-      projects: [],
-      projectgroups: [],
+    let fetchAbort = new AbortController();
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
     };
-  },
-  watch: {
-    $route: async function () {
-      if (this.fetchAbort) {
-        this.fetchAbort.abort();
-      }
-      this.fetchAbort = new AbortController();
-      this.fetchProjects(this.ownertype, this.ownername);
-      this.fetchProjectGroups(this.ownertype, this.ownername);
-    },
-  },
-  methods: {
-    startFetchProjectsLoading() {
-      this.fetchProjectsLoading = true;
-    },
-    stopFetchProjectsLoading() {
-      this.fetchProjectsLoading = false;
-    },
-    startFetchProjectGroupsLoading() {
-      this.fetchProjectGroupsLoading = true;
-    },
-    stopFetchProjectGroupsLoading() {
-      this.fetchProjectGroupsLoading = false;
-    },
-    ref(name) {
-      let ref = [];
-      if (this.projectgroupref) {
-        ref = this.projectgroupref.slice(0);
+
+    const update = async () => {
+      abortFetch();
+
+      refreshProjects();
+      refreshProjectGroups();
+    };
+
+    const projectRef = (name: string): string[] => {
+      let ref: string[] = [];
+      if (projectgroupref.value) {
+        ref = projectgroupref.value.slice(0);
       }
       ref.push(name);
       return ref;
-    },
-    async fetchProjects(ownertype, ownername) {
-      let projectgroupref = [ownertype, ownername];
-      if (this.projectgroupref) {
-        projectgroupref.push(...this.projectgroupref);
+    };
+
+    const fetchProjects = async (ownertype: string, ownername: string) => {
+      let ref = [ownertype, ownername];
+      if (projectgroupref.value) {
+        ref.push(...projectgroupref.value);
       }
 
-      this.startFetchProjectsLoading();
-      let { data, error, aborted } = await fetchProjectGroupProjects(
-        projectgroupref.join('/'),
-        this.fetchAbort.signal
-      );
-      this.stopFetchProjectsLoading();
-      if (aborted) {
-        return;
+      try {
+        return await api.getProjectGroupProjects(
+          ref.join('/'),
+          fetchAbort.signal
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
       }
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
+    };
+
+    const fetchProjectGroups = async (ownertype: string, ownername: string) => {
+      let ref = [ownertype, ownername];
+      if (projectgroupref.value) {
+        ref.push(...projectgroupref.value);
       }
-      this.projects = data;
-    },
-    async fetchProjectGroups(ownertype, ownername) {
-      let projectgroupref = [ownertype, ownername];
-      if (this.projectgroupref) {
-        projectgroupref.push(...this.projectgroupref);
+
+      try {
+        return await api.getProjectGroupSubgroups(
+          ref.join('/'),
+          fetchAbort.signal
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
       }
-      this.startFetchProjectGroupsLoading();
-      let { data, error, aborted } = await fetchProjectGroupSubgroups(
-        projectgroupref.join('/'),
-        this.fetchAbort.signal
-      );
-      this.stopFetchProjectGroupsLoading();
-      if (aborted) {
-        return;
-      }
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
-      }
-      this.projectgroups = data;
-    },
-    projectLink: projectLink,
-    projectGroupLink: projectGroupLink,
+    };
+
+    const {
+      state: projects,
+      isReady: fetchedProjects,
+      execute: refreshProjects,
+    } = useAsyncState(
+      async () => {
+        return await fetchProjects(ownertype.value, ownername.value);
+      },
+      undefined,
+      { immediate: false, shallow: false }
+    );
+
+    const {
+      state: projectGroups,
+      isReady: fetchedProjectGroups,
+      execute: refreshProjectGroups,
+    } = useAsyncState(
+      async () => {
+        return await fetchProjectGroups(ownertype.value, ownername.value);
+      },
+      undefined,
+      { immediate: false, shallow: false }
+    );
+
+    watch(
+      props,
+      () => {
+        projects.value = undefined;
+        projectGroups.value = undefined;
+
+        update();
+      },
+      { immediate: true }
+    );
+
+    return {
+      fetchedProjects,
+      fetchedProjectGroups,
+
+      projects,
+      projectGroups,
+
+      projectLink,
+      projectGroupLink,
+
+      projectRef,
+    };
   },
-  created: function () {
-    this.fetchAbort = new AbortController();
-    this.fetchProjects(this.ownertype, this.ownername);
-    this.fetchProjectGroups(this.ownertype, this.ownername);
-  },
-  beforeUnmount() {
-    if (this.fetchAbort) {
-      this.fetchAbort.abort();
-    }
-  },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>

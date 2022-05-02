@@ -1,11 +1,22 @@
-<script>
-import { doLogout } from '../util/auth';
+<template>
+  <div />
+</template>
 
-export default {
+<script lang="ts">
+import { useAuth } from '../app/auth';
+import { defineComponent, onMounted } from 'vue';
+
+export default defineComponent({
   name: 'Logout',
-  created: function () {
-    doLogout();
-    this.$router.push('/');
+
+  setup() {
+    const auth = useAuth();
+
+    onMounted(() => {
+      auth.logout();
+    });
+
+    return {};
   },
-};
+});
 </script>

@@ -17,23 +17,27 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex';
+<script lang="ts">
+import { useAuth } from '../app/auth';
+import { defineComponent, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-export default {
+export default defineComponent({
   name: 'Home',
   components: {},
-  computed: {
-    ...mapGetters(['user']),
+  setup() {
+    const router = useRouter();
+    const auth = useAuth();
+
+    onMounted(() => {
+      if (auth.user.value)
+        router.push({
+          name: 'user',
+          params: { username: auth.user.value.username },
+        });
+    });
+
+    return {};
   },
-  created: function () {
-    let user = this.$store.getters.user;
-    if (user) {
-      this.$router.push({
-        name: 'user',
-        params: { username: this.user.username },
-      });
-    }
-  },
-};
+});
 </script>

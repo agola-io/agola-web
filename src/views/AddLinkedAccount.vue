@@ -8,92 +8,166 @@
       <span class="block sm:inline">{{ addLinkedAccountError }}</span>
     </div>
     <div class="my-6 flex justify-center items-center">
-      <div v-if="remotesource">
+      <div v-if="remoteSource">
         <LoginForm
-          v-if="remotesource.auth_type == 'password'"
+          v-if="remoteSource.authType == 'password'"
           action="Add Linked Account"
-          :name="remotesource.name"
-          v-on:login="
-            doAddLinkedAccount(
-              remotesource.name,
-              $event.username,
-              $event.password
-            )
+          :name="remoteSource.name"
+          @login="
+            (username, password) => {
+              remoteSource &&
+                doAddLinkedAccount(remoteSource.name, username, password);
+            }
           "
         />
         <button
           v-else
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          @click="doAddLinkedAccount(remotesource.name)"
+          @click="
+            () => {
+              remoteSource && doAddLinkedAccount(remoteSource.name);
+            }
+          "
         >
-          Add Linked Account with {{ remotesource.name }}
+          Add Linked Account with {{ remoteSource.name }}
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { useAsyncState } from '@vueuse/core';
+import {
+  computed,
+  defineComponent,
+  onUnmounted,
+  Ref,
+  ref,
+  toRefs,
+  watch,
+} from 'vue';
+import { useRouter } from 'vue-router';
+import { ApiError, errorToString, useAPI } from '../app/api';
+import { useAppState } from '../app/appstate';
 import LoginForm from '../components/loginform.vue';
 
-import { fetchRemoteSources, createUserLinkedAccount } from '../util/data';
-
-export default {
+export default defineComponent({
   name: 'AddLinkedAccount',
   props: {
-    username: String,
-    remoteSourceName: String,
+    username: { type: String, required: true },
+    remoteSourceName: { type: String, required: true },
   },
   components: {
     LoginForm,
   },
-  data: function () {
+  setup(props) {
+    const { username, remoteSourceName } = toRefs(props);
+
+    const router = useRouter();
+    const appState = useAppState();
+    const api = useAPI();
+
+    let fetchAbort = new AbortController();
+
+    const addLinkedAccountError: Ref<unknown | undefined> = ref();
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
+    };
+
+    const update = async () => {
+      abortFetch();
+
+      refreshRemoteSources();
+    };
+
+    const resetErrors = () => {
+      addLinkedAccountError.value = undefined;
+    };
+
+    const fetchremoteSources = async () => {
+      try {
+        return await api.getRemoteSources();
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
+
+    const {
+      state: remoteSources,
+      // isReady: fetchedRemoteSources,
+      execute: refreshRemoteSources,
+    } = useAsyncState(
+      async () => {
+        return await fetchremoteSources();
+      },
+      undefined,
+      { immediate: false, shallow: false }
+    );
+
+    const remoteSource = computed(() => {
+      if (!remoteSources.value) return;
+
+      return remoteSources.value?.find(
+        (rs) => rs.name == remoteSourceName.value
+      );
+    });
+
+    const doAddLinkedAccount = async (
+      rsName: string,
+      loginname?: string,
+      password?: string
+    ) => {
+      resetErrors();
+
+      try {
+        const res = await api.createUserLinkedAccount(
+          username.value,
+          rsName,
+          loginname,
+          password
+        );
+        if (!res) return;
+
+        router.push({
+          name: 'user settings',
+          params: { username: username.value },
+        });
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        addLinkedAccountError.value = e;
+      }
+    };
+
+    watch(
+      props,
+      () => {
+        remoteSources.value = undefined;
+
+        update();
+      },
+      { immediate: true }
+    );
+
     return {
-      addLinkedAccountError: null,
-      remotesource: null,
+      addLinkedAccountError: computed(() =>
+        errorToString(addLinkedAccountError.value)
+      ),
+      remoteSource,
+
+      doAddLinkedAccount,
     };
   },
-  methods: {
-    resetErrors() {
-      this.addLinkedAccountError = null;
-    },
-    async fetchRemoteSources() {
-      let { data, error } = await fetchRemoteSources();
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
-      }
-      for (var i = 0; i < data.length; i++) {
-        let remotesource = data[i];
-        if (remotesource.name == this.remoteSourceName) {
-          this.remotesource = remotesource;
-          break;
-        }
-      }
-    },
-    async doAddLinkedAccount(rsName, loginname, password) {
-      let { data, error } = await createUserLinkedAccount(
-        this.username,
-        rsName,
-        loginname,
-        password
-      );
-      if (error) {
-        this.addLinkedAccountError = error;
-        return;
-      }
-      if (data.oauth2_redirect) {
-        window.location = data.oauth2_redirect;
-        return;
-      }
-      this.$router.push({
-        name: 'user settings',
-        params: { username: this.username },
-      });
-    },
-  },
-  created: function () {
-    this.fetchRemoteSources();
-  },
-};
+});
 </script>

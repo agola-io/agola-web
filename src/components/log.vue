@@ -1,7 +1,7 @@
 <template>
   <div>
     <span
-      v-if="logExists == false"
+      v-if="!logExists"
       class="bg-gray-700 border border-yellow-500 rounded px-3 py-1 text-center font-semibold"
     >
       Log doesn't exist
@@ -42,95 +42,125 @@
   </div>
 </template>
 
-<script>
-import { apiurl, fetch } from '../util/auth';
+<script lang="ts">
 import AnsiUp from 'ansi_up';
+import { defineComponent, onUnmounted, Ref, ref, toRefs, watch } from 'vue';
+import { ApiError, useAPI } from '../app/api';
 
-export default {
+export default defineComponent({
   name: 'Log',
   props: {
     show: Boolean,
-    rungrouptype: String,
-    rungroupref: String,
-    runnumber: Number,
+    rungrouptype: { type: String, required: true },
+    rungroupref: { type: String, required: true },
+    runnumber: { type: Number, required: true },
     taskid: String,
     setup: Boolean,
     step: Number,
     stepphase: String,
   },
-  computed: {},
-  data() {
+  setup(props) {
+    const {
+      show,
+      rungrouptype,
+      rungroupref,
+      runnumber,
+      taskid,
+      setup,
+      step,
+      stepphase,
+    } = toRefs(props);
+
+    const api = useAPI();
+
+    const items: Ref<string[]> = ref([]);
+    const lastitem = ref('');
+    const lines: Ref<string[]> = ref([]);
+    const fetching = ref(false);
+    const streaming = ref(false);
+    const done = ref(false);
+    const logExists = ref(false);
+    const error = ref(false);
+
+    const fetchAbort: Ref<AbortController | undefined> = ref(
+      new AbortController()
+    );
+
     let formatter = new AnsiUp();
     formatter.use_classes = true;
 
-    return {
-      fetchAbort: null,
+    onUnmounted(() => {
+      fetchAbort.value?.abort();
+    });
 
-      items: [],
-      lastitem: '',
-      lines: [],
-      formatter: formatter,
-      es: null,
-      fetching: false,
-      streaming: false,
-      done: false,
-      logExists: null,
-      error: null,
+    const abortFetch = () => {
+      fetchAbort.value?.abort();
+      fetchAbort.value = new AbortController();
     };
-  },
-  methods: {
-    fetch() {
-      if (this.fetching) {
+
+    const fetch = async () => {
+      if (fetching.value) {
         return;
       }
 
       let follow = false;
-      if (this.stepphase == 'running') {
+      if (stepphase.value == 'running') {
         follow = true;
       }
 
-      this.getLogs(follow);
-    },
-    async getLogs(follow) {
-      this.items = [];
-      this.logExists = null;
-      this.error = null;
+      getLogs(follow);
+    };
 
-      let path =
+    const getLogs = async (follow: boolean) => {
+      items.value = [];
+      logExists.value = false;
+      error.value = false;
+
+      const apiURL = api.baseURL();
+      apiURL.pathname +=
         '/' +
-        this.rungrouptype +
+        rungrouptype.value +
         '/' +
-        encodeURIComponent(this.rungroupref) +
+        encodeURIComponent(rungroupref.value) +
         '/runs/' +
-        this.runnumber +
+        runnumber.value +
         '/tasks/' +
-        this.taskid +
+        taskid.value +
         '/logs';
 
-      if (this.setup) {
-        path += '?setup';
+      if (setup.value) {
+        apiURL.searchParams.append('setup', '');
       } else {
-        path += '?step=' + this.step;
+        if (step.value !== undefined) {
+          apiURL.searchParams.append('step', step.value.toString());
+        }
       }
       if (follow) {
-        path += '&follow';
+        apiURL.searchParams.append('follow', '');
       }
 
       try {
-        this.fetching = true;
-        let res = await fetch(apiurl(path), { signal: this.fetchAbort.signal });
+        fetching.value = true;
+
+        const res = await api.fetch(apiURL.toString(), {
+          method: 'GET',
+          signal: fetchAbort.value?.signal,
+        });
         if (res.status == 200) {
-          this.streaming = true;
+          if (!res.body) return;
+
+          logExists.value = true;
+          streaming.value = true;
           const reader = res.body.getReader();
 
           let lastline = '';
           let j = 0;
           for (;;) {
-            let { done, value } = await reader.read();
-            if (done) {
-              this.fetching = false;
-              this.streaming = false;
-              this.done = true;
+            let { done: readerDone, value } = await reader.read();
+            if (readerDone) {
+              fetching.value = false;
+              streaming.value = false;
+              done.value = true;
               return;
             }
 
@@ -147,15 +177,15 @@ export default {
                 lastline =
                   lastline.slice(0, j) + part + lastline.slice(j + part.length);
                 j = 0;
-                this.lastitem = this.formatter.ansi_to_html(lastline);
+                lastitem.value = formatter.ansi_to_html(lastline);
                 part = '';
               } else if (c == '\n') {
                 lastline =
                   lastline.slice(0, j) + part + lastline.slice(j + part.length);
                 j += part.length;
-                this.lastitem = this.formatter.ansi_to_html(lastline);
-                this.items.push(this.lastitem);
-                this.lastitem = '';
+                lastitem.value = formatter.ansi_to_html(lastline);
+                items.value.push(lastitem.value);
+                lastitem.value = '';
                 lastline = '';
                 j = 0;
                 part = '';
@@ -166,69 +196,69 @@ export default {
             lastline =
               lastline.slice(0, j) + part + lastline.slice(j + part.length);
             j += part.length;
-            this.lastitem = this.formatter.ansi_to_html(lastline);
+            lastitem.value = formatter.ansi_to_html(lastline);
           }
         } else if (res.status == 404) {
-          this.logExists = false;
+          logExists.value = false;
         } else if (res.status == 500) {
-          this.error = true;
+          error.value = true;
         }
       } catch (e) {
-        this.error = true;
-        // TODO(sgotti) show that log fetching has failed
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+          if (e.httpStatus == 404) {
+            logExists.value = false;
+            return;
+          }
+          // TODO(sgotti) show that log fetching has failed
+        }
+        error.value = true;
+      } finally {
+        fetching.value = false;
+        streaming.value = false;
+        done.value = false;
       }
-      this.fetching = false;
-      this.streaming = false;
-      this.done = false;
-    },
-    abortFetch() {
-      if (this.fetchAbort) {
-        this.fetchAbort.abort();
-      }
-      this.fetchAbort = new AbortController();
-    },
-  },
-  watch: {
-    show: function (post, pre) {
+    };
+
+    watch(show, (post, pre) => {
       if (pre == false && post == true) {
-        this.abortFetch();
-        this.fetch();
+        abortFetch();
+        fetch();
       }
       if (pre == true && post == false) {
-        this.abortFetch();
+        abortFetch();
       }
-    },
-    stepphase: function (post) {
-      if (!this.show) {
+    });
+
+    watch(stepphase, (post) => {
+      if (!show.value) {
         return;
       }
-      if (this.fetching) {
+      if (fetching.value) {
         return;
       }
       if (post == 'running') {
-        this.abortFetch();
-        this.getLogs(true);
+        abortFetch();
+        getLogs(true);
       } else {
-        this.abortFetch();
-        this.getLogs(false);
+        abortFetch();
+        getLogs(false);
       }
-    },
-  },
-  created: function () {
-    this.fetchAbort = new AbortController();
+    });
 
-    if (this.show) {
-      this.fetch();
-    }
-  },
-  beforeUnmount() {
-    if (this.fetchAbort) {
-      this.fetchAbort.abort();
-    }
+    return {
+      items,
+      lastitem,
+      lines,
+      formatter,
+      fetching,
+      streaming,
+      done,
+      logExists,
+      error,
 
-    if (this.es !== null) {
-      this.es.close();
-    }
+      fetch,
+    };
   },
-};
+});
 </script>

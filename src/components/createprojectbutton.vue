@@ -43,41 +43,43 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import vClickOutside from 'click-outside-vue3';
+import { computed, defineComponent, ref } from 'vue';
 
-export default {
-  components: {},
+export default defineComponent({
   directives: {
     clickOutside: vClickOutside.directive,
   },
   name: 'createprojectbutton',
-  props: {},
   emits: ['click'],
-  data() {
-    return {
-      dropdownActive: false,
-      type: 'project',
-    };
-  },
-  computed: {
-    buttonValue: function () {
-      if (this.type == 'project') {
+  setup(_, { emit }) {
+    const dropdownActive = ref(false);
+    const buttonType = ref('project');
+
+    const buttonValue = computed(() => {
+      if (buttonType.value == 'project') {
         return 'New Project';
       }
       return 'New Project Group';
-    },
-  },
-  methods: {
-    setButton(type) {
-      this.type = type;
-      this.dropdownActive = false;
-    },
-    clicked() {
-      this.$emit('click', this.type);
-    },
-  },
-};
-</script>
+    });
 
-<style scoped lang="scss"></style>
+    const setButton = (t: string) => {
+      buttonType.value = t;
+      dropdownActive.value = false;
+    };
+
+    const clicked = () => {
+      emit('click', buttonType.value);
+    };
+
+    return {
+      dropdownActive,
+      buttonValue,
+
+      setButton,
+      clicked,
+    };
+  },
+});
+</script>

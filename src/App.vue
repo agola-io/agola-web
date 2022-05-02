@@ -101,10 +101,10 @@
             </div>
           </div>
           <div v-else class="navbar-item">
-            <router-link to="/register">
+            <router-link to="/register" @click="updateRouterKey()">
               <button class="btn btn-blue">Sign up</button>
             </router-link>
-            <router-link to="/login">
+            <router-link to="/login" @click="updateRouterKey()">
               <button class="ml-2 btn btn-blue">Login</button>
             </router-link>
           </div>
@@ -133,49 +133,60 @@
     </div>
 
     <div v-else class="container mt-6">
-      <router-view v-if="routerActive"></router-view>
+      <router-view :key="routerKey" />
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import vClickOutside from 'click-outside-vue3';
-
-import { mapGetters } from 'vuex';
-
+import { computed, defineComponent, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { errorToString } from './app/api';
+import { useAppState } from './app/appstate';
+import { useAuth } from './app/auth';
 import { ownerSettingsLink } from './util/link';
 
-export default {
+export default defineComponent({
   name: 'App',
   directives: {
     clickOutside: vClickOutside.directive,
   },
   components: {},
-  computed: {
-    ...mapGetters(['error', 'user']),
-  },
-  data() {
+  setup() {
+    const appState = useAppState();
+    const auth = useAuth();
+    const route = useRoute();
+
+    const navActive = ref(false);
+    const userDropdownActive = ref(false);
+    const createDropdownActive = ref(false);
+
+    watch(
+      () => route.fullPath,
+      () => {
+        userDropdownActive.value = false;
+        createDropdownActive.value = false;
+      }
+    );
+
+    const reload = () => {
+      appState.setGlobalError();
+      appState.updateRouterKey();
+    };
+
     return {
-      routerActive: true,
-      navActive: false,
-      userDropdownActive: false,
-      createDropdownActive: false,
+      routerKey: computed(() => appState.routerKey.value),
+      user: computed(() => auth.user.value),
+      error: computed(() => errorToString(appState.globalError.value)),
+      navActive,
+      userDropdownActive,
+      createDropdownActive,
+      ownerSettingsLink,
+
+      reload,
+      updateRouterKey: appState.updateRouterKey,
     };
   },
-  watch: {
-    $route: function () {
-      this.userDropdownActive = false;
-      this.createDropdownActive = false;
-    },
-  },
-  // method to reload current view from https://github.com/vuejs/vue-router/issues/296#issuecomment-356530037
-  methods: {
-    ownerSettingsLink: ownerSettingsLink,
-    reload() {
-      this.$store.dispatch('setError', null);
-      this.routerActive = false;
-      this.$nextTick(() => (this.routerActive = true));
-    },
-  },
-};
+});
 </script>

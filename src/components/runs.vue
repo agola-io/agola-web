@@ -8,8 +8,8 @@
       <div>{{ fetchRunsError }}</div>
     </div>
 
-    <div class="ml-6 flex w-48">
-      <div v-bind:class="{ spinner: fetchRunsLoading }"></div>
+    <div v-if="!fetchedRuns && runs?.length == 0" class="ml-6 flex w-48">
+      <div v-bind:class="{ spinner: !fetchedRuns }"></div>
     </div>
     <div v-if="runs">
       <ul>
@@ -112,245 +112,202 @@
   </div>
 </template>
 
-<script>
-import { fetchUser, fetchProject, fetchRuns } from '../util/data';
-import { userDirectRunLink, projectRunLink } from '../util/link';
+<script lang="ts">
+import { useAsyncState, useNow, useTimeoutFn } from '@vueuse/core';
+import {
+  computed,
+  defineComponent,
+  onUnmounted,
+  PropType,
+  Ref,
+  ref,
+  toRefs,
+  watch,
+} from 'vue';
+import { ApiError, errorToString, RunResponse, useAPI } from '../app/api';
+import { projectRunLink, userDirectRunLink } from '../util/link';
 import { runResultClass } from '../util/run';
-import * as moment from 'moment';
-import momentDurationFormatSetup from 'moment-duration-format';
+import { endTime, endTimeHuman, formatDuration } from '../util/time';
 
-momentDurationFormatSetup(moment);
-
-export default {
+export default defineComponent({
   components: {},
   name: 'runs',
   props: {
-    ownertype: String,
-    ownername: String,
-    projectref: Array,
+    ownertype: {
+      type: String,
+      required: true,
+    },
+    ownername: {
+      type: String,
+      required: true,
+    },
+    projectref: Array as PropType<Array<string>>,
     query: String,
   },
-  data() {
-    return {
-      now: moment(),
+  setup(props) {
+    const { ownertype, ownername, projectref, query } = toRefs(props);
 
-      fetchAbort: null,
+    const api = useAPI();
 
-      fetchRunsLoading: false,
-      fetchRunsLoadingTimeout: false,
-      fetchRunsError: null,
-      fetchRunsSchedule: null,
+    let fetchAbort = new AbortController();
 
-      runs: null,
-      wantedRunsNumber: 25,
-      hasMoreRuns: false,
-      project: null,
-      user: null,
+    const wantedRunsNumber = ref(25);
+    const hasMoreRuns = ref(false);
+    const now = useNow();
+    const fetchRunsError: Ref<unknown | undefined> = ref();
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
     };
-  },
-  computed: {
-    rungrouptype() {
-      if (this.projectref !== undefined) {
+
+    const { start: startRefreshTimeout, stop: stopRefreshTimeout } =
+      useTimeoutFn(
+        async () => {
+          abortFetch();
+          await refreshRuns();
+          startRefreshTimeout();
+        },
+        2000,
+        { immediate: false }
+      );
+
+    const update = async () => {
+      stopRefreshTimeout();
+      abortFetch();
+
+      await refreshRuns();
+      startRefreshTimeout();
+    };
+
+    const rungrouptype = computed(() => {
+      if (projectref.value) {
         return 'projects';
       }
       return 'users';
-    },
-    rungroupref() {
-      if (this.projectref !== undefined) {
-        return [this.ownertype, this.ownername, ...this.projectref].join('/');
+    });
+
+    const rungroupref = computed(() => {
+      if (projectref.value) {
+        return [ownertype.value, ownername.value, ...projectref.value].join(
+          '/'
+        );
       }
-      return this.ownername;
-    },
-  },
-  watch: {
-    $route: function () {
-      this.runs = null;
-      this.hasMoreRuns = false;
-      this.update();
-    },
-  },
-  methods: {
-    projectRunLink: projectRunLink,
-    userDirectRunLink: userDirectRunLink,
-    runResultClass: runResultClass,
-    startFetchRunsLoading() {
-      this.fetchRunsLoadingTimeout = setTimeout(() => {
-        this.fetchRunsLoading = true;
-      }, 0);
-    },
-    stopFetchRunsLoading() {
-      clearTimeout(this.fetchRunsLoadingTimeout);
-      this.fetchRunsLoading = false;
-    },
-    stillRunning(run) {
+
+      return ownername.value;
+    });
+
+    const stillRunning = (run: RunResponse) => {
       return run.result != 'unknown' && run.phase == 'running';
-    },
-    waitingApproval(run) {
-      return run.tasks_waiting_approval.length > 0;
-    },
-    update() {
-      if (this.fetchAbort) {
-        this.fetchAbort.abort();
-      }
-      clearTimeout(this.fetchRunsSchedule);
-      if (this.projectref !== undefined) {
-        this.fetchProject();
-      } else {
-        this.fetchUser();
-      }
-    },
-    async fetchProject() {
-      this.fetchAbort = new AbortController();
+    };
 
-      let projectref = [
-        this.ownertype,
-        this.ownername,
-        ...this.projectref,
-      ].join('/');
+    const waitingApproval = (run: RunResponse) => {
+      return run.tasksWaitingApproval.length > 0;
+    };
 
-      let { data, error, aborted } = await fetchProject(
-        projectref,
-        this.fetchAbort.signal
-      );
-      if (aborted) {
-        return;
-      }
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
-      }
-      this.project = data;
+    const loadMoreRuns = async () => {
+      wantedRunsNumber.value += 25;
+      abortFetch();
 
-      this.fetchRuns(true);
-    },
-    async fetchUser() {
-      this.fetchAbort = new AbortController();
+      await refreshRuns();
+    };
 
-      let { data, error, aborted } = await fetchUser(
-        this.ownername,
-        this.fetchAbort.signal
-      );
-      if (aborted) {
-        return;
-      }
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
-      }
-      this.user = data;
-
-      this.fetchRuns(true);
-    },
-    loadMoreRuns() {
-      this.wantedRunsNumber += 25;
-      this.fetchRuns();
-    },
     // TODO(sgotti) use run events instead of refetching all runs everytime
-    async fetchRuns(loading) {
+    const fetchRuns = async () => {
       let subgroup = '';
-      if (this.projectref) {
-        if (this.query == 'branches') {
+      if (projectref.value) {
+        if (query.value == 'branches') {
           subgroup = 'branch';
-        } else if (this.query == 'tags') {
+        } else if (query.value == 'tags') {
           subgroup = 'tag';
-        } else if (this.query == 'pullrequests') {
+        } else if (query.value == 'pullrequests') {
           subgroup = 'pr';
         }
       }
 
-      let newRuns = [];
-      let hasMoreRuns = false;
+      let newRuns: RunResponse[] = [];
       let stopFetch = false;
       let runCount = 0;
-      let startRunNumber = null;
+      let startRunNumber = undefined;
 
-      if (loading) this.startFetchRunsLoading();
-      while (!stopFetch) {
-        let { data, error, aborted } = await fetchRuns(
-          this.rungrouptype,
-          this.rungroupref,
-          subgroup,
-          startRunNumber,
-          this.fetchAbort.signal
-        );
-        if (aborted) {
-          return;
+      try {
+        while (!stopFetch) {
+          const fetchedRuns = await api.getRuns(
+            rungrouptype.value,
+            rungroupref.value,
+            subgroup,
+            startRunNumber,
+            fetchAbort.signal
+          );
+
+          runCount += fetchedRuns.length;
+          if (runCount >= wantedRunsNumber.value || fetchedRuns.length == 0) {
+            hasMoreRuns.value = fetchedRuns.length != 0;
+            stopFetch = true;
+          }
+          newRuns = newRuns.concat(fetchedRuns);
+          if (newRuns.length) {
+            startRunNumber = newRuns[newRuns.length - 1].number;
+          }
         }
-        if (error) {
-          this.stopFetchRunsLoading();
-          this.fetchRunsError = error;
-
-          this.scheduleFetchRuns();
-          return;
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
         }
-        this.fetchRunsError = null;
-        runCount += data.length;
-        if (runCount >= this.wantedRunsNumber || data.length == 0) {
-          hasMoreRuns = data.length != 0;
-          stopFetch = true;
-        }
-        newRuns = newRuns.concat(data);
-        if (newRuns.length) {
-          startRunNumber = newRuns[newRuns.length - 1].number;
-        }
+        fetchRunsError.value = e;
+        return;
       }
-      this.stopFetchRunsLoading();
-      this.runs = newRuns;
-      this.hasMoreRuns = hasMoreRuns;
 
-      this.scheduleFetchRuns();
-    },
-    scheduleFetchRuns() {
-      clearTimeout(this.fetchRunsSchedule);
-      this.fetchRunsSchedule = setTimeout(() => {
-        this.fetchRuns();
-      }, 2000);
-    },
-    duration(run) {
-      let formatString = 'h:mm:ss[s]';
-      let start = moment(run.start_time);
-      let end = moment(run.end_time);
+      fetchRunsError.value = undefined;
+      return newRuns;
+    };
 
-      if (run.start_time === null) {
-        return moment.duration(0).format(formatString);
-      }
-      if (run.end_time === null) {
-        return moment.duration(this.now.diff(start)).format(formatString);
-      }
-      return moment.duration(end.diff(start)).format(formatString);
-    },
-    endTime(run) {
-      let formatString = 'lll';
-      let end = moment(run.end_time);
+    const {
+      state: runs,
+      isReady: fetchedRuns,
+      execute: refreshRuns,
+    } = useAsyncState(
+      async () => {
+        return await fetchRuns();
+      },
+      undefined,
+      { immediate: false, resetOnExecute: false }
+    );
 
-      if (run.end_time === null) {
-        return '';
-      }
-      return 'Finished ' + end.format(formatString);
-    },
-    endTimeHuman(run) {
-      let end = moment(run.end_time);
+    const duration = (run: RunResponse) => {
+      return formatDuration(run, now.value);
+    };
 
-      if (run.end_time === null) {
-        return '';
-      }
-      return end.fromNow();
-    },
+    watch(
+      props,
+      () => {
+        hasMoreRuns.value = false;
+        runs.value = undefined;
+        update();
+      },
+      { immediate: true }
+    );
+
+    return {
+      fetchRunsError: computed(() => errorToString(fetchRunsError.value)),
+      runs,
+      projectRunLink,
+      userDirectRunLink,
+      runResultClass,
+      waitingApproval,
+      stillRunning,
+      hasMoreRuns,
+      duration,
+      endTime,
+      endTimeHuman,
+      fetchedRuns,
+
+      loadMoreRuns,
+    };
   },
-  created: function () {
-    window.setInterval(() => {
-      this.now = moment();
-    }, 500);
-
-    this.update();
-  },
-  beforeUnmount() {
-    if (this.fetchAbort) {
-      this.fetchAbort.abort();
-    }
-    clearTimeout(this.fetchRunsSchedule);
-  },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>
