@@ -28,6 +28,7 @@
     "reflect-metadata": "^0.1.13",
     "tslib": "^2.5.0",
     "typedjson": "^1.8.0",
+    "universal-cookie": "^4.0.4",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },

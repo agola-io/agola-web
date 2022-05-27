@@ -280,6 +280,7 @@ export interface API {
 export function newAPI(): API {
   const _baseURL = genBaseURL();
   let auth: Auth;
+  let csrfToken = '';
 
   function setAuth(newAuth: Auth) {
     auth = newAuth;
@@ -342,8 +343,10 @@ export function newAPI(): API {
 
     if (admintoken) {
       headers['Authorization'] = 'token ' + admintoken;
-    } else if (auth.token.value) {
-      headers['Authorization'] = 'bearer ' + auth.token.value;
+    }
+
+    if (csrfToken) {
+      headers['X-Csrf-Token'] = csrfToken;
     }
 
     return window.fetch(
@@ -351,6 +354,8 @@ export function newAPI(): API {
       _.merge(init, {
         headers,
         mode: 'cors',
+        // required for sending cookies to api if deployed on different url
+        credentials: 'include',
       })
     );
   }
@@ -362,6 +367,11 @@ export function newAPI(): API {
   ): Promise<Response> {
     try {
       const res = await fetchWrapper(input, init, admintoken);
+
+      const curCSRFToken = res.headers.get('X-Csrf-Token');
+      if (curCSRFToken) {
+        csrfToken = curCSRFToken;
+      }
 
       if (!res.ok) {
         await handleFetchError(res);
@@ -1434,9 +1444,6 @@ export class PrivateUserResponse {
 export class LoginUserResponse {
   @jsonMember(String, { name: 'oauth2_redirect' })
   oauth2Redirect?: string;
-
-  @jsonMember(String)
-  token?: string;
 
   @jsonMember(UserResponse)
   user?: UserResponse;
