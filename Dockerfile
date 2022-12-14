@@ -1,15 +1,18 @@
-FROM node:12-alpine AS web_build
+FROM node:16-alpine AS web_build
 
 WORKDIR /agola-web
 
+RUN npm install -g pnpm
+
 # copy both 'package.json' and 'package-lock.json' (if available)
 COPY package*.json ./
+COPY stub/ ./stub/
 
 # install project dependencies
-RUN npm install
+RUN pnpm install
 
 # Copy all the source
 COPY . .
 
 # Build app
-RUN npm run build
+RUN pnpm run build

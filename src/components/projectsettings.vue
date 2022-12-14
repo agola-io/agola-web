@@ -13,14 +13,14 @@
           />
         </div>
         <div class="mb-4">
-          <label class="checkbox">
+          <label>
             <input type="checkbox" v-model="projectIsPrivate" />
             Private
           </label>
         </div>
         <div class="mb-4">
-          <label class="checkbox">
-            <input type="checkbox" v-model="project.pass_vars_to_forked_pr" />
+          <label>
+            <input type="checkbox" v-model="project.passVarsToForkedPR" />
             Pass variables to run even if triggered by PR from forked repo
             (DANGEROUS)
           </label>
@@ -40,9 +40,10 @@
       <p class="panel-title">Secrets</p>
       <div class="p-4">
         <projectsecrets
+          v-if="secrets && allSecrets"
           :secrets="secrets"
-          :allsecrets="allsecrets"
-          type="project"
+          :allSecrets="allSecrets"
+          refType="project"
         />
       </div>
     </div>
@@ -51,9 +52,10 @@
       <p class="panel-title">Variables</p>
       <div class="p-4">
         <projectvars
+          v-if="variables && allVariables"
           :variables="variables"
-          :allvariables="allvariables"
-          type="project"
+          :allVariables="allVariables"
+          refType="project"
         />
       </div>
     </div>
@@ -131,167 +133,351 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { useAsyncState } from '@vueuse/core';
 import {
-  fetchProject,
-  fetchSecrets,
-  fetchVariables,
-  updateProject,
-  deleteProject,
-  projectUpdateRepoLinkedAccount,
-} from '@/util/data.js';
+  computed,
+  defineComponent,
+  onUnmounted,
+  PropType,
+  Ref,
+  ref,
+  toRefs,
+  watch,
+} from 'vue';
+import { useRouter } from 'vue-router';
+import { ApiError, errorToString, useAPI, Visibility } from '../app/api';
+import { useAppState } from '../app/appstate';
+import { projectGroupLink, projectSettingsLink } from '../util/link';
+import projectsecrets from './projectsecrets.vue';
+import projectvars from './projectvars.vue';
 
-import { projectGroupLink } from '@/util/link.js';
-
-import projectsecrets from '@/components/projectsecrets';
-import projectvars from '@/components/projectvars';
-
-export default {
+export default defineComponent({
   components: { projectsecrets, projectvars },
   name: 'projectsettings',
   props: {
-    ownertype: String,
-    ownername: String,
-    projectref: Array,
+    ownertype: {
+      type: String,
+      required: true,
+    },
+    ownername: {
+      type: String,
+      required: true,
+    },
+    projectref: { type: Array as PropType<Array<string>>, required: true },
   },
-  data() {
-    return {
-      updateProjectError: null,
-      deleteProjectError: null,
-      updateRepoLinkedAccountError: null,
-      project: null,
-      projectIsPrivate: false,
-      secrets: [],
-      allsecrets: [],
-      variables: [],
-      allvariables: [],
-      projectNameToDelete: '',
+  setup(props) {
+    const { ownertype, ownername, projectref } = toRefs(props);
+
+    const router = useRouter();
+    const appState = useAppState();
+    const api = useAPI();
+
+    let fetchAbort = new AbortController();
+
+    const projectNameToDelete = ref('');
+    const updateProjectError: Ref<unknown | undefined> = ref();
+    const deleteProjectError: Ref<unknown | undefined> = ref();
+    const updateRepoLinkedAccountError: Ref<unknown | undefined> = ref();
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
     };
-  },
-  computed: {
-    projectName: function () {
-      return this.projectref[this.projectref.length - 1];
-    },
-    projectPath: function () {
-      return ['', this.ownertype, this.ownername, ...this.projectref].join('/');
-    },
-    deleteButtonEnabled: function () {
-      return this.projectNameToDelete == this.projectName;
-    },
-  },
-  methods: {
-    resetErrors() {
-      this.updateProjectError = null;
-      this.deleteProjectError = null;
-      this.updateRepoLinkedAccountError = null;
-    },
-    async updateProject() {
-      this.resetErrors();
 
-      let projectref = [
-        this.ownertype,
-        this.ownername,
-        ...this.projectref,
-      ].join('/');
+    const update = async () => {
+      abortFetch();
 
-      let visibility = 'public';
-      if (this.projectIsPrivate) {
-        visibility = 'private';
-      }
-      let { error } = await updateProject(
-        projectref,
-        this.project.name,
-        visibility,
-        this.project.pass_vars_to_forked_pr
+      refreshProject();
+      refreshSecrets();
+      refreshAllSecrets();
+      refreshVariables();
+      refreshAllVariables();
+    };
+
+    const projectName = computed(() => {
+      return projectref.value[projectref.value.length - 1];
+    });
+
+    const projectPath = computed(() => {
+      return ['', ownertype.value, ownername.value, ...projectref.value].join(
+        '/'
       );
-      if (error) {
-        this.updateProjectError = error;
+    });
+
+    const apiProjectRef = computed(() => {
+      return [ownertype.value, ownername.value, ...projectref.value].join('/');
+    });
+
+    const deleteButtonEnabled = computed(() => {
+      return projectNameToDelete.value == projectName.value;
+    });
+
+    const resetErrors = () => {
+      updateProjectError.value = undefined;
+      deleteProjectError.value = undefined;
+      updateRepoLinkedAccountError.value = undefined;
+    };
+
+    const updateProject = async () => {
+      if (!project.value) return;
+
+      resetErrors();
+
+      try {
+        await api.updateProject(
+          apiProjectRef.value,
+          project.value.name,
+          project.value.visibility,
+          project.value.passVarsToForkedPR
+        );
+
+        const newProjectRef = projectref.value.slice(0, -1);
+        newProjectRef.push(project.value.name);
+
+        router.push(
+          projectSettingsLink(ownertype.value, ownername.value, newProjectRef)
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        updateProjectError.value = e;
+      }
+    };
+
+    const deleteProject = async () => {
+      resetErrors();
+
+      if (projectNameToDelete.value != projectName.value) {
         return;
       }
-    },
-    async deleteProject() {
-      this.resetErrors();
 
-      let projectref = [
-        this.ownertype,
-        this.ownername,
-        ...this.projectref,
-      ].join('/');
-
-      if (this.projectNameToDelete == this.projectName) {
-        let { error } = await deleteProject(projectref);
-        if (error) {
-          this.deleteProjectError = error;
-          return;
-        }
-        this.$router.push(
+      try {
+        await api.deleteProject(apiProjectRef.value);
+        router.push(
           projectGroupLink(
-            this.ownertype,
-            this.ownername,
-            this.projectref.slice(0, -1)
+            ownertype.value,
+            ownername.value,
+            projectref.value.slice(0, -1)
           )
         );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        deleteProjectError.value = e;
       }
-    },
-    async updateRepoLinkedAccount() {
-      this.resetErrors();
+    };
 
-      let projectref = [
-        this.ownertype,
-        this.ownername,
-        ...this.projectref,
-      ].join('/');
+    const updateRepoLinkedAccount = async () => {
+      resetErrors();
 
-      let { error } = await projectUpdateRepoLinkedAccount(projectref);
-      if (error) {
-        this.updateRepoLinkedAccountError = error;
-        return;
+      try {
+        await api.projectUpdateRepoLinkedAccount(apiProjectRef.value);
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        updateRepoLinkedAccountError.value = e;
       }
-    },
-  },
-  created: async function () {
-    let projectref = [this.ownertype, this.ownername, ...this.projectref].join(
-      '/'
+    };
+
+    const fetchProject = async () => {
+      try {
+        return await api.getProject(apiProjectRef.value, fetchAbort.signal);
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
+
+    const {
+      state: project,
+      // isReady: fetchedProject,
+      execute: refreshProject,
+    } = useAsyncState(
+      async () => {
+        return await fetchProject();
+      },
+      undefined,
+      { immediate: false, shallow: false }
     );
 
-    let { data, error } = await fetchProject(projectref);
-    if (error) {
-      this.$store.dispatch('setError', error);
-      return;
-    }
+    const fetchSecrets = async () => {
+      try {
+        return await api.getSecrets(
+          'project',
+          apiProjectRef.value,
+          false,
+          fetchAbort.signal
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
 
-    this.project = data;
-    this.projectIsPrivate = this.project.visibility == 'private';
+    const {
+      state: secrets,
+      // isReady: fetchedSecrets,
+      execute: refreshSecrets,
+    } = useAsyncState(
+      async () => {
+        return await fetchSecrets();
+      },
+      undefined,
+      { immediate: false }
+    );
 
-    ({ data, error } = await fetchSecrets('project', projectref, false));
-    if (error) {
-      this.$store.dispatch('setError', error);
-      return;
-    }
-    this.secrets = data;
+    const fetchAllSecrets = async () => {
+      try {
+        return await api.getSecrets(
+          'project',
+          apiProjectRef.value,
+          true,
+          fetchAbort.signal
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
 
-    ({ data, error } = await fetchSecrets('project', projectref, true));
-    if (error) {
-      this.$store.dispatch('setError', error);
-      return;
-    }
-    this.allsecrets = data;
+    const {
+      state: allSecrets,
+      // isReady: fetchedAllSecrets,
+      execute: refreshAllSecrets,
+    } = useAsyncState(
+      async () => {
+        return await fetchAllSecrets();
+      },
+      undefined,
+      { immediate: false }
+    );
 
-    ({ data, error } = await fetchVariables('project', projectref, false));
-    if (error) {
-      this.$store.dispatch('setError', error);
-      return;
-    }
-    this.variables = data;
+    const fetchVariables = async () => {
+      try {
+        return await api.getVariables(
+          'project',
+          apiProjectRef.value,
+          false,
+          fetchAbort.signal
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
 
-    ({ data, error } = await fetchVariables('project', projectref, true));
-    if (error) {
-      this.$store.dispatch('setError', error);
-      return;
-    }
-    this.allvariables = data;
+    const {
+      state: variables,
+      // isReady: fetchedVariables,
+      execute: refreshVariables,
+    } = useAsyncState(
+      async () => {
+        return await fetchVariables();
+      },
+      undefined,
+      { immediate: false }
+    );
+
+    const fetchAllVariables = async () => {
+      try {
+        return await api.getVariables(
+          'project',
+          apiProjectRef.value,
+          true,
+          fetchAbort.signal
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
+
+    const {
+      state: allVariables,
+      // isReady: fetchedAllVariables,
+      execute: refreshAllVariables,
+    } = useAsyncState(
+      async () => {
+        return await fetchAllVariables();
+      },
+      undefined,
+      { immediate: false }
+    );
+
+    const projectIsPrivate: Ref<boolean> = computed({
+      get() {
+        return project.value?.visibility == Visibility.Private;
+      },
+
+      set(isPrivate: boolean) {
+        if (!project.value) return;
+
+        if (isPrivate) {
+          project.value.visibility = Visibility.Private;
+        } else {
+          project.value.visibility = Visibility.Public;
+        }
+      },
+    });
+
+    watch(
+      props,
+      () => {
+        project.value = undefined;
+        secrets.value = undefined;
+        allSecrets.value = undefined;
+        variables.value = undefined;
+        allVariables.value = undefined;
+
+        update();
+      },
+      { immediate: true }
+    );
+
+    return {
+      updateProjectError: computed(() =>
+        errorToString(updateProjectError.value)
+      ),
+      deleteProjectError: computed(() =>
+        errorToString(deleteProjectError.value)
+      ),
+      updateRepoLinkedAccountError: computed(() =>
+        errorToString(updateRepoLinkedAccountError.value)
+      ),
+      projectPath,
+      projectName,
+      project,
+      secrets,
+      allSecrets,
+      variables,
+      allVariables,
+      deleteButtonEnabled,
+      projectIsPrivate,
+      projectNameToDelete,
+      Visibility,
+
+      updateProject,
+      deleteProject,
+      updateRepoLinkedAccount,
+    };
   },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>

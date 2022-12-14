@@ -1,7 +1,7 @@
 <template>
   <div>
-    <nav class="mb-4 bg-grey-light rounded font-sans w-full">
-      <ol class="list-reset flex text-grey-dark">
+    <nav class="mb-4 rounded font-sans w-full">
+      <ol class="list-none flex">
         <li>
           <a>org</a>
         </li>
@@ -47,30 +47,34 @@
           </router-link>
         </li>
         <li
-          v-if="$route.name.endsWith('org project group settings')"
+          v-if="$route.name?.toString().endsWith('org project group settings')"
           class="tab-element"
           :class="[
             {
-              'tab-element-selected': $route.name.endsWith(
-                'org project group settings'
-              ),
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('org project group settings'),
             },
           ]"
         >
           <router-link :to="projectGroupSettingsLink('org', orgname, [])">
-            <i class="mr-1 mdi mdi-settings" />
+            <i class="mr-1 mdi mdi-cog" />
             <span>Root Project Group Settings</span>
           </router-link>
         </li>
         <li
-          v-if="$route.name.endsWith('org settings')"
+          v-if="$route.name?.toString().endsWith('org settings')"
           class="tab-element"
           :class="[
-            { 'tab-element-selected': $route.name.endsWith('org settings') },
+            {
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('org settings'),
+            },
           ]"
         >
           <router-link :to="ownerSettingsLink('org', orgname)">
-            <i class="mr-1 mdi mdi-settings" />
+            <i class="mr-1 mdi mdi-cog" />
             <span>Organization Settings</span>
           </router-link>
         </li>
@@ -86,7 +90,7 @@
               <button
                 class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
               >
-                <i class="mr-4 mdi mdi-settings" />
+                <i class="mr-4 mdi mdi-cog" />
                 <i class="mdi mdi-chevron-down"></i>
               </button>
             </div>
@@ -100,19 +104,19 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="projectGroupSettingsLink('org', orgname, [])"
                   >
-                    <i class="mr-1 mdi mdi-settings" />
+                    <i class="mr-1 mdi mdi-cog" />
                     <span>Root Project Group Settings</span>
                   </router-link>
                 </li>
-                <li>
+                <!-- <li>
                   <router-link
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="ownerSettingsLink('org', orgname)"
                   >
-                    <i class="mr-1 mdi mdi-settings" />
+                    <i class="mr-1 mdi mdi-cog" />
                     <span>Organization Settings</span>
                   </router-link>
-                </li>
+                </li> -->
               </ul>
             </div>
           </div>
@@ -123,8 +127,8 @@
   </div>
 </template>
 
-<script>
-import * as vClickOutside from 'v-click-outside-x';
+<script lang="ts">
+import vClickOutside from 'click-outside-vue3';
 
 import {
   ownerLink,
@@ -134,45 +138,48 @@ import {
   projectGroupCreateProjectGroupLink,
   projectGroupCreateProjectLink,
   projectGroupSettingsLink,
-} from '@/util/link.js';
+} from '../util/link';
 
-import createprojectbutton from '@/components/createprojectbutton.vue';
+import createprojectbutton from '../components/createprojectbutton.vue';
+import { useRouter } from 'vue-router';
+import { defineComponent, ref, toRefs } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'Org',
   components: { createprojectbutton },
   directives: {
     clickOutside: vClickOutside.directive,
   },
   props: {
-    orgname: String,
+    orgname: { type: String, required: true },
   },
-  data() {
-    return {
-      dropdownActive: false,
-    };
-  },
-  methods: {
-    ownerLink: ownerLink,
-    ownerProjectsLink: ownerProjectsLink,
-    ownerSettingsLink: ownerSettingsLink,
-    orgMembersLink: orgMembersLink,
-    projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
-    projectGroupCreateProjectLink: projectGroupCreateProjectLink,
-    projectGroupSettingsLink: projectGroupSettingsLink,
-    goToCreate(type) {
+  setup(props) {
+    const { orgname } = toRefs(props);
+    const router = useRouter();
+
+    const dropdownActive = ref(false);
+
+    const goToCreate = (type: string) => {
       if (type == 'project') {
-        this.$router.push(
-          projectGroupCreateProjectLink('org', this.orgname, [])
-        );
+        router.push(projectGroupCreateProjectLink('org', orgname.value, []));
         return;
       }
-      this.$router.push(
-        projectGroupCreateProjectGroupLink('org', this.orgname, [])
-      );
-    },
-  },
-};
-</script>
+      router.push(projectGroupCreateProjectGroupLink('org', orgname.value, []));
+    };
 
-<style scoped lang="scss"></style>
+    return {
+      dropdownActive,
+
+      ownerLink,
+      ownerProjectsLink,
+      ownerSettingsLink,
+      orgMembersLink,
+      projectGroupCreateProjectGroupLink,
+      projectGroupCreateProjectLink,
+      projectGroupSettingsLink,
+
+      goToCreate,
+    };
+  },
+});
+</script>

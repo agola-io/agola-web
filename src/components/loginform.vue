@@ -2,7 +2,7 @@
   <div class="w-full max-w-xs">
     <form
       class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-      @submit.prevent="$emit('login', { username, password })"
+      @submit.prevent="$emit('login', username, password)"
     >
       <div class="mb-4">
         <label class="block text-sm font-bold mb-2" for="username"
@@ -40,18 +40,26 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, ref } from 'vue';
+
+export default defineComponent({
   name: 'LoginForm',
   props: {
     action: String,
     name: String,
   },
-  data: function () {
+  emits: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    login: (username: string, password: string) => true,
+  },
+  setup() {
+    const username = ref('');
+    const password = ref('');
     return {
-      username: null,
-      password: null,
+      username,
+      password,
     };
   },
-};
+});
 </script>

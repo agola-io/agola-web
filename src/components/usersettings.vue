@@ -12,14 +12,14 @@
             this Linked Account to access their remote repository
           </p>
         </div>
-        <ul v-if="user.linked_accounts">
+        <ul v-if="user && user.linkedAccounts.length">
           <li
             class="flex justify-between items-center mb-2"
-            v-for="(la, index) in user.linked_accounts"
-            v-bind:key="index"
+            v-for="(la, index) in user.linkedAccounts"
+            :key="index"
           >
             <div>
-              <span class="font-bold">{{ la.remote_user_name }}</span>
+              <span class="font-bold">{{ la.remoteUserName }}</span>
               <span class="ml-1"
                 >(on remote source {{ laRemoteSourceName(la) }})</span
               >
@@ -38,32 +38,26 @@
         </ul>
         <div v-else>No linked accounts</div>
       </div>
-      <div v-if="remotesources.length" class="p-4 border-t">
+      <div v-if="remoteSources && remoteSources.length" class="p-4 border-t">
         <h5 class="mb-3 text-xl">Add new linked account</h5>
 
         <div class="inline-block">
           <div class="flex mb-3 relative w-64">
             <select
               class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-              v-model="selectedRemoteSourceName"
+              v-model="selectedRemoteSourceIndex"
             >
-              <option v-for="rs in remotesources" v-bind:key="rs.id">
+              <option :value="undefined" disabled>
+                Select the remote source
+              </option>
+              <option
+                v-for="(rs, index) in remoteSources"
+                :key="rs.id"
+                :value="index"
+              >
                 {{ rs.name }}
               </option>
             </select>
-            <div
-              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2"
-            >
-              <svg
-                class="fill-current h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
-                ></path>
-              </svg>
-            </div>
           </div>
         </div>
 
@@ -76,11 +70,11 @@
     <div class="panel">
       <p class="panel-title">User Tokens</p>
       <div class="p-4">
-        <ul v-if="user.tokens">
+        <ul v-if="user && user.tokens.length">
           <li
             class="flex justify-between items-center mb-2"
             v-for="token in user.tokens"
-            v-bind:key="token"
+            :key="token"
           >
             <span class="font-bold">{{ token }}</span>
             <button class="btn btn-red" @click="deleteUserToken(token)">
@@ -146,7 +140,7 @@
             class="shadow appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             type="text"
             placeholder="Token name"
-            v-model="newtokenname"
+            v-model="newTokenName"
           />
           <button class="ml-3 btn btn-blue" @click="createUserToken()">
             Create Token
@@ -164,117 +158,228 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { useAsyncState } from '@vueuse/core';
+import { computed, defineComponent, onUnmounted, Ref, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import {
-  fetchCurrentUser,
-  fetchRemoteSources,
-  createUserToken,
-  deleteUserToken,
-  deleteLinkedAccount,
-} from '@/util/data.js';
+  ApiError,
+  errorToString,
+  LinkedAccountResponse,
+  useAPI,
+} from '../app/api';
+import { useAppState } from '../app/appstate';
+import { userAddLinkedAccountLink } from '../util/link';
 
-import { userAddLinkedAccountLink } from '@/util/link.js';
-
-export default {
+export default defineComponent({
   components: {},
   name: 'usersettings',
   props: {},
-  data() {
-    return {
-      createUserTokenError: null,
-      deleteUserTokenError: null,
-      deleteLinkedAccountError: null,
-      user: [],
-      remotesources: [],
-      token: null,
-      newtokenname: null,
-      selectedRemoteSourceName: null,
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+    const appState = useAppState();
+    const api = useAPI();
+
+    let fetchAbort = new AbortController();
+
+    const token: Ref<string | undefined> = ref();
+    const newTokenName: Ref<string | undefined> = ref();
+    const selectedRemoteSourceIndex: Ref<number | undefined> = ref();
+
+    const createUserTokenError: Ref<unknown | undefined> = ref();
+    const deleteUserTokenError: Ref<unknown | undefined> = ref();
+    const deleteLinkedAccountError: Ref<unknown | undefined> = ref();
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
     };
-  },
-  methods: {
-    resetErrors() {
-      this.createUserTokenError = null;
-      this.deleteUserTokenError = null;
-      this.deleteLinkedAccountError = null;
-    },
-    async fetchCurrentUser() {
-      let { data, error } = await fetchCurrentUser();
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
+
+    const update = async () => {
+      abortFetch();
+
+      refreshUser();
+      refreshRemoteSources();
+    };
+
+    const resetErrors = () => {
+      createUserTokenError.value = undefined;
+      deleteUserTokenError.value = undefined;
+      deleteLinkedAccountError.value = undefined;
+    };
+
+    const fetchUser = async () => {
+      try {
+        return await api.getAuthUser(fetchAbort.signal);
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
       }
-      this.user = data;
-    },
-    async fetchRemoteSources() {
-      let { data, error } = await fetchRemoteSources();
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
+    };
+
+    const {
+      state: user,
+      // isReady: fetchedUser,
+      execute: refreshUser,
+    } = useAsyncState(
+      async () => {
+        return await fetchUser();
+      },
+      undefined,
+      { immediate: false }
+    );
+
+    const fetchRemoteSources = async () => {
+      try {
+        return await api.getRemoteSources();
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
       }
-      this.remotesources = data;
-      if (this.remotesources.length) {
-        this.selectedRemoteSourceName = this.remotesources[0].name;
-      }
-    },
-    laRemoteSourceName(la) {
-      for (var i = 0; i < this.remotesources.length; i++) {
-        let rs = this.remotesources[i];
-        if (rs.id == la.remote_source_id) {
+    };
+
+    const {
+      state: remoteSources,
+      // isReady: fetchedRemoteSources,
+      execute: refreshRemoteSources,
+    } = useAsyncState(
+      async () => {
+        return await fetchRemoteSources();
+      },
+      undefined,
+      { immediate: false, shallow: false }
+    );
+
+    const laRemoteSourceName = (la: LinkedAccountResponse) => {
+      if (!remoteSources.value) return undefined;
+
+      for (let rs of remoteSources.value) {
+        if (rs.id == la.remoteSourceID) {
           return rs.name;
         }
       }
-    },
-    addLinkedAccount() {
+    };
+
+    const addLinkedAccount = () => {
+      if (!user.value) return;
+      if (!remoteSources.value) return;
+      if (selectedRemoteSourceIndex.value == undefined) return;
+
+      const remoteSource = remoteSources.value[selectedRemoteSourceIndex.value];
+
       let path = userAddLinkedAccountLink(
-        this.user.username,
-        this.selectedRemoteSourceName
+        user.value?.username,
+        remoteSource.name
       );
-      this.$router.push(path);
-    },
-    async createUserToken() {
-      this.resetErrors();
+      router.push(path);
+    };
 
-      let { data, error } = await createUserToken(
-        this.user.username,
-        this.newtokenname
-      );
-      if (error) {
-        this.createUserTokenError = error;
-        return;
-      }
-      this.token = data.token;
-      this.newtokenname = null;
-      this.fetchCurrentUser();
-    },
-    closeNewTokenNotification() {
-      this.token = null;
-    },
-    async deleteUserToken(tokenname) {
-      this.resetErrors();
+    const createUserToken = async () => {
+      if (!user.value) return;
+      if (!newTokenName.value) return;
 
-      let { error } = await deleteUserToken(this.user.username, tokenname);
-      if (error) {
-        this.deleteUserTokenError = error;
-        return;
-      }
-      this.fetchCurrentUser();
-    },
-    async deleteLinkedAccount(la) {
-      this.resetErrors();
+      resetErrors();
 
-      let { error } = await deleteLinkedAccount(this.user.username, la.id);
-      if (error) {
-        this.deleteLinkedAccountError = error;
-        return;
+      try {
+        const tokenResponse = await api.createUserToken(
+          user.value.username,
+          newTokenName.value
+        );
+        token.value = tokenResponse.token;
+        newTokenName.value = undefined;
+
+        await refreshUser();
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        createUserTokenError.value = e;
       }
-      this.fetchCurrentUser();
-    },
+    };
+
+    const closeNewTokenNotification = () => {
+      token.value = undefined;
+    };
+
+    const deleteUserToken = async (tokenname: string) => {
+      if (!user.value) return;
+
+      resetErrors();
+
+      try {
+        await api.deleteUserToken(user.value.username, tokenname);
+
+        await refreshUser();
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        deleteUserTokenError.value = e;
+      }
+    };
+
+    const deleteLinkedAccount = async (la: LinkedAccountResponse) => {
+      if (!user.value) return;
+
+      resetErrors();
+
+      try {
+        await api.deleteUserLinkedAccount(user.value.username, la.id);
+
+        await refreshUser();
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        deleteLinkedAccountError.value = e;
+      }
+    };
+
+    watch(
+      () => route.fullPath,
+      () => {
+        user.value = undefined;
+        remoteSources.value = undefined;
+        token.value = undefined;
+        newTokenName.value = undefined;
+
+        update();
+      },
+      { immediate: true }
+    );
+
+    return {
+      createUserTokenError: computed(() =>
+        errorToString(createUserTokenError.value)
+      ),
+      deleteUserTokenError: computed(() =>
+        errorToString(deleteUserTokenError.value)
+      ),
+      deleteLinkedAccountError: computed(() =>
+        errorToString(deleteLinkedAccountError.value)
+      ),
+      user,
+      remoteSources,
+      token,
+      newTokenName,
+      selectedRemoteSourceIndex,
+
+      laRemoteSourceName,
+      addLinkedAccount,
+      deleteLinkedAccount,
+      createUserToken,
+      deleteUserToken,
+      closeNewTokenNotification,
+    };
   },
-  created: function () {
-    this.fetchCurrentUser();
-    this.fetchRemoteSources();
-  },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>

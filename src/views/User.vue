@@ -1,7 +1,7 @@
 <template>
   <div>
-    <nav class="mb-4 bg-grey-light rounded font-sans w-full">
-      <ol class="list-reset flex text-grey-dark">
+    <nav class="mb-4 rounded font-sans w-full">
+      <ol class="list-none flex">
         <li>
           <a>user</a>
         </li>
@@ -28,7 +28,8 @@
           :class="[
             {
               'tab-element-selected':
-                $route.name === 'user projects' || $route.name === 'user',
+                $route.name?.toString() === 'user projects' ||
+                $route.name?.toString() === 'user',
             },
           ]"
         >
@@ -40,7 +41,10 @@
         <li
           class="tab-element"
           :class="[
-            { 'tab-element-selected': $route.name === 'user direct runs' },
+            {
+              'tab-element-selected':
+                $route.name?.toString() === 'user direct runs',
+            },
           ]"
         >
           <router-link :to="userDirectRunsLink(username)">
@@ -51,8 +55,8 @@
         <li
           v-if="
             run &&
-            ($route.name === 'user direct run' ||
-              $route.name == 'user direct run task')
+            ($route.name?.toString() == 'user direct run' ||
+              $route.name?.toString() == 'user direct run task')
           "
         >
           <tabarrow />
@@ -61,72 +65,78 @@
           class="tab-element"
           v-if="
             run &&
-            ($route.name === 'user direct run' ||
-              $route.name == 'user direct run task')
+            runnumber &&
+            ($route.name?.toString() == 'user direct run' ||
+              $route.name?.toString() == 'user direct run task')
           "
           :class="[
-            { 'tab-element-selected': $route.name === 'user direct run' },
+            {
+              'tab-element-selected':
+                $route.name?.toString() == 'user direct run',
+            },
           ]"
         >
-          <router-link
-            :to="userDirectRunLink(username, $route.params.runnumber)"
-          >
+          <router-link :to="userDirectRunLink(username, runnumber)">
             <span>
               Run
               <strong>#{{ run.number }}</strong>
             </span>
           </router-link>
         </li>
-        <li v-if="run && $route.name === 'user direct run task'">
+        <li v-if="run && $route.name?.toString() == 'user direct run task'">
           <tabarrow />
         </li>
         <li
           class="tab-element"
-          v-if="run && $route.name == 'user direct run task'"
+          v-if="
+            run &&
+            runnumber &&
+            taskid &&
+            $route.name?.toString() == 'user direct run task'
+          "
           :class="[
-            { 'tab-element-selected': $route.name === 'user direct run task' },
+            {
+              'tab-element-selected':
+                $route.name?.toString() == 'user direct run task',
+            },
           ]"
         >
-          <router-link
-            :to="
-              userDirectRunTaskLink(
-                username,
-                $route.params.runnumber,
-                $route.params.taskid
-              )
-            "
-          >
+          <router-link :to="userDirectRunTaskLink(username, runnumber, taskid)">
             <span>
               Task
-              <strong>{{ run.tasks[$route.params.taskid].name }}</strong>
+              <strong>{{ run.tasks[taskid].name }}</strong>
             </span>
           </router-link>
         </li>
         <li
-          v-if="$route.name.endsWith('user project group settings')"
+          v-if="$route.name?.toString().endsWith('user project group settings')"
           class="tab-element"
           :class="[
             {
-              'tab-element-selected': $route.name.endsWith(
-                'user project group settings'
-              ),
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('user project group settings'),
             },
           ]"
         >
           <router-link :to="projectGroupSettingsLink('user', username, [])">
-            <i class="mr-1 mdi mdi-settings" />
+            <i class="mr-1 mdi mdi-cog" />
             <span>Root Project Group Settings</span>
           </router-link>
         </li>
         <li
-          v-if="$route.name.endsWith('user settings')"
+          v-if="$route.name?.toString().endsWith('user settings')"
           class="tab-element"
           :class="[
-            { 'tab-element-selected': $route.name.endsWith('user settings') },
+            {
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('user settings'),
+            },
           ]"
         >
           <router-link :to="ownerSettingsLink('user', username)">
-            <i class="mr-1 mdi mdi-settings" />
+            <i class="mr-1 mdi mdi-cog" />
             <span>User Settings</span>
           </router-link>
         </li>
@@ -142,7 +152,7 @@
               <button
                 class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
               >
-                <i class="mr-4 mdi mdi-settings" />
+                <i class="mr-4 mdi mdi-cog" />
                 <i class="mdi mdi-chevron-down"></i>
               </button>
             </div>
@@ -156,7 +166,7 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="projectGroupSettingsLink('user', username, [])"
                   >
-                    <i class="mr-1 mdi mdi-settings" />
+                    <i class="mr-1 mdi mdi-cog" />
                     <span>Root Project Group Settings</span>
                   </router-link>
                 </li>
@@ -170,121 +180,126 @@
   </div>
 </template>
 
-<script>
-import * as vClickOutside from 'v-click-outside-x';
-
+<script lang="ts">
+import { useAsyncState } from '@vueuse/core';
+import vClickOutside from 'click-outside-vue3';
+import { defineComponent, onUnmounted, ref, toRefs, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { ApiError, useAPI } from '../app/api';
+import { useAppState } from '../app/appstate';
+import createprojectbutton from '../components/createprojectbutton.vue';
+import tabarrow from '../components/tabarrow.vue';
 import {
   ownerLink,
   ownerProjectsLink,
-  userDirectRunsLink,
-  userDirectRunLink,
-  userDirectRunTaskLink,
   ownerSettingsLink,
   projectGroupCreateProjectGroupLink,
   projectGroupCreateProjectLink,
   projectGroupSettingsLink,
-} from '@/util/link.js';
+  userDirectRunLink,
+  userDirectRunsLink,
+  userDirectRunTaskLink,
+} from '../util/link';
 
-import { fetchRun } from '@/util/data.js';
-
-import createprojectbutton from '@/components/createprojectbutton.vue';
-import tabarrow from '@/components/tabarrow.vue';
-
-export default {
+export default defineComponent({
   name: 'User',
   components: { createprojectbutton, tabarrow },
   directives: {
     clickOutside: vClickOutside.directive,
   },
   props: {
-    username: String,
+    username: { type: String, required: true },
+    runnumber: Number,
+    taskid: String,
   },
-  data() {
-    return {
-      fetchAbort: null,
+  setup(props) {
+    const { username, runnumber } = toRefs(props);
 
-      dropdownActive: false,
-      run: null,
+    const appState = useAppState();
+    const api = useAPI();
+
+    const router = useRouter();
+
+    const dropdownActive = ref(false);
+    let fetchAbort = new AbortController();
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
+    };
+
+    const getRun = async () => {
+      abortFetch();
+
+      if (runnumber.value) {
+        let rungrouptype = 'users';
+        let rungroupref = username.value;
+
+        try {
+          return await api.getRun(
+            rungrouptype,
+            rungroupref,
+            runnumber.value,
+            fetchAbort.signal
+          );
+        } catch (e) {
+          if (e instanceof ApiError) {
+            if (e.aborted) return;
+          }
+          appState.setGlobalError(e);
+        }
+      }
+    };
+
+    const {
+      state: run,
+      // isReady: fetchedRun,
+      execute: refreshRun,
+    } = useAsyncState(async () => {
+      return await getRun();
+    }, undefined);
+
+    const goToCreate = (type: string) => {
+      if (type == 'project') {
+        router.push(projectGroupCreateProjectLink('user', username.value, []));
+        return;
+      }
+      router.push(
+        projectGroupCreateProjectGroupLink('user', username.value, [])
+      );
+    };
+
+    watch(
+      props,
+      () => {
+        fetchAbort.abort();
+        fetchAbort = new AbortController();
+
+        refreshRun();
+      },
+      { immediate: true }
+    );
+
+    return {
+      run,
+      dropdownActive,
+
+      ownerLink,
+      ownerProjectsLink,
+      userDirectRunsLink,
+      userDirectRunLink,
+      userDirectRunTaskLink,
+      ownerSettingsLink,
+      projectGroupCreateProjectGroupLink,
+      projectGroupCreateProjectLink,
+      projectGroupSettingsLink,
+
+      goToCreate,
     };
   },
-  watch: {
-    $route: async function (route) {
-      if (this.fetchAbort) {
-        this.fetchAbort.abort();
-      }
-      this.fetchAbort = new AbortController();
-      this.run = null;
-
-      if (route.params.runnumber) {
-        let rungrouptype = 'users';
-        let rungroupref = this.username;
-        let { data, error, aborted } = await fetchRun(
-          rungrouptype,
-          rungroupref,
-          this.$route.params.runnumber,
-          this.fetchAbort.signal
-        );
-        if (aborted) {
-          return;
-        }
-        if (error) {
-          this.$store.dispatch('setError', error);
-          return;
-        }
-        this.run = data;
-      }
-    },
-  },
-  methods: {
-    ownerLink: ownerLink,
-    ownerProjectsLink: ownerProjectsLink,
-    userDirectRunsLink: userDirectRunsLink,
-    userDirectRunLink: userDirectRunLink,
-    userDirectRunTaskLink: userDirectRunTaskLink,
-    ownerSettingsLink: ownerSettingsLink,
-    projectGroupCreateProjectGroupLink: projectGroupCreateProjectGroupLink,
-    projectGroupCreateProjectLink: projectGroupCreateProjectLink,
-    projectGroupSettingsLink: projectGroupSettingsLink,
-    goToCreate(type) {
-      if (type == 'project') {
-        this.$router.push(
-          projectGroupCreateProjectLink('user', this.username, [])
-        );
-        return;
-      }
-      this.$router.push(
-        projectGroupCreateProjectGroupLink('user', this.username, [])
-      );
-    },
-  },
-  created: async function () {
-    this.fetchAbort = new AbortController();
-
-    if (this.$route.params.runnumber) {
-      let rungrouptype = 'users';
-      let rungroupref = this.username;
-      let { data, error, aborted } = await fetchRun(
-        rungrouptype,
-        rungroupref,
-        this.$route.params.runnumber,
-        this.fetchAbort.signal
-      );
-      if (aborted) {
-        return;
-      }
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
-      }
-      this.run = data;
-    }
-  },
-  beforeDestroy() {
-    if (this.fetchAbort) {
-      this.fetchAbort.abort();
-    }
-  },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>

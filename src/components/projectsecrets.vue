@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h5 class="text-2xl">{{ typetitle }} Secrets</h5>
+    <h5 class="text-2xl">{{ refTypetitle }} Secrets</h5>
     <secrets v-if="secrets.length" :secrets="secrets" />
     <span v-else>No secrets</span>
 
@@ -8,33 +8,45 @@
 
     <h5 class="text-2xl">All secrets (local and inherited)</h5>
     <secrets
-      v-if="allsecrets.length"
-      :secrets="allsecrets"
+      v-if="allSecrets.length"
+      :secrets="allSecrets"
       :showparentpath="true"
     />
     <span v-else>No secrets</span>
   </div>
 </template>
 
-<script>
-import secrets from '@/components/secrets';
+<script lang="ts">
+import { SecretResponse } from '../app/api';
+import { computed, defineComponent, PropType, toRefs } from 'vue';
+import secrets from './secrets.vue';
 
-export default {
+export default defineComponent({
   components: { secrets },
   name: 'projectsecrets',
   props: {
-    secrets: Array,
-    allsecrets: Array,
-    type: String,
-  },
-  computed: {
-    typetitle() {
-      if (this.type == 'project') return 'Project';
-      if (this.type == 'projectgroup') return 'Project group';
-      return '';
+    secrets: {
+      type: Array as PropType<Array<SecretResponse>>,
+      required: true,
     },
+    allSecrets: {
+      type: Array as PropType<Array<SecretResponse>>,
+      required: true,
+    },
+    refType: { type: String, required: true },
   },
-};
-</script>
+  setup(props) {
+    const { refType } = toRefs(props);
 
-<style scoped lang="scss"></style>
+    const refTypetitle = computed(() => {
+      if (refType.value == 'project') return 'Project';
+      if (refType.value == 'projectgroup') return 'Project group';
+      return '';
+    });
+
+    return {
+      refTypetitle,
+    };
+  },
+});
+</script>

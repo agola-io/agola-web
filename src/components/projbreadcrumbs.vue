@@ -1,6 +1,6 @@
 <template>
-  <nav class="mb-4 bg-grey-light rounded font-sans w-full">
-    <ol class="list-reset flex text-grey-dark">
+  <nav class="mb-4 rounded font-sans w-full">
+    <ol class="list-none flex">
       <li>
         <a>{{ ownertype }}</a>
       </li>
@@ -12,57 +12,68 @@
           ownername
         }}</router-link>
       </li>
-      <li v-for="(ref, i) in projectref" v-bind:key="i">
-        <span class="mx-2">/</span>
-        <router-link
-          v-if="i + 1 < projectref.length"
-          :to="
-            projectGroupLink(ownertype, ownername, projectref.slice(0, i + 1))
-          "
-          >{{ ref }}</router-link
-        >
-        <router-link
-          v-else
-          :to="projectLink(ownertype, ownername, projectref.slice(0, i + 1))"
-          >{{ ref }}</router-link
-        >
-      </li>
+      <template v-if="projectref">
+        <li v-for="(ref, i) in projectref" v-bind:key="i">
+          <span class="mx-2">/</span>
+          <router-link
+            v-if="i + 1 < projectref.length"
+            :to="
+              projectGroupLink(ownertype, ownername, projectref.slice(0, i + 1))
+            "
+            >{{ ref }}</router-link
+          >
+          <router-link
+            v-else
+            :to="projectLink(ownertype, ownername, projectref.slice(0, i + 1))"
+            >{{ ref }}</router-link
+          >
+        </li>
+      </template>
 
-      <li v-for="(ref, i) in projectgroupref" v-bind:key="i">
-        <span class="mx-2">/</span>
-        <router-link
-          :to="
-            projectGroupLink(
-              ownertype,
-              ownername,
-              projectgroupref.slice(0, i + 1)
-            )
-          "
-          >{{ ref }}</router-link
-        >
-      </li>
+      <template v-if="projectgroupref">
+        <li v-for="(ref, i) in projectgroupref" v-bind:key="i">
+          <span class="mx-2">/</span>
+          <router-link
+            :to="
+              projectGroupLink(
+                ownertype,
+                ownername,
+                projectgroupref.slice(0, i + 1)
+              )
+            "
+            >{{ ref }}</router-link
+          >
+        </li>
+      </template>
     </ol>
   </nav>
 </template>
 
-<script>
-import { ownerLink, projectLink, projectGroupLink } from '@/util/link.js';
+<script lang="ts">
+import { defineComponent, PropType } from 'vue';
+import { ownerLink, projectGroupLink, projectLink } from '../util/link';
 
-export default {
+export default defineComponent({
   name: 'projbreadcrumbs',
   components: {},
   props: {
-    ownertype: String,
-    ownername: String,
-    projectref: Array,
-    projectgroupref: Array,
+    ownertype: {
+      type: String,
+      required: true,
+    },
+    ownername: {
+      type: String,
+      required: true,
+    },
+    projectref: Array as PropType<Array<string>>,
+    projectgroupref: Array as PropType<Array<string>>,
   },
-  methods: {
-    ownerLink: ownerLink,
-    projectLink: projectLink,
-    projectGroupLink: projectGroupLink,
+  setup() {
+    return {
+      ownerLink,
+      projectLink,
+      projectGroupLink,
+    };
   },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>

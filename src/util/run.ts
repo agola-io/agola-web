@@ -1,4 +1,6 @@
-export function runStatus(run) {
+import { RunResponse } from 'src/app/api';
+
+export function runStatus(run: RunResponse): string {
   // * if the run has a result then return the result
   // * if stopping return "stopping"
   // * return the phase
@@ -9,8 +11,8 @@ export function runStatus(run) {
   return run.result;
 }
 
-export function runResultClass(run) {
-  let status = runStatus(run);
+export function runResultClass(run: RunResponse): string {
+  const status = runStatus(run);
 
   if (status == 'setuperror') return 'setuperror';
   if (status == 'queued') return 'unknown';

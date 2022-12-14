@@ -7,7 +7,7 @@
     />
 
     <div class="mb-8">
-      <span class="text-3xl">{{ projectName() }}</span>
+      <span class="text-3xl">{{ projectName }}</span>
     </div>
 
     <div class="flex justify-between">
@@ -24,8 +24,8 @@
           :class="[
             {
               'tab-element-selected':
-                $route.name.match('project runs') ||
-                $route.name.endsWith('project'),
+                $route.name?.toString().endsWith('project') ||
+                $route.name?.toString().endsWith('project runs'),
             },
           ]"
         >
@@ -38,9 +38,9 @@
           class="tab-element"
           :class="[
             {
-              'tab-element-selected': $route.name.match(
-                'project branches runs'
-              ),
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('project branches runs'),
             },
           ]"
         >
@@ -54,7 +54,11 @@
         <li
           class="tab-element"
           :class="[
-            { 'tab-element-selected': $route.name.match('project tags runs') },
+            {
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('project tags runs'),
+            },
           ]"
         >
           <router-link
@@ -68,9 +72,9 @@
           class="tab-element"
           :class="[
             {
-              'tab-element-selected': $route.name.match(
-                'project pull requests runs'
-              ),
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('project pull requests runs'),
             },
           ]"
         >
@@ -84,8 +88,8 @@
         <li
           v-if="
             run &&
-            ($route.name.endsWith('project run') ||
-              $route.name.endsWith('project run task'))
+            ($route.name?.toString().endsWith('project run') ||
+              $route.name?.toString().endsWith('project run task'))
           "
         >
           <tabarrow />
@@ -94,22 +98,20 @@
           class="tab-element"
           v-if="
             run &&
-            ($route.name.endsWith('project run') ||
-              $route.name.endsWith('project run task'))
+            runnumber &&
+            ($route.name?.toString().endsWith('project run') ||
+              $route.name?.toString().endsWith('project run task'))
           "
           :class="[
-            { 'tab-element-selected': $route.name.endsWith('project run') },
+            {
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('project run'),
+            },
           ]"
         >
           <router-link
-            :to="
-              projectRunLink(
-                ownertype,
-                ownername,
-                projectref,
-                $route.params.runnumber
-              )
-            "
+            :to="projectRunLink(ownertype, ownername, projectref, runnumber)"
           >
             <p>
               Run
@@ -117,15 +119,22 @@
             </p>
           </router-link>
         </li>
-        <li v-if="run && $route.name.endsWith('project run task')">
+        <li v-if="run && $route.name?.toString().endsWith('project run task')">
           <tabarrow />
         </li>
         <li
           class="tab-element"
-          v-if="run && $route.name.endsWith('project run task')"
+          v-if="
+            run &&
+            runnumber &&
+            taskid &&
+            $route.name?.toString().endsWith('project run task')
+          "
           :class="[
             {
-              'tab-element-selected': $route.name.endsWith('project run task'),
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('project run task'),
             },
           ]"
         >
@@ -135,30 +144,32 @@
                 ownertype,
                 ownername,
                 projectref,
-                $route.params.runnumber,
-                $route.params.taskid
+                runnumber,
+                taskid
               )
             "
           >
             <p>
               Task
-              <strong>{{ run.tasks[$route.params.taskid].name }}</strong>
+              <strong>{{ run.tasks[taskid].name }}</strong>
             </p>
           </router-link>
         </li>
         <li
-          v-if="$route.name.endsWith('project settings')"
+          v-if="$route.name?.toString().endsWith('project settings')"
           class="tab-element"
           :class="[
             {
-              'tab-element-selected': $route.name.endsWith('project settings'),
+              'tab-element-selected': $route.name
+                ?.toString()
+                .endsWith('project settings'),
             },
           ]"
         >
           <router-link
             :to="projectSettingsLink(ownertype, ownername, projectref)"
           >
-            <i class="mr-1 mdi mdi-settings" />
+            <i class="mr-1 mdi mdi-cog" />
             <span>Project Settings</span>
           </router-link>
         </li>
@@ -174,7 +185,7 @@
               <button
                 class="relative flex items-center focus:outline-none bg-transparent hover:bg-gray-300 text-dark font-semibold hover:text-dark py-1 px-4 border border-gray-500 rounded"
               >
-                <i class="mr-4 mdi mdi-settings" />
+                <i class="mr-4 mdi mdi-cog" />
                 <i class="mdi mdi-chevron-down"></i>
               </button>
             </div>
@@ -188,7 +199,7 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="projectSettingsLink(ownertype, ownername, projectref)"
                   >
-                    <i class="mr-1 mdi mdi-settings" />
+                    <i class="mr-1 mdi mdi-cog" />
                     <span>Project Settings</span>
                   </router-link>
                 </li>
@@ -202,117 +213,134 @@
   </div>
 </template>
 
-<script>
-import * as vClickOutside from 'v-click-outside-x';
-
+<script lang="ts">
+import { useAsyncState } from '@vueuse/core';
+import vClickOutside from 'click-outside-vue3';
 import {
-  projectLink,
-  projectRunsLink,
+  computed,
+  defineComponent,
+  onUnmounted,
+  PropType,
+  ref,
+  toRefs,
+  watch,
+} from 'vue';
+import { ApiError, useAPI } from '../app/api';
+import { useAppState } from '../app/appstate';
+import projbreadcrumbs from '../components/projbreadcrumbs.vue';
+import tabarrow from '../components/tabarrow.vue';
+import {
   projectBranchesRunsLink,
-  projectTagsRunsLink,
+  projectLink,
   projectPRsRunsLink,
   projectRunLink,
+  projectRunsLink,
   projectRunTaskLink,
   projectSettingsLink,
-} from '@/util/link.js';
+  projectTagsRunsLink,
+} from '../util/link';
 
-import { fetchRun } from '@/util/data.js';
-
-import projbreadcrumbs from '@/components/projbreadcrumbs.vue';
-import tabarrow from '@/components/tabarrow.vue';
-
-export default {
+export default defineComponent({
   name: 'Project',
   components: { projbreadcrumbs, tabarrow },
   directives: {
     clickOutside: vClickOutside.directive,
   },
   props: {
-    ownertype: String,
-    ownername: String,
-    projectref: Array,
+    ownertype: {
+      type: String,
+      required: true,
+    },
+    ownername: {
+      type: String,
+      required: true,
+    },
+    projectref: { type: Array as PropType<Array<string>>, required: true },
+    runnumber: Number,
+    taskid: String,
   },
-  data() {
-    return {
-      fetchAbort: null,
+  setup(props) {
+    const { ownertype, ownername, projectref, runnumber } = toRefs(props);
 
-      dropdownActive: false,
-      run: null,
+    const appState = useAppState();
+    const api = useAPI();
+
+    const dropdownActive = ref(false);
+    let fetchAbort = new AbortController();
+
+    onUnmounted(() => {
+      fetchAbort.abort();
+    });
+
+    const abortFetch = () => {
+      fetchAbort.abort();
+      fetchAbort = new AbortController();
+    };
+
+    const getRun = async () => {
+      abortFetch();
+
+      if (runnumber.value) {
+        let rungrouptype = 'projects';
+        let rungroupref = [
+          ownertype.value,
+          ownername.value,
+          ...projectref.value,
+        ].join('/');
+
+        try {
+          return await api.getRun(
+            rungrouptype,
+            rungroupref,
+            runnumber.value,
+            fetchAbort.signal
+          );
+        } catch (e) {
+          if (e instanceof ApiError) {
+            if (e.aborted) return;
+          }
+          appState.setGlobalError(e);
+        }
+      }
+    };
+
+    const {
+      state: run,
+      // isReady: fetchedRun,
+      execute: refreshRun,
+    } = useAsyncState(async () => {
+      return await getRun();
+    }, undefined);
+
+    const projectName = computed(() => {
+      return projectref.value[projectref.value.length - 1];
+    });
+
+    watch(
+      props,
+      () => {
+        fetchAbort.abort();
+        fetchAbort = new AbortController();
+
+        refreshRun();
+      },
+      { immediate: true }
+    );
+
+    return {
+      run,
+      projectName,
+      dropdownActive,
+
+      projectLink,
+      projectRunsLink,
+      projectBranchesRunsLink,
+      projectTagsRunsLink,
+      projectPRsRunsLink,
+      projectRunLink,
+      projectRunTaskLink,
+      projectSettingsLink,
     };
   },
-  computed: {
-    rungrouptype() {
-      return 'projects';
-    },
-    rungroupref() {
-      return [this.ownertype, this.ownername, ...this.projectref].join('/');
-    },
-  },
-  watch: {
-    $route: async function (route) {
-      if (this.fetchAbort) {
-        this.fetchAbort.abort();
-      }
-      this.fetchAbort = new AbortController();
-
-      this.run = null;
-      if (route.params.runnumber) {
-        let { data, error, aborted } = await fetchRun(
-          this.rungrouptype,
-          this.rungroupref,
-          this.$route.params.runnumber,
-          this.fetchAbort.signal
-        );
-        if (aborted) {
-          return;
-        }
-        if (error) {
-          this.$store.dispatch('setError', error);
-          return;
-        }
-        this.run = data;
-      }
-    },
-  },
-  methods: {
-    projectLink: projectLink,
-    projectRunsLink: projectRunsLink,
-    projectBranchesRunsLink: projectBranchesRunsLink,
-    projectTagsRunsLink: projectTagsRunsLink,
-    projectPRsRunsLink: projectPRsRunsLink,
-    projectRunLink: projectRunLink,
-    projectRunTaskLink: projectRunTaskLink,
-    projectSettingsLink: projectSettingsLink,
-    projectName() {
-      return this.projectref[this.projectref.length - 1];
-    },
-  },
-  created: async function () {
-    this.fetchAbort = new AbortController();
-
-    if (this.$route.params.runnumber) {
-      let { data, error, aborted } = await fetchRun(
-        this.rungrouptype,
-        this.rungroupref,
-        this.$route.params.runnumber,
-        this.fetchAbort.signal
-      );
-      if (aborted) {
-        return;
-      }
-      if (error) {
-        this.$store.dispatch('setError', error);
-        return;
-      }
-      this.run = data;
-    }
-  },
-  beforeDestroy() {
-    if (this.fetchAbort) {
-      this.fetchAbort.abort();
-    }
-  },
-};
+});
 </script>
-
-<style scoped lang="scss"></style>

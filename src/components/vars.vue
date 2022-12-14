@@ -20,32 +20,35 @@
       <div class="w-2/12">
         <span class="name">{{ variable.name }}</span>
         <div v-if="showparentpath" class="text-sm font-light">
-          from {{ variable.parent_path }}
+          from {{ variable.parentPath }}
         </div>
       </div>
       <div class="w-10/12">
-        <div class="flex" v-for="val in variable.values" v-bind:key="val.id">
+        <div class="flex" v-for="(val, i) in variable.values" v-bind:key="i">
           <div class="w-2/12">
-            <span>{{ val.secret_name }}</span>
-            <div v-if="val.matching_secret_parent_path" class="text-sm">
-              using secret from {{ val.matching_secret_parent_path }}
+            <span>{{ val.secretName }}</span>
+            <div v-if="val.matchingSecretParentPath" class="text-sm">
+              using secret from {{ val.matchingSecretParentPath }}
             </div>
             <div v-else class="text-sm text-red-600">no matching secret</div>
           </div>
           <div class="w-2/12">
-            <span>{{ val.secret_var }}</span>
+            <span>{{ val.secretVar }}</span>
           </div>
           <div class="w-8/12">
             <div v-if="val.when">
-              <div v-for="type in ['branch', 'tag', 'ref']" v-bind:key="type">
-                <div v-if="val.when[type]">
+              <div
+                v-for="whenCondition in getWhenConditions(val.when)"
+                v-bind:key="whenCondition.condType"
+              >
+                <div v-if="whenCondition.cond">
                   <div class="flex">
                     <div class="w-1/3">
-                      <span>{{ type }}</span>
+                      <span>{{ whenCondition.condType }}</span>
                     </div>
                     <div class="w-1/3">
                       <div
-                        v-for="include in val.when[type].include"
+                        v-for="include in whenCondition.cond.include"
                         v-bind:key="include.match"
                       >
                         <div>{{ include.match }}</div>
@@ -53,7 +56,7 @@
                     </div>
                     <div class="w-1/3">
                       <div
-                        v-for="exclude in val.when[type].exclude"
+                        v-for="exclude in whenCondition.cond.exclude"
                         v-bind:key="exclude.match"
                       >
                         <div>{{ exclude.match }}</div>
@@ -70,15 +73,42 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, PropType } from 'vue';
+import { VariableResponse, When, WhenConditions } from '../app/api';
+
+interface FlatWhenConditions {
+  condType: string;
+  cond: WhenConditions | undefined;
+}
+
+const whenCondTypes: (keyof When)[] = ['branch', 'tag', 'ref'];
+
+export default defineComponent({
   components: {},
   name: 'vars',
   props: {
-    variables: Array,
+    variables: {
+      type: Array as PropType<Array<VariableResponse>>,
+      required: true,
+    },
     showparentpath: Boolean,
   },
-};
-</script>
+  setup() {
+    const getWhenConditions = (when: When) => {
+      const wc: FlatWhenConditions[] = [];
+      for (const type of whenCondTypes) {
+        wc.push({
+          condType: type,
+          cond: when[type],
+        });
+      }
+      return wc;
+    };
 
-<style scoped lang="scss"></style>
+    return {
+      getWhenConditions,
+    };
+  },
+});
+</script>

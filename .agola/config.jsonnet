@@ -13,11 +13,14 @@ local task_build(version, arch) = {
   environment: {},
   steps: [
     { type: 'clone' },
-    { type: 'restore_cache', keys: ['cache-node' + version + '-sum-{{ md5sum "package.json" }}', 'cache-node' + version + '-date-'], dest_dir: './node_modules' },
-    { type: 'run', command: 'npm install' },
-    { type: 'run', command: 'npm run build' },
-    { type: 'save_cache', key: 'cache-node' + version + '-sum-{{ md5sum "package.json" }}', contents: [{ source_dir: './node_modules' }] },
-    { type: 'save_cache', key: 'cache-node' + version + '-date-{{ year }}-{{ month }}-{{ day }}', contents: [{ source_dir: './node_modules' }] },
+    { type: 'restore_cache', keys: ['cache-node' + version + '-sum-{{ md5sum "package.json" }}', 'cache-node' + version + '-date-'], dest_dir: '/root/.pnpm-store' },
+    { type: 'run', command: 'npm install -g pnpm' },
+    { type: 'run', command: 'pnpm config set store-dir /root/.pnpm-store' },
+    { type: 'run', command: 'pnpm install' },
+    { type: 'save_cache', key: 'cache-node' + version + '-sum-{{ md5sum "package.json" }}', contents: [{ source_dir: '/root/.pnpm-store' }] },
+    { type: 'save_cache', key: 'cache-node' + version + '-date-{{ year }}-{{ month }}-{{ day }}', contents: [{ source_dir: '/root/.pnpm-store' }] },
+    { type: 'run', command: 'pnpm run check' },
+    { type: 'run', command: 'pnpm run build' },
   ],
 };
 
@@ -29,7 +32,7 @@ local task_build(version, arch) = {
         [
           task_build(version, arch),
         ]
-        for version in ['11', '12']
+        for version in ['16', '18']
         for arch in ['amd64']
       ]) + [
         {
@@ -61,8 +64,8 @@ local task_build(version, arch) = {
           shell: '/busybox/sh',
           working_dir: '/workspace',
           steps: [
-            { type: 'restore_workspace', dest_dir: '.' },
-            { type: 'run', command: '/kaniko/executor --no-push' },
+            { type: 'restore_workspace', dest_dir: '/workspace' },
+            { type: 'run', command: '/kaniko/executor --context=dir:///workspace --no-push' },
           ],
           depends: ['checkout code and save to workspace'],
         },
@@ -80,9 +83,9 @@ local task_build(version, arch) = {
             DOCKERAUTH: { from_variable: 'dockerauth' },
           },
           shell: '/busybox/sh',
-          working_dir: '/workspace',
+          working_dir: '/kaniko',
           steps: [
-            { type: 'restore_workspace', dest_dir: '.' },
+            { type: 'restore_workspace', dest_dir: '/workspace' },
             {
               type: 'run',
               name: 'generate docker auth',
@@ -96,7 +99,7 @@ local task_build(version, arch) = {
                 EOF
               |||,
             },
-            { type: 'run', command: '/kaniko/executor --destination sorintlab/agola-web:$AGOLA_GIT_TAG' },
+            { type: 'run', command: '/kaniko/executor --context=dir:///workspace --destination sorintlab/agola-web:$AGOLA_GIT_TAG' },
           ],
           depends: ['checkout code and save to workspace'],
           when: {

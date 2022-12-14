@@ -6,7 +6,10 @@
     :aria-expanded="active ? 'true' : 'false'"
   >
     <div class="px-4 py-4 border border-l-0 rounded-r">
-      <div class="cursor-pointer flex justify-between" @click.prevent="toggle">
+      <div
+        class="cursor-pointer flex justify-between"
+        @click.prevent="() => toggleActive()"
+      >
         <div>
           <i
             class="inline-block mr-1 mdi mdi-arrow-right"
@@ -42,7 +45,7 @@
           </div>
           <div
             class="px-3 py-2 border-b-2 border-gray-900 bg-gray-700 text-white cursor-pointer"
-            @click.prevent="toggleCommand"
+            @click.prevent="() => toggleCommandActive()"
           >
             <i
               class="inline-block mr-1 mdi mdi-arrow-right"
@@ -69,14 +72,14 @@
           :class="{ rounded: step.type != 'run' }"
         >
           <Log
-            v-bind:rungrouptype="rungrouptype"
-            v-bind:rungroupref="rungroupref"
-            v-bind:runnumber="runnumber"
-            v-bind:taskid="taskid"
-            v-bind:setup="setup"
-            v-bind:step="stepnum"
-            v-bind:stepphase="step.phase"
-            v-bind:show="active"
+            :rungrouptype="rungrouptype"
+            :rungroupref="rungroupref"
+            :runnumber="runnumber"
+            :taskid="taskid"
+            :setup="setup"
+            :step="stepnum"
+            :stepphase="step.phase"
+            :show="active"
           />
         </div>
       </div>
@@ -84,70 +87,56 @@
   </div>
 </template>
 
-<script>
-import * as moment from 'moment';
-import momentDurationFormatSetup from 'moment-duration-format';
-import Log from '@/components/log.vue';
+<script lang="ts">
+import { useNow, useToggle } from '@vueuse/core';
+import { computed, defineComponent, toRefs } from 'vue';
+import Log from '../components/log.vue';
+import { formatDuration } from '../util/time';
 
-momentDurationFormatSetup(moment);
-
-export default {
+export default defineComponent({
   name: 'step',
   components: {
     Log,
   },
-  data() {
-    return {
-      active: false,
-      commandActive: true,
-      now: moment(),
-    };
-  },
   props: {
-    rungrouptype: String,
-    rungroupref: String,
-    runnumber: Number,
+    rungrouptype: { type: String, required: true },
+    rungroupref: { type: String, required: true },
+    runnumber: { type: Number, required: true },
     taskid: String,
     setup: Boolean,
     stepnum: Number,
-    step: Object,
+    step: { type: Object, required: true },
   },
-  computed: {
-    duration() {
-      let formatString = 'h:mm:ss[s]';
-      let start = moment(this.step.start_time);
-      let end = moment(this.step.end_time);
+  setup(props) {
+    const { step } = toRefs(props);
 
-      if (this.step.start_time === null) {
-        return moment.duration(0).format(formatString);
-      }
-      if (this.step.end_time === null) {
-        return moment.duration(this.now.diff(start)).format(formatString);
-      }
-      return moment.duration(end.diff(start)).format(formatString);
-    },
-    stepClass() {
-      if (this.step.phase == 'success') return 'success';
-      if (this.step.phase == 'failed') return 'failed';
-      if (this.step.phase == 'stopped') return 'failed';
-      if (this.step.phase == 'running') return 'running';
+    const now = useNow();
+    const [active, toggleActive] = useToggle(false);
+    const [commandActive, toggleCommandActive] = useToggle(true);
+
+    const duration = computed(() => {
+      return formatDuration(step.value, now.value);
+    });
+
+    const stepClass = computed(() => {
+      if (step.value.phase == 'success') return 'success';
+      if (step.value.phase == 'failed') return 'failed';
+      if (step.value.phase == 'stopped') return 'failed';
+      if (step.value.phase == 'running') return 'running';
       return 'unknown';
-    },
+    });
+
+    return {
+      active,
+      commandActive,
+      duration,
+      stepClass,
+
+      toggleActive,
+      toggleCommandActive,
+    };
   },
-  methods: {
-    toggle() {
-      this.active = !this.active;
-    },
-    toggleCommand() {
-      this.commandActive = !this.commandActive;
-    },
-  },
-  created() {
-    window.setInterval(() => {
-      this.now = moment();
-    }, 500);
-  },
-};
+});
 </script>
 
 <style scoped lang="scss">

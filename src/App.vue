@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <nav class="bg-gray-800 p-3 text-white">
       <div
         class="container flex items-center justify-between flex-wrap bg-gray-800"
@@ -85,7 +85,7 @@
                     class="block px-4 py-2 hover:bg-blue-500 hover:text-white"
                     :to="ownerSettingsLink('user', user.username)"
                   >
-                    <i class="mr-1 mdi mdi-settings" />
+                    <i class="mr-1 mdi mdi-cog" />
                     <span>User Settings</span>
                   </router-link>
                 </li>
@@ -101,12 +101,12 @@
             </div>
           </div>
           <div v-else class="navbar-item">
-            <router-link class="btn btn-blue" to="/register"
-              >Sign up</router-link
-            >
-            <router-link class="ml-2 btn btn-blue" to="/login"
-              >Login</router-link
-            >
+            <router-link to="/register" @click="updateRouterKey()">
+              <button class="btn btn-blue">Sign up</button>
+            </router-link>
+            <router-link to="/login" @click="updateRouterKey()">
+              <button class="ml-2 btn btn-blue">Login</button>
+            </router-link>
           </div>
         </div>
       </div>
@@ -133,51 +133,60 @@
     </div>
 
     <div v-else class="container mt-6">
-      <router-view v-if="routerActive"></router-view>
+      <router-view :key="routerKey" />
     </div>
   </div>
 </template>
 
-<script>
-import * as vClickOutside from 'v-click-outside-x';
+<script lang="ts">
+import vClickOutside from 'click-outside-vue3';
+import { computed, defineComponent, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { errorToString } from './app/api';
+import { useAppState } from './app/appstate';
+import { useAuth } from './app/auth';
+import { ownerSettingsLink } from './util/link';
 
-import { mapGetters } from 'vuex';
-
-import { ownerSettingsLink } from '@/util/link.js';
-
-export default {
+export default defineComponent({
   name: 'App',
   directives: {
     clickOutside: vClickOutside.directive,
   },
   components: {},
-  computed: {
-    ...mapGetters(['error', 'user']),
-  },
-  data() {
+  setup() {
+    const appState = useAppState();
+    const auth = useAuth();
+    const route = useRoute();
+
+    const navActive = ref(false);
+    const userDropdownActive = ref(false);
+    const createDropdownActive = ref(false);
+
+    watch(
+      () => route.fullPath,
+      () => {
+        userDropdownActive.value = false;
+        createDropdownActive.value = false;
+      }
+    );
+
+    const reload = () => {
+      appState.setGlobalError();
+      appState.updateRouterKey();
+    };
+
     return {
-      routerActive: true,
-      navActive: false,
-      userDropdownActive: false,
-      createDropdownActive: false,
+      routerKey: computed(() => appState.routerKey.value),
+      user: computed(() => auth.user.value),
+      error: computed(() => errorToString(appState.globalError.value)),
+      navActive,
+      userDropdownActive,
+      createDropdownActive,
+      ownerSettingsLink,
+
+      reload,
+      updateRouterKey: appState.updateRouterKey,
     };
   },
-  watch: {
-    $route: function () {
-      this.userDropdownActive = false;
-      this.createDropdownActive = false;
-    },
-  },
-  // method to reload current view from https://github.com/vuejs/vue-router/issues/296#issuecomment-356530037
-  methods: {
-    ownerSettingsLink: ownerSettingsLink,
-    reload() {
-      this.$store.dispatch('setError', null);
-      this.routerActive = false;
-      this.$nextTick(() => (this.routerActive = true));
-    },
-  },
-};
+});
 </script>
-
-<style lang="scss"></style>

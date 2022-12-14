@@ -5,12 +5,12 @@
         <div
           class="px-4 py-4 flex justify-between items-center border border-l-0 rounded-r"
         >
-          <router-link class="w-1/3 font-bold" tag="a" :to="task.link">
+          <router-link class="w-1/3 font-bold" :to="task.link">
             <span class="w-1/3 font-bold">{{ task.name }}</span>
           </router-link>
           <div class="w-1/4">
             <span
-              v-if="task.waiting_approval"
+              v-if="task.waitingApproval"
               class="w-2/12 bg-gray-200 rounded-full px-3 py-1 text-sm text-center font-semibold mr-2"
               >Waiting Approval</span
             >
@@ -36,72 +36,54 @@
   </ul>
 </template>
 
-<script>
-import * as moment from 'moment';
-import momentDurationFormatSetup from 'moment-duration-format';
+<script lang="ts">
+import { useNow } from '@vueuse/core';
+import { computed, defineComponent, PropType, toRefs } from 'vue';
+import { formatDuration } from '../util/time';
+import { Task } from './runsummary.vue';
 
-momentDurationFormatSetup(moment);
-
-export default {
+export default defineComponent({
   name: 'tasks',
   components: {},
-  data() {
-    return {
-      now: moment(),
-    };
-  },
   props: {
-    tasks: Object,
+    tasks: {
+      type: Object as PropType<Record<string, Task>>,
+      required: true,
+    },
   },
-  computed: {
-    sortedTasks() {
-      let tasks = this.tasks;
+  setup(props) {
+    const { tasks } = toRefs(props);
+
+    const now = useNow();
+
+    const sortedTasks = computed(() => {
+      const ts = Object.values(tasks.value);
 
       // sort tasks by level
-      let sortedTasks = Object.keys(tasks)
-        .sort((a, b) =>
-          tasks[a].level > tasks[b].level
-            ? 1
-            : tasks[b].level > tasks[a].level
-            ? -1
-            : 0
-        )
-        .map((k) => tasks[k]);
+      const sortedTasks = ts.sort((a, b) =>
+        a.level > b.level ? 1 : b.level > a.level ? -1 : 0
+      );
 
       for (let task of sortedTasks) {
-        task.duration = this.duration(task);
+        task.duration = formatDuration(task, now.value);
       }
 
       return sortedTasks;
-    },
-  },
-  methods: {
-    duration(task) {
-      let formatString = 'h:mm:ss[s]';
-      let start = moment(task.start_time);
-      let end = moment(task.end_time);
+    });
 
-      if (task.start_time === null) {
-        return moment.duration(0).format(formatString);
-      }
-      if (task.end_time === null) {
-        return moment.duration(this.now.diff(start)).format(formatString);
-      }
-      return moment.duration(end.diff(start)).format(formatString);
-    },
-    taskClass(task) {
+    const taskClass = (task: Task) => {
       if (task.status == 'success') return 'success';
       if (task.status == 'failed') return 'failed';
       if (task.status == 'stopped') return 'failed';
       if (task.status == 'running') return 'running';
       if (task.status == 'skipped') return 'skipped';
       return 'unknown';
-    },
+    };
+
+    return {
+      sortedTasks,
+      taskClass,
+    };
   },
-  created() {
-    window.setInterval(() => {
-      this.now = moment();
-    }, 500);
-  },
-};
+});
 </script>

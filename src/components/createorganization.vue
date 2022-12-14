@@ -1,8 +1,8 @@
 <template>
   <div>
     <h4 class="mb-4 text-xl font-bold">New Organization</h4>
-    <div class="field">
-      <div class="control">
+    <div>
+      <div>
         <input
           class="mb-4 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
@@ -33,45 +33,55 @@
   </div>
 </template>
 
-<script>
-import { createOrganization } from '@/util/data.js';
+<script lang="ts">
+import { computed, defineComponent, Ref, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { ApiError, errorToString, useAPI } from '../app/api';
+import { ownerLink } from '../util/link';
 
-import { ownerLink } from '@/util/link.js';
-
-export default {
+export default defineComponent({
   components: {},
   name: 'createorganization',
   props: {},
-  data() {
-    return {
-      createOrgError: null,
-      orgIsPrivate: false,
-      orgName: null,
+  setup() {
+    const router = useRouter();
+    const api = useAPI();
+
+    const orgName = ref('');
+    const orgIsPrivate = ref(false);
+
+    const createOrgError: Ref<unknown | undefined> = ref();
+
+    const resetErrors = () => {
+      createOrgError.value = undefined;
     };
-  },
-  methods: {
-    resetErrors() {
-      this.createOrgError = null;
-    },
-    async createOrg() {
-      this.resetErrors();
+
+    const createOrg = async () => {
+      resetErrors();
 
       let visibility = 'public';
-      if (this.orgIsPrivate) {
+      if (orgIsPrivate.value) {
         visibility = 'private';
       }
 
-      let { error } = await createOrganization(this.orgName, visibility);
-      if (error) {
-        this.createOrgError = error;
-        return;
+      try {
+        await api.createOrganization(orgName.value, visibility);
+        router.push(ownerLink('org', orgName.value));
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        createOrgError.value = e;
       }
+    };
 
-      this.$router.push(ownerLink('org', this.orgName));
-    },
+    return {
+      createOrgError: computed(() => errorToString(createOrgError.value)),
+      orgName,
+      orgIsPrivate,
+
+      createOrg,
+    };
   },
-  created: async function () {},
-};
+});
 </script>
-
-<style scoped lang="scss"></style>
