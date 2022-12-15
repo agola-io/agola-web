@@ -29,7 +29,13 @@ export function ownerProjectsLink(
   ownertype: string,
   ownername: string
 ): RouteLocationRaw {
-  return { name: ownertype + ' projects', params: { ownername: ownername } };
+  if (ownertype == 'user') {
+    return { name: ownertype + ' projects', params: { username: ownername } };
+  } else if (ownertype == 'org') {
+    return { name: ownertype + ' projects', params: { orgname: ownername } };
+  }
+
+  return {};
 }
 
 export function ownerSettingsLink(
