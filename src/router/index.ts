@@ -558,17 +558,7 @@ export const setupNavigationGuards = (
       auth.setLoginReturnPath();
     }
 
-    if (
-      !auth.authenticated.value &&
-      !['home', 'register', 'login', 'oauth2', 'newsource'].includes(
-        to.name?.toString() || ''
-      )
-    ) {
-      return { name: 'home' };
-    }
-
     const { path, query } = to;
-
     if (path == '/run') {
       // generic run handler by projectref and runnumber
       const projectref = query.projectref?.toString() || '';
@@ -592,6 +582,23 @@ export const setupNavigationGuards = (
         }
         appState.setGlobalError(e);
       }
+    }
+
+    if (
+      !auth.authenticated.value &&
+      ![
+        'home',
+        'register',
+        'login',
+        'oauth2',
+        'newsource',
+        'user project run',
+        'user project run task',
+        'org project run',
+        'org project run task',
+      ].includes(to.name?.toString() || '')
+    ) {
+      return { name: 'home' };
     }
   });
 };
