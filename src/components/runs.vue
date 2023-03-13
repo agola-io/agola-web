@@ -24,21 +24,21 @@
             <div v-if="projectref" class="w-2/12">
               <div
                 v-if="run.annotations.ref_type == 'branch'"
-                class="whitespace-no-wrap overflow-x-hidden"
+                class="whitespace-nowrap overflow-x-hidden"
               >
                 <i class="mdi mdi-source-branch mr-1"></i>
                 <span>{{ run.annotations.branch }}</span>
               </div>
               <div
                 v-else-if="run.annotations.ref_type == 'tag'"
-                class="whitespace-no-wrap overflow-x-hidden"
+                class="whitespace-nowrap overflow-x-hidden"
               >
                 <i class="mdi mdi-tag mr-1"></i>
                 <span>{{ run.annotations.tag }}</span>
               </div>
               <div
                 v-else-if="run.annotations.ref_type == 'pull_request'"
-                class="whitespace-no-wrap overflow-x-hidden"
+                class="whitespace-nowrap overflow-x-hidden"
               >
                 <i class="mdi mdi-source-pull mr-1"></i>
                 <span>PR #{{ run.annotations.pull_request_id }}</span>
@@ -50,7 +50,7 @@
             </div>
             <router-link
               v-if="projectref"
-              class="w-5/12 pl-3 mr-auto whitespace-no-wrap overflow-hidden"
+              class="w-5/12 pl-3 mr-auto whitespace-nowrap overflow-hidden"
               :to="projectRunLink(ownertype, ownername, projectref, run.number)"
             >
               <span class="font-bold">{{ run.name }}</span>
@@ -58,7 +58,7 @@
             </router-link>
             <router-link
               v-else
-              class="w-5/12 pl-3 mr-auto whitespace-no-wrap overflow-hidden"
+              class="w-5/12 pl-3 mr-auto whitespace-nowrap overflow-hidden"
               :to="userDirectRunLink(ownername, run.number)"
             >
               <span class="font-bold">{{ run.name }}</span>
