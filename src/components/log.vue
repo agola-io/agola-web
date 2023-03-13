@@ -16,7 +16,7 @@
       <div class="overflow-x-auto">
         <div v-for="(item, index) in items" :key="index">
           <div
-            class="font-mono leading-normal text-xs whitespace-no-wrap"
+            class="font-mono leading-normal text-xs whitespace-nowrap"
             v-html="item"
           />
         </div>
