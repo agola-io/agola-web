@@ -1,27 +1,31 @@
 <template>
   <div>
     <span
-      v-if="!logExists"
+      v-if="!fetching && !logExists"
       class="bg-gray-700 border border-yellow-500 rounded px-3 py-1 text-center font-semibold"
     >
       Log doesn't exist
     </span>
     <template v-else>
       <div
-        v-if="(streaming || done) && items.length == 0 && lastitem.length == 0"
+        v-if="
+          (streaming || done) && logLines.length == 0 && lastLogLine.length == 0
+        "
         class="bg-gray-700 border border-yellow-500 rounded mb-1 px-3 py-1 text-center font-semibold"
       >
         No lines
       </div>
       <div class="overflow-x-auto">
-        <div v-for="(item, index) in items" :key="index">
-          <div
-            class="font-mono leading-normal text-xs whitespace-nowrap"
-            v-html="item"
-          />
+        <div v-for="(logLines, index) in logLinesGroups" :key="index">
+          <div v-for="(logLine, index) in logLines" :key="index">
+            <div
+              class="font-mono leading-normal text-xs whitespace-nowrap"
+              v-html="logLine"
+            />
+          </div>
         </div>
-        <div v-if="lastitem" class="font-mono leading-snug text-xs">
-          <div v-html="lastitem" />
+        <div v-if="lastLogLine" class="font-mono leading-snug text-xs">
+          <div v-html="lastLogLine" />
         </div>
         <div v-if="fetching" class="w-3 h-5 spinner"></div>
       </div>
@@ -44,7 +48,15 @@
 
 <script lang="ts">
 import AnsiUp from 'ansi_up';
-import { defineComponent, onUnmounted, Ref, ref, toRefs, watch } from 'vue';
+import {
+  computed,
+  defineComponent,
+  onUnmounted,
+  Ref,
+  ref,
+  toRefs,
+  watch,
+} from 'vue';
 import { ApiError, useAPI } from '../app/api';
 
 export default defineComponent({
@@ -73,9 +85,8 @@ export default defineComponent({
 
     const api = useAPI();
 
-    const items: Ref<string[]> = ref([]);
-    const lastitem = ref('');
-    const lines: Ref<string[]> = ref([]);
+    const logLines: Ref<string[]> = ref([]);
+    const lastLogLine = ref('');
     const fetching = ref(false);
     const streaming = ref(false);
     const done = ref(false);
@@ -112,7 +123,7 @@ export default defineComponent({
     };
 
     const getLogs = async (follow: boolean) => {
-      items.value = [];
+      logLines.value = [];
       logExists.value = false;
       error.value = false;
 
@@ -177,15 +188,14 @@ export default defineComponent({
                 lastline =
                   lastline.slice(0, j) + part + lastline.slice(j + part.length);
                 j = 0;
-                lastitem.value = formatter.ansi_to_html(lastline);
+                lastLogLine.value = formatter.ansi_to_html(lastline);
                 part = '';
               } else if (c == '\n') {
                 lastline =
                   lastline.slice(0, j) + part + lastline.slice(j + part.length);
                 j += part.length;
-                lastitem.value = formatter.ansi_to_html(lastline);
-                items.value.push(lastitem.value);
-                lastitem.value = '';
+                logLines.value.push(formatter.ansi_to_html(lastline));
+                lastLogLine.value = '';
                 lastline = '';
                 j = 0;
                 part = '';
@@ -196,7 +206,7 @@ export default defineComponent({
             lastline =
               lastline.slice(0, j) + part + lastline.slice(j + part.length);
             j += part.length;
-            lastitem.value = formatter.ansi_to_html(lastline);
+            lastLogLine.value = formatter.ansi_to_html(lastline);
           }
         } else if (res.status == 404) {
           logExists.value = false;
@@ -246,10 +256,24 @@ export default defineComponent({
       }
     });
 
+    // creating group of N log lines inside their own div will make the rendering faster.
+    // We could also use an intersection observer to only render visible groups
+    // but this will break searching using browser searching since it won't find
+    // data inside not rendered groups and will require a custom searching entry.
+    const logLinesGroups = computed(() => {
+      const groups: string[][] = [];
+      const groupSize = 100;
+      for (let i = 0; i < logLines.value.length; i += groupSize) {
+        groups.push(logLines.value.slice(i, i + groupSize));
+      }
+
+      return groups;
+    });
+
     return {
-      items,
-      lastitem,
-      lines,
+      logLines,
+      logLinesGroups,
+      lastLogLine,
       formatter,
       fetching,
       streaming,
