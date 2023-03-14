@@ -64,7 +64,7 @@ export default defineComponent({
         a.level > b.level ? 1 : b.level > a.level ? -1 : 0
       );
 
-      for (let task of sortedTasks) {
+      for (const task of sortedTasks) {
         task.duration = formatDuration(task, now.value);
       }
 

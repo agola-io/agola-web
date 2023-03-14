@@ -109,7 +109,7 @@ export default defineComponent({
     };
 
     const fetchProjects = async (ownertype: string, ownername: string) => {
-      let ref = [ownertype, ownername];
+      const ref = [ownertype, ownername];
       if (projectgroupref.value) {
         ref.push(...projectgroupref.value);
       }
@@ -128,7 +128,7 @@ export default defineComponent({
     };
 
     const fetchProjectGroups = async (ownertype: string, ownername: string) => {
-      let ref = [ownertype, ownername];
+      const ref = [ownertype, ownername];
       if (projectgroupref.value) {
         ref.push(...projectgroupref.value);
       }

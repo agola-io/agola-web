@@ -236,8 +236,8 @@ export default defineComponent({
       abortFetch();
 
       if (runnumber.value) {
-        let rungrouptype = 'users';
-        let rungroupref = username.value;
+        const rungrouptype = 'users';
+        const rungroupref = username.value;
 
         try {
           return await api.getRun(

@@ -96,7 +96,7 @@ export default defineComponent({
     const hasLoginRemoteSources = computed(() => {
       if (!remoteSources.value) return false;
 
-      for (let rs of remoteSources.value) {
+      for (const rs of remoteSources.value) {
         if (rs.loginEnabled) {
           return true;
         }

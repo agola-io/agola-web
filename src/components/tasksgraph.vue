@@ -120,8 +120,8 @@ export default defineComponent({
     });
 
     const segments = computed(() => {
-      let segments = [];
-      for (let edge of edges.value) {
+      const segments = [];
+      for (const edge of edges.value) {
         for (let i = 0; i < edge.edgePoints.length - 1; i++) {
           let strokeWidth = 1;
           if (hoverTask.value) {
@@ -134,7 +134,7 @@ export default defineComponent({
           }
 
           // TODO(sgotti) set different colors to edges based on source task status???
-          let stroke = 'text-dark';
+          const stroke = 'text-dark';
           segments.push({
             edge: edge,
             x1: edge.edgePoints[i].x,
@@ -154,7 +154,7 @@ export default defineComponent({
     const outTasks = computed(() => {
       // just augment this.graphTasks (without recalculating it) with the current duration.
       const gts = graphTasks.value.concat();
-      for (let task of gts) {
+      for (const task of gts) {
         task.duration = formatDuration(task, now.value);
       }
 
@@ -173,21 +173,21 @@ export default defineComponent({
     const update = (tasks: Record<string, Task>) => {
       const ts = Object.values(tasks);
       // sort tasks by level
-      let gts = ts.sort((a, b) =>
+      const gts = ts.sort((a, b) =>
         a.level > b.level ? 1 : b.level > a.level ? -1 : 0
       );
 
       let maxlevel = 0;
-      for (let task of gts) {
+      for (const task of gts) {
         if (task.level > maxlevel) {
           maxlevel = task.level;
         }
       }
 
-      let taskChilds = function (tasks: Task[], task: Task) {
-        let childs = [];
-        for (let ot of tasks) {
-          for (let depTaskID in ot.depends) {
+      const taskChilds = function (tasks: Task[], task: Task) {
+        const childs = [];
+        for (const ot of tasks) {
+          for (const depTaskID in ot.depends) {
             if (task.id == depTaskID) {
               childs.push(ot);
             }
@@ -196,10 +196,10 @@ export default defineComponent({
         return childs;
       };
 
-      let taskMaxChildLevel = function (tasks: Task[], task: Task) {
+      const taskMaxChildLevel = function (tasks: Task[], task: Task) {
         let level = task.level;
-        let childs = taskChilds(tasks, task);
-        for (let child of childs) {
+        const childs = taskChilds(tasks, task);
+        for (const child of childs) {
           if (child.level > level) {
             level = child.level;
           }
@@ -207,9 +207,9 @@ export default defineComponent({
         return level;
       };
 
-      let levelTasks = function (tasks: Task[], level: number) {
-        let levelTasks = [];
-        for (let task of tasks) {
+      const levelTasks = function (tasks: Task[], level: number) {
+        const levelTasks = [];
+        for (const task of tasks) {
           if (task.level != level) {
             continue;
           }
@@ -218,9 +218,9 @@ export default defineComponent({
         return levelTasks;
       };
 
-      let levelsTasks = function (tasks: Task[], startLevel: number) {
-        let levelTasks = [];
-        for (let task of tasks) {
+      const levelsTasks = function (tasks: Task[], startLevel: number) {
+        const levelTasks = [];
+        for (const task of tasks) {
           if (task.level < startLevel) {
             continue;
           }
@@ -229,15 +229,15 @@ export default defineComponent({
         return levelTasks;
       };
 
-      let levelsTasksByRow = function (tasks: Task[], startLevel: number) {
+      const levelsTasksByRow = function (tasks: Task[], startLevel: number) {
         return levelsTasks(tasks, startLevel).sort((a, b) =>
           a.row > b.row ? 1 : b.row > a.row ? -1 : 0
         );
       };
 
-      let levelFreeRow = function (tasks: Task[], level: number) {
+      const levelFreeRow = function (tasks: Task[], level: number) {
         let rows = [];
-        for (let task of tasks) {
+        for (const task of tasks) {
           if (task.level != level) {
             continue;
           }
@@ -249,7 +249,7 @@ export default defineComponent({
         rows = rows.sort((a, b) => a - b);
 
         let prevrow = 0;
-        for (let row of rows) {
+        for (const row of rows) {
           if (row == prevrow) {
             prevrow++;
           } else {
@@ -259,9 +259,9 @@ export default defineComponent({
         return prevrow;
       };
 
-      let levelsMaxRow = function (tasks: Task[], level: number) {
+      const levelsMaxRow = function (tasks: Task[], level: number) {
         let row = 0;
-        for (let task of tasks) {
+        for (const task of tasks) {
           if (level >= 0 && task.level > level) {
             continue;
           }
@@ -273,24 +273,24 @@ export default defineComponent({
       };
 
       for (let l = maxlevel; l >= 0; l--) {
-        let seenTasks = new Map();
+        const seenTasks = new Map();
 
         let row = 0;
         // if not at the last level fetch parents by their childs
         if (l < maxlevel) {
-          for (let curTask of levelsTasksByRow(gts, l + 1)) {
-            for (let depTaskID in curTask.depends) {
-              for (let parent of levelTasks(gts, l)) {
+          for (const curTask of levelsTasksByRow(gts, l + 1)) {
+            for (const depTaskID in curTask.depends) {
+              for (const parent of levelTasks(gts, l)) {
                 if (seenTasks.has(parent.id)) {
                   continue;
                 }
                 if (parent.id == depTaskID) {
                   seenTasks.set(parent.id, true);
 
-                  let maxChildLevel = taskMaxChildLevel(gts, parent);
+                  const maxChildLevel = taskMaxChildLevel(gts, parent);
                   if (maxChildLevel > parent.level + 1) {
                     // put parent in a row greater than the max row the next levels until the child level
-                    let mrow = levelsMaxRow(gts, maxChildLevel - 1) + 1;
+                    const mrow = levelsMaxRow(gts, maxChildLevel - 1) + 1;
                     parent.row = mrow;
                     row = mrow + 1;
                   } else {
@@ -304,24 +304,24 @@ export default defineComponent({
         }
 
         // arrange tasks of this level
-        for (let curTask of levelTasks(gts, l)) {
+        for (const curTask of levelTasks(gts, l)) {
           if (seenTasks.has(curTask.id)) {
             continue;
           }
           seenTasks.set(curTask.id, true);
-          let crow = levelFreeRow(gts, l);
+          const crow = levelFreeRow(gts, l);
           curTask.row = crow;
           row = crow + 1;
 
           // group tasks with common parent
-          for (let nextTask of levelTasks(gts, l)) {
+          for (const nextTask of levelTasks(gts, l)) {
             if (seenTasks.has(nextTask.id)) {
               continue;
             }
 
             let hasCommonParents = false;
-            for (let nextParentID in nextTask.depends) {
-              for (let curParentID in curTask.depends) {
+            for (const nextParentID in nextTask.depends) {
+              for (const curParentID in curTask.depends) {
                 if (nextParentID == curParentID) {
                   hasCommonParents = true;
                   break;
@@ -330,7 +330,7 @@ export default defineComponent({
             }
             if (hasCommonParents) {
               seenTasks.set(nextTask.id, true);
-              let crow = levelFreeRow(gts, l);
+              const crow = levelFreeRow(gts, l);
               nextTask.row = crow;
               row = crow + 1;
             }
@@ -338,11 +338,11 @@ export default defineComponent({
         }
       }
 
-      let curEdges: Edge[] = [];
+      const curEdges: Edge[] = [];
 
-      for (let curTask of gts) {
-        for (let depTaskID in curTask.depends) {
-          for (let pTask of gts) {
+      for (const curTask of gts) {
+        for (const depTaskID in curTask.depends) {
+          for (const pTask of gts) {
             if (pTask.id == depTaskID) {
               curEdges.push({
                 edgePoints: [],
@@ -354,7 +354,7 @@ export default defineComponent({
         }
       }
 
-      for (let edge of curEdges) {
+      for (const edge of curEdges) {
         edge.edgePoints.push({
           x: (taskWidth + taskXSpace) * edge.sourceTask.level + taskWidth,
           y: (taskHeight + taskYSpace) * edge.sourceTask.row + taskHeight / 2,
@@ -375,10 +375,10 @@ export default defineComponent({
 
       edges.value = curEdges;
 
-      let w = (maxlevel + 1) * (taskWidth + taskXSpace);
+      const w = (maxlevel + 1) * (taskWidth + taskXSpace);
       width.value = w + 'px';
 
-      let h = (levelsMaxRow(gts, -1) + 1) * (taskHeight + taskYSpace);
+      const h = (levelsMaxRow(gts, -1) + 1) * (taskHeight + taskYSpace);
       height.value = h + 'px';
 
       graphTasks.value = gts;
