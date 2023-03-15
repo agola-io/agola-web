@@ -41,7 +41,7 @@ export default defineComponent({
 
     const api = useAPI();
 
-    let fetchAbort = new AbortController();
+    const fetchAbort = new AbortController();
 
     const createRemoteSourceError: Ref<unknown | undefined> = ref();
 

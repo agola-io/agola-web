@@ -281,8 +281,8 @@ export default defineComponent({
       abortFetch();
 
       if (runnumber.value) {
-        let rungrouptype = 'projects';
-        let rungroupref = [
+        const rungrouptype = 'projects';
+        const rungroupref = [
           ownertype.value,
           ownername.value,
           ...projectref.value,

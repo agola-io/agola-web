@@ -262,7 +262,7 @@ export default defineComponent({
     const laRemoteSourceName = (la: LinkedAccountResponse) => {
       if (!remoteSources.value) return undefined;
 
-      for (let rs of remoteSources.value) {
+      for (const rs of remoteSources.value) {
         if (rs.id == la.remoteSourceID) {
           return rs.name;
         }
@@ -276,7 +276,7 @@ export default defineComponent({
 
       const remoteSource = remoteSources.value[selectedRemoteSourceIndex.value];
 
-      let path = userAddLinkedAccountLink(
+      const path = userAddLinkedAccountLink(
         user.value?.username,
         remoteSource.name
       );

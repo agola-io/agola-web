@@ -97,7 +97,7 @@ export default defineComponent({
       new AbortController()
     );
 
-    let formatter = new AnsiUp();
+    const formatter = new AnsiUp();
     formatter.use_classes = true;
 
     onUnmounted(() => {
@@ -167,7 +167,7 @@ export default defineComponent({
           let lastline = '';
           let j = 0;
           for (;;) {
-            let { done: readerDone, value } = await reader.read();
+            const { done: readerDone, value } = await reader.read();
             if (readerDone) {
               fetching.value = false;
               streaming.value = false;
@@ -175,11 +175,13 @@ export default defineComponent({
               return;
             }
 
-            let data = new TextDecoder('utf-8').decode(value, { stream: true });
+            const data = new TextDecoder('utf-8').decode(value, {
+              stream: true,
+            });
 
             let part = '';
-            for (var i = 0; i < data.length; i++) {
-              let c = data.charAt(i);
+            for (let i = 0; i < data.length; i++) {
+              const c = data.charAt(i);
               if (c == '\r') {
                 // replace lastline from start, simulating line feed (go to start of line)
                 // this isn't perfect since the previous line contents could have

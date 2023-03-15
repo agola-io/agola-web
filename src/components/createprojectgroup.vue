@@ -75,10 +75,10 @@ export default defineComponent({
       resetErrors();
 
       let refArray = [ownertype.value, ownername.value];
-      if (projectgroupref) {
+      if (projectgroupref.value) {
         refArray = [...refArray, ...projectgroupref.value];
       }
-      let parentref = refArray.join('/');
+      const parentref = refArray.join('/');
 
       let visibility = 'public';
       if (projectGroupIsPrivate.value) {
