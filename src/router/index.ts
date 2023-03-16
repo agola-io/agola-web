@@ -383,6 +383,8 @@ const routes: Array<RouteRecordRaw> = [
       ownertype: 'org',
       ownername: firstEntry(route.params.orgname),
       projectref: parseRef(firstEntry(route.params.projectref)),
+      runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
+      taskid: firstEntry(route.params.taskid),
     }),
     children: [
       {
