@@ -9,7 +9,7 @@
           {{ buttonValue }}
         </button>
         <button
-          v-click-outside="() => (dropdownActive = false)"
+          v-on-click-outside="() => (dropdownActive = false)"
           @click="dropdownActive = !dropdownActive"
           class="relative flex items-center focus:outline-none bg-green-500 hover:bg-green-600 text-white font-semibold hover:text-white py-2 px-4 border border-l-0 border-green-700 rounded rounded-l-none"
         >
@@ -44,12 +44,12 @@
 </template>
 
 <script lang="ts">
-import vClickOutside from 'click-outside-vue3';
+import { vOnClickOutside } from '@vueuse/components';
 import { computed, defineComponent, ref } from 'vue';
 
 export default defineComponent({
   directives: {
-    clickOutside: vClickOutside.directive,
+    onClickOutside: vOnClickOutside,
   },
   name: 'createprojectbutton',
   emits: ['click'],

@@ -97,7 +97,7 @@
                   run.canRestartFromScratch || run.canRestartFromFailedTasks
                 "
                 class="flex"
-                v-click-outside="() => (dropdownActive = false)"
+                v-on-click-outside="() => (dropdownActive = false)"
               >
                 <div class="flex items-center">
                   <button
@@ -158,7 +158,7 @@
 
 <script lang="ts">
 import { useNow } from '@vueuse/core';
-import vClickOutside from 'click-outside-vue3';
+import { vOnClickOutside } from '@vueuse/components';
 import {
   computed,
   defineComponent,
@@ -183,7 +183,7 @@ import { endTime, endTimeHuman, formatDuration } from '../util/time';
 export default defineComponent({
   name: 'rundetail',
   directives: {
-    clickOutside: vClickOutside.directive,
+    onClickOutside: vOnClickOutside,
   },
   props: {
     rungrouptype: { type: String, required: true },

@@ -35,7 +35,7 @@
           <div class="text-sm lg:flex-grow"></div>
           <div v-if="user" class="relative mr-3">
             <button
-              v-click-outside="() => (createDropdownActive = false)"
+              v-on-click-outside="() => (createDropdownActive = false)"
               @click="createDropdownActive = !createDropdownActive"
               class="relative flex items-center focus:outline-none"
             >
@@ -60,7 +60,7 @@
           <div v-if="user" class="relative">
             <div class="flex">
               <button
-                v-click-outside="() => (userDropdownActive = false)"
+                v-on-click-outside="() => (userDropdownActive = false)"
                 @click="userDropdownActive = !userDropdownActive"
                 class="relative flex items-center focus:outline-none"
               >
@@ -139,7 +139,7 @@
 </template>
 
 <script lang="ts">
-import vClickOutside from 'click-outside-vue3';
+import { vOnClickOutside } from '@vueuse/components';
 import { computed, defineComponent, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { errorToString } from './app/api';
@@ -150,7 +150,7 @@ import { ownerSettingsLink } from './util/link';
 export default defineComponent({
   name: 'App',
   directives: {
-    clickOutside: vClickOutside.directive,
+    onClickOutside: vOnClickOutside,
   },
   components: {},
   setup() {
