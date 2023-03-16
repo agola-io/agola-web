@@ -58,7 +58,7 @@
           <div class="relative">
             <div
               class="flex -mt-3"
-              v-click-outside="() => (dropdownActive = false)"
+              v-on-click-outside="() => (dropdownActive = false)"
               @click="dropdownActive = !dropdownActive"
             >
               <button
@@ -99,7 +99,7 @@
 </template>
 
 <script lang="ts">
-import vClickOutside from 'click-outside-vue3';
+import { vOnClickOutside } from '@vueuse/components';
 
 import {
   projectGroupProjectsLink,
@@ -117,7 +117,7 @@ export default defineComponent({
   name: 'ProjectGroup',
   components: { projbreadcrumbs, createprojectbutton },
   directives: {
-    clickOutside: vClickOutside.directive,
+    onClickOutside: vOnClickOutside,
   },
   props: {
     ownertype: { type: String, required: true },

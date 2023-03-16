@@ -146,7 +146,7 @@
           <div class="relative">
             <div
               class="flex -mt-3"
-              v-click-outside="() => (dropdownActive = false)"
+              v-on-click-outside="() => (dropdownActive = false)"
               @click="dropdownActive = !dropdownActive"
             >
               <button
@@ -182,7 +182,7 @@
 
 <script lang="ts">
 import { useAsyncState } from '@vueuse/core';
-import vClickOutside from 'click-outside-vue3';
+import { vOnClickOutside } from '@vueuse/components';
 import { defineComponent, onUnmounted, ref, toRefs, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ApiError, useAPI } from '../app/api';
@@ -205,7 +205,7 @@ export default defineComponent({
   name: 'User',
   components: { createprojectbutton, tabarrow },
   directives: {
-    clickOutside: vClickOutside.directive,
+    onClickOutside: vOnClickOutside,
   },
   props: {
     username: { type: String, required: true },
