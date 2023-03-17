@@ -36,6 +36,7 @@ specifiers:
   tslib: ^2.5.0
   typedjson: ^1.8.0
   typescript: ^4.9.5
+  universal-cookie: ^4.0.4
   vite: ^4.1.4
   vite-plugin-eslint: ^1.8.1
   vite-plugin-rewrite-all: ^1.0.1
@@ -51,7 +52,7 @@ dependencies:
   '@twind/preset-tailwind-forms': 1.1.2_kafzkapdr3kluphwvxzrrhnmh4
   '@vueuse/components': 9.13.0_vue@3.2.47
   '@vueuse/core': 9.13.0_vue@3.2.47
-  '@vueuse/integrations': 9.13.0_vue@3.2.47
+  '@vueuse/integrations': 9.13.0_ks4a5z5vidk6c4lv3k2b46ggti
   '@vueuse/shared': 9.13.0_vue@3.2.47
   ansi_up: 5.1.0
   anylogger: 1.0.11
@@ -63,6 +64,7 @@ dependencies:
   reflect-metadata: 0.1.13
   tslib: 2.5.0
   typedjson: 1.8.0
+  universal-cookie: 4.0.4
   vue: 3.2.47
   vue-router: 4.1.6_vue@3.2.47
 
@@ -459,6 +461,10 @@ packages:
       typescript: 4.9.5
     dev: false
 
+  /@types/cookie/0.3.3:
+    resolution: {integrity: sha512-LKVP3cgXBT9RYj+t+9FDKwS5tdI+rPBXaNSkma7hvqy35lc7mAokC2zsqWJH0LaqIt3B962nuYI77hsJoT1gow==}
+    dev: false
+
   /@types/eslint/8.21.2:
     resolution: {integrity: sha512-EMpxUyystd3uZVByZap1DACsMXvb82ypQnGn89e1Y0a+LYu3JJscUd/gqhRsVFDkaD2MIiWo0MT8EfXr3DGRKw==}
     dependencies:
@@ -803,7 +809,7 @@ packages:
       - vue
     dev: false
 
-  /@vueuse/integrations/9.13.0_vue@3.2.47:
+  /@vueuse/integrations/9.13.0_ks4a5z5vidk6c4lv3k2b46ggti:
     resolution: {integrity: sha512-I1kX/tsfcvWWLZD7HZaP0LsSfchK13YxReLfharXhk72SFXp87doLbRaTfIF5w8m/gr/vPtcNyQPAXW7Ubpuww==}
     peerDependencies:
       async-validator: '*'
@@ -843,6 +849,7 @@ packages:
     dependencies:
       '@vueuse/core': 9.13.0_vue@3.2.47
       '@vueuse/shared': 9.13.0_vue@3.2.47
+      universal-cookie: 4.0.4
       vue-demi: 0.13.11_vue@3.2.47
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -1012,6 +1019,11 @@ packages:
     resolution: {integrity: sha512-e54B99q/OUoH64zYYRf3HBP5z24G38h5D3qXu23JGRoigpX5Ss4r9ZnDk3g0Z8uQC2x2lPaJ+UlWBc1ZWBWdLg==}
     engines: {node: '>=0.8'}
     dev: true
+
+  /cookie/0.4.2:
+    resolution: {integrity: sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==}
+    engines: {node: '>= 0.6'}
+    dev: false
 
   /core-js/3.29.1:
     resolution: {integrity: sha512-+jwgnhg6cQxKYIIjGtAHq2nwUOolo9eoFZ4sHfUH09BLXBgxnH4gA0zEd+t+BO2cNB8idaBtZFcFTRjQJRJmAw==}
@@ -1923,6 +1935,13 @@ packages:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
     engines: {node: '>=4.2.0'}
     hasBin: true
+
+  /universal-cookie/4.0.4:
+    resolution: {integrity: sha512-lbRVHoOMtItjWbM7TwDLdl8wug7izB0tq3/YVKhT/ahB4VDvWMyvnADfnJI8y6fSvsjh51Ix7lTGC6Tn4rMPhw==}
+    dependencies:
+      '@types/cookie': 0.3.3
+      cookie: 0.4.2
+    dev: false
 
   /uri-js/4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}

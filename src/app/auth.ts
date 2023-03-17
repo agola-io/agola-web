@@ -1,8 +1,5 @@
-import {
-  useAsyncState,
-  useLocalStorage,
-  useSessionStorage,
-} from '@vueuse/core';
+import { useAsyncState, useIntervalFn, useSessionStorage } from '@vueuse/core';
+import { useCookies } from '@vueuse/integrations/useCookies';
 import log from 'loglevel';
 import { TypedJSON } from 'typedjson';
 import { computed, inject, InjectionKey, nextTick, ref, Ref, watch } from 'vue';
@@ -20,7 +17,7 @@ import {
 } from './api';
 
 const LOGIN_RETURN_PATH = 'login_return_path';
-const JWT_TOKEN = 'jwt_token';
+const SECONDARYSESSION_COOKIE_NAME = 'secondarysession';
 
 interface LogoutOptions {
   goToLogin?: boolean;
@@ -39,7 +36,6 @@ export interface Auth {
   authenticated: Ref<boolean>;
   registerUser: Ref<RegisterUser | undefined>;
   user: Ref<PrivateUserResponse | undefined>;
-  token: Ref<string | undefined>;
 
   refresh(): Promise<void>;
   setLoginReturnPath(path?: string): void;
@@ -76,6 +72,10 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
   const registerUser: Ref<RegisterUser | undefined> = ref(undefined);
 
   const user = ref<PrivateUserResponse>();
+
+  const cookies = useCookies([], {
+    autoUpdateDependencies: true,
+  });
 
   const updateUser = async () => {
     try {
@@ -116,12 +116,6 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
     { immediate: true }
   );
 
-  const token = useLocalStorage<string | null>(JWT_TOKEN, null);
-
-  const setToken = (t?: string) => {
-    token.value = t;
-  };
-
   const loginReturnPath = useSessionStorage<string | null>(
     LOGIN_RETURN_PATH,
     null
@@ -142,8 +136,13 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
       return;
     }
 
+    // remove secondary session cookie
+    cookies.set(SECONDARYSESSION_COOKIE_NAME, undefined, {
+      path: '/',
+      expires: new Date(0),
+    });
+
     user.value = undefined;
-    token.value = undefined;
 
     if (goToLogin) {
       setLoginReturnPath(router.currentRoute.value.fullPath);
@@ -228,10 +227,6 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
   ): Promise<void> => {
     if (!res) return;
 
-    if (res.token) {
-      setToken(res.token);
-    }
-
     await refresh();
 
     if (loginReturnPath.value != undefined) {
@@ -302,13 +297,33 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
     if (!res) return;
   };
 
+  useIntervalFn(() => {
+    if (!user.value) return;
+
+    const sc = cookies.get(SECONDARYSESSION_COOKIE_NAME);
+    if (!sc) {
+      logout();
+    }
+  }, 10000);
+
+  watch(
+    () => cookies.get(SECONDARYSESSION_COOKIE_NAME),
+    (sc) => {
+      if (!user.value) return;
+
+      if (!sc) {
+        logout();
+      }
+    },
+    { immediate: true }
+  );
+
   return {
     isReady,
     error,
     authenticated,
     registerUser,
     user,
-    token: computed(() => token.value ?? undefined),
 
     refresh,
     setLoginReturnPath,
