@@ -137,6 +137,8 @@ export interface API {
     signal?: AbortSignal
   ): Promise<void>;
 
+  getUserOrgs(signal?: AbortSignal): Promise<UserOrgsResponse[]>;
+
   createOrganization(
     orgname: string,
     visibility: string,
@@ -759,6 +761,22 @@ export function newAPI(): API {
     await fetch(apiURL.toString(), init);
   }
 
+  async function getUserOrgs(
+    signal?: AbortSignal
+  ): Promise<UserOrgsResponse[]> {
+    const apiURL = baseURL();
+    apiURL.pathname += '/user/orgs';
+
+    const res = await fetch(apiURL.toString(), { signal });
+    const organizations = TypedJSON.parseAsArray(
+      await res.text(),
+      UserOrgsResponse
+    );
+    if (!organizations) throw new ApiError();
+
+    return organizations;
+  }
+
   async function createOrganization(
     orgname: string,
     visibility: string,
@@ -1297,6 +1315,7 @@ export function newAPI(): API {
     deleteUserToken,
     createUserLinkedAccount,
     deleteUserLinkedAccount,
+    getUserOrgs,
     createOrganization,
     getOrgMembers,
     getProjectGroupSubgroups,
@@ -1372,10 +1391,19 @@ export class OrgResponse {
   id!: string;
 
   @jsonMember(String)
-  username!: string;
+  name!: string;
 
   @jsonMember(String)
   visibility!: Visibility;
+}
+
+@jsonObject
+export class UserOrgsResponse {
+  @jsonMember(OrgResponse)
+  Organization!: OrgResponse;
+
+  @jsonMember(String)
+  Role!: string;
 }
 
 export enum MemberRole {

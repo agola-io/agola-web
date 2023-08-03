@@ -42,6 +42,19 @@
           class="tab-element"
           :class="[
             {
+              'tab-element-selected': $route.name?.toString() === 'user orgs',
+            },
+          ]"
+        >
+          <router-link :to="userOrganizationsLink()">
+            <i class="mr-1 mdi mdi-account-group" />
+            <span>Organizations</span>
+          </router-link>
+        </li>
+        <li
+          class="tab-element"
+          :class="[
+            {
               'tab-element-selected':
                 $route.name?.toString() === 'user direct runs',
             },
@@ -199,6 +212,7 @@ import {
   userDirectRunLink,
   userDirectRunsLink,
   userDirectRunTaskLink,
+  userOrganizationsLink,
 } from '../util/link';
 
 export default defineComponent({
@@ -291,6 +305,7 @@ export default defineComponent({
       ownerLink,
       ownerProjectsLink,
       userDirectRunsLink,
+      userOrganizationsLink,
       userDirectRunLink,
       userDirectRunTaskLink,
       ownerSettingsLink,

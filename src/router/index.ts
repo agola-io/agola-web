@@ -9,6 +9,7 @@ import createprojectgroup from '../components/createprojectgroup.vue';
 import orgmembers from '../components/orgmembers.vue';
 import projectgroupsettings from '../components/projectgroupsettings.vue';
 import projects from '../components/projects.vue';
+import userorgs from '../components/userorgs.vue';
 import projectsettings from '../components/projectsettings.vue';
 import runs from '../components/runs.vue';
 import runsummary from '../components/runsummary.vue';
@@ -117,6 +118,15 @@ const routes: Array<RouteRecordRaw> = [
           ownername: firstEntry(route.params.username),
           runnumber: parseRunNumber(firstEntry(route.params.runnumber)),
           taskid: firstEntry(route.params.taskid),
+        }),
+      },
+      {
+        path: 'userorgs',
+        name: 'user orgs',
+        component: userorgs,
+        props: (route) => ({
+          ownertype: 'user',
+          ownername: firstEntry(route.params.username),
         }),
       },
       {
