@@ -14,7 +14,7 @@ local task_build(version, arch) = {
   steps: [
     { type: 'clone' },
     { type: 'restore_cache', keys: ['cache-node' + version + '-sum-{{ md5sum "package.json" }}', 'cache-node' + version + '-date-'], dest_dir: '/root/.pnpm-store' },
-    { type: 'run', command: 'npm install -g pnpm' },
+    { type: 'run', command: 'npm install -g pnpm@^8' },
     { type: 'run', command: 'pnpm config set store-dir /root/.pnpm-store' },
     { type: 'run', command: 'pnpm install' },
     { type: 'save_cache', key: 'cache-node' + version + '-sum-{{ md5sum "package.json" }}', contents: [{ source_dir: '/root/.pnpm-store' }] },
