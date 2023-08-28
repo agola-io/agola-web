@@ -51,6 +51,10 @@ export function ownerSettingsLink(
   return {};
 }
 
+export function userOrganizationsLink(): RouteLocationRaw {
+  return { name: 'user orgs' };
+}
+
 export function userDirectRunsLink(username: string): RouteLocationRaw {
   return { name: 'user direct runs', params: { username: username } };
 }
@@ -84,6 +88,10 @@ export function userAddLinkedAccountLink(
     name: 'user add linked account',
     params: { username: username, remotesource: remotesourcename },
   };
+}
+
+export function organizationLink(organizationRef: string[]): RouteLocationRaw {
+  return { path: `/org/${organizationRef}` };
 }
 
 export function orgMembersLink(orgname: string): RouteLocationRaw {
