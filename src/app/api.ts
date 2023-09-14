@@ -226,6 +226,48 @@ export interface API {
     signal?: AbortSignal
   ): Promise<SecretResponse[]>;
 
+  createProjectGroupSecret(
+    projectgroupref: string,
+    secretname: string,
+    secretvalues: Record<string, string>,
+    signal?: AbortSignal
+  ): Promise<SecretResponse>;
+
+  createProjectSecret(
+    projectref: string,
+    secretname: string,
+    secretvalues: Record<string, string>,
+    signal?: AbortSignal
+  ): Promise<SecretResponse>;
+
+  updateProjectGroupSecret(
+    projectgroupref: string,
+    secretname: string,
+    secretvalues: Record<string, string>,
+    newSecretName: string,
+    signal?: AbortSignal
+  ): Promise<SecretResponse>;
+
+  updateProjectSecret(
+    projectref: string,
+    secretname: string,
+    secretvalues: Record<string, string>,
+    newSecretName: string,
+    signal?: AbortSignal
+  ): Promise<SecretResponse>;
+
+  deleteProjectGroupSecret(
+    secretName: string,
+    username: string,
+    signal?: AbortSignal
+  ): Promise<void>;
+
+  deleteProjectSecret(
+    secretName: string,
+    projectref: string,
+    signal?: AbortSignal
+  ): Promise<void>;
+
   getVariables(
     ownertype: string,
     ref: string,
@@ -1081,12 +1123,159 @@ export function newAPI(): API {
       apiURL.searchParams.append('tree', '');
       apiURL.searchParams.append('removeoverridden', '');
     }
-
     const res = await fetch(apiURL.toString(), { signal });
 
     const secrets = TypedJSON.parseAsArray(await res.text(), SecretResponse);
 
     return secrets;
+  }
+
+  async function createProjectSecret(
+    projectref: string,
+    secretname: string,
+    secretValue: Record<string, string>,
+    signal?: AbortSignal
+  ): Promise<SecretResponse> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projects/' + encodeURIComponent(projectref) + '/secrets';
+    const init = {
+      method: 'POST',
+      body: JSON.stringify({
+        name: secretname,
+        type: SecretType.Internal,
+        data: secretValue,
+      }),
+      signal,
+    };
+
+    const res = await fetch(apiURL.toString(), init);
+
+    const secret = TypedJSON.parse(await res.text(), SecretResponse);
+    if (!secret) throw new ApiError();
+
+    return secret;
+  }
+
+  async function createProjectGroupSecret(
+    projectgroupref: string,
+    secretname: string,
+    secretValue: Record<string, string>,
+    signal?: AbortSignal
+  ): Promise<SecretResponse> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projectgroups/' + encodeURIComponent(projectgroupref) + '/secrets';
+    const init = {
+      method: 'POST',
+      body: JSON.stringify({
+        name: secretname,
+        type: SecretType.Internal,
+        data: secretValue,
+      }),
+      signal,
+    };
+
+    const res = await fetch(apiURL.toString(), init);
+
+    const secret = TypedJSON.parse(await res.text(), SecretResponse);
+    if (!secret) throw new ApiError();
+
+    return secret;
+  }
+
+  async function updateProjectSecret(
+    projectref: string,
+    secretname: string,
+    secretValue: Record<string, string>,
+    newSecretName: string,
+    signal?: AbortSignal
+  ): Promise<SecretResponse> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projects/' + encodeURIComponent(projectref) + '/secrets/' + secretname;
+    const init = {
+      method: 'PUT',
+      body: JSON.stringify({
+        name: newSecretName,
+        type: SecretType.Internal,
+        data: secretValue,
+      }),
+      signal,
+    };
+
+    const res = await fetch(apiURL.toString(), init);
+
+    const secret = TypedJSON.parse(await res.text(), SecretResponse);
+    if (!secret) throw new ApiError();
+
+    return secret;
+  }
+
+  async function updateProjectGroupSecret(
+    projectgroupref: string,
+    secretname: string,
+    secretValue: Record<string, string>,
+    newSecretName: string,
+    signal?: AbortSignal
+  ): Promise<SecretResponse> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projectgroups/' +
+      encodeURIComponent(projectgroupref) +
+      '/secrets/' +
+      secretname;
+    const init = {
+      method: 'PUT',
+      body: JSON.stringify({
+        name: newSecretName,
+        type: SecretType.Internal,
+        data: secretValue,
+      }),
+      signal,
+    };
+
+    const res = await fetch(apiURL.toString(), init);
+
+    const secret = TypedJSON.parse(await res.text(), SecretResponse);
+    if (!secret) throw new ApiError();
+
+    return secret;
+  }
+
+  async function deleteProjectGroupSecret(
+    secretname: string,
+    projectgroupref: string,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projectgroups/' +
+      encodeURIComponent(projectgroupref) +
+      '/secrets/' +
+      secretname;
+    const init = {
+      method: 'DELETE',
+      signal,
+    };
+
+    await fetch(apiURL.toString(), init);
+  }
+
+  async function deleteProjectSecret(
+    secretname: string,
+    projectref: string,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projects/' + encodeURIComponent(projectref) + '/secrets/' + secretname;
+    const init = {
+      method: 'DELETE',
+      signal,
+    };
+
+    await fetch(apiURL.toString(), init);
   }
 
   async function getVariables(
@@ -1343,6 +1532,12 @@ export function newAPI(): API {
     deleteProject,
     projectUpdateRepoLinkedAccount,
     getSecrets,
+    createProjectGroupSecret: createProjectGroupSecret,
+    createProjectSecret: createProjectSecret,
+    updateProjectGroupSecret: updateProjectGroupSecret,
+    updateProjectSecret: updateProjectSecret,
+    deleteProjectGroupSecret,
+    deleteProjectSecret,
     getVariables,
     getRun,
     getRuns,

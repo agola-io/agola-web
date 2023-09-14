@@ -6,6 +6,7 @@ import { Auth } from '../app/auth';
 import createorganization from '../components/createorganization.vue';
 import createproject from '../components/createproject.vue';
 import createprojectgroup from '../components/createprojectgroup.vue';
+import createupdatesecret from '../components/createupdatesecret.vue';
 import orgmembers from '../components/orgmembers.vue';
 import projectgroupsettings from '../components/projectgroupsettings.vue';
 import projects from '../components/projects.vue';
@@ -263,6 +264,35 @@ const routes: Array<RouteRecordRaw> = [
           projectref: parseRef(firstEntry(route.params.projectref)),
         }),
       },
+      {
+        path: 'secrets/new',
+        name: 'user project settings new secret',
+        component: createupdatesecret,
+        props: (route) => {
+          return {
+            ownertype: 'user',
+            ownername: firstEntry(route.params.username),
+            refType: 'project',
+            refParam: parseRef(firstEntry(route.params.projectref)),
+            operationType: 'create',
+          };
+        },
+      },
+      {
+        path: 'secrets/update/:secretName',
+        name: 'user project settings update secret',
+        component: createupdatesecret,
+        props: (route) => {
+          return {
+            ownertype: 'user',
+            ownername: firstEntry(route.params.username),
+            refType: 'project',
+            refParam: parseRef(firstEntry(route.params.projectref)),
+            secretNameParam: firstEntry(route.params.secretName),
+            operationType: 'update',
+          };
+        },
+      },
     ],
   },
 
@@ -324,6 +354,35 @@ const routes: Array<RouteRecordRaw> = [
           ownername: firstEntry(route.params.username),
           projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
+      },
+      {
+        path: 'secrets/new',
+        name: 'user projectgroup settings new secret',
+        component: createupdatesecret,
+        props: (route) => {
+          return {
+            ownertype: 'user',
+            ownername: firstEntry(route.params.username),
+            refType: 'projectgroup',
+            refParam: parseRef(firstEntry(route.params.projectgroupref)),
+            operationType: 'create',
+          };
+        },
+      },
+      {
+        path: 'secrets/update/:secretName',
+        name: 'user projectgroup settings update secret',
+        component: createupdatesecret,
+        props: (route) => {
+          return {
+            ownertype: 'user',
+            ownername: firstEntry(route.params.username),
+            refType: 'projectgroup',
+            refParam: parseRef(firstEntry(route.params.projectgroupref)),
+            operationType: 'update',
+            secretNameParam: firstEntry(route.params.secretName),
+          };
+        },
       },
     ],
   },
@@ -483,6 +542,35 @@ const routes: Array<RouteRecordRaw> = [
           projectref: parseRef(firstEntry(route.params.projectref)),
         }),
       },
+      {
+        path: 'secrets/new',
+        name: 'org project settings new secret',
+        component: createupdatesecret,
+        props: (route) => {
+          return {
+            ownertype: 'org',
+            ownername: firstEntry(route.params.orgname),
+            refType: 'project',
+            refParam: parseRef(firstEntry(route.params.projectref)),
+            operationType: 'create',
+          };
+        },
+      },
+      {
+        path: 'secrets/update/:secretName',
+        name: 'org project settings update secret',
+        component: createupdatesecret,
+        props: (route) => {
+          return {
+            ownertype: 'org',
+            ownername: firstEntry(route.params.orgname),
+            refType: 'project',
+            refParam: parseRef(firstEntry(route.params.projectref)),
+            operationType: 'update',
+            secretNameParam: firstEntry(route.params.secretName),
+          };
+        },
+      },
     ],
   },
 
@@ -544,6 +632,35 @@ const routes: Array<RouteRecordRaw> = [
           ownername: firstEntry(route.params.orgname),
           projectgroupref: parseRef(firstEntry(route.params.projectgroupref)),
         }),
+      },
+      {
+        path: 'secrets/new',
+        name: 'org projectgroup settings new secret',
+        component: createupdatesecret,
+        props: (route) => {
+          return {
+            ownertype: 'org',
+            ownername: firstEntry(route.params.orgname),
+            refType: 'projectgroup',
+            refParam: parseRef(firstEntry(route.params.projectgroupref)),
+            operationType: 'create',
+          };
+        },
+      },
+      {
+        path: 'secrets/update/:secretName',
+        name: 'org projectgroup settings update secret',
+        component: createupdatesecret,
+        props: (route) => {
+          return {
+            ownertype: 'org',
+            ownername: firstEntry(route.params.orgname),
+            refType: 'projectgroup',
+            refParam: parseRef(firstEntry(route.params.projectgroupref)),
+            operationType: 'update',
+            secretNameParam: firstEntry(route.params.secretName),
+          };
+        },
       },
     ],
   },

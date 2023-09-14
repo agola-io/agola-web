@@ -1,7 +1,24 @@
 <template>
   <div>
-    <h5 class="text-2xl">{{ refTypetitle }} Secrets</h5>
-    <secrets v-if="secrets.length" :secrets="secrets" />
+    <div class="flex">
+      <h5 class="text-2xl">{{ refTypetitle }} Secrets</h5>
+      <button
+        class="relative flex items-center focus:outline-none bg-green-500 hover:bg-green-600 text-white font-semibold hover:text-white py-1 px-2 ml-3 border border-green-700 rounded"
+      >
+        <router-link class="block hover:text-white" :to="newSecretLink"
+          >Add Secret</router-link
+        >
+      </button>
+    </div>
+    <secrets
+      v-if="secrets.length"
+      :secrets="secrets"
+      :ownername="ownername"
+      :ownertype="ownertype"
+      :projectref="projectref"
+      :refType="refType"
+      @delete-secret="handleDeleteSecret"
+    />
     <span v-else>No secrets</span>
 
     <hr class="my-6 border-t" />
@@ -10,6 +27,10 @@
     <secrets
       v-if="allSecrets.length"
       :secrets="allSecrets"
+      :ownername="ownername"
+      :ownertype="ownertype"
+      :projectref="projectref"
+      :refType="refType"
       :showparentpath="true"
     />
     <span v-else>No secrets</span>
@@ -17,8 +38,9 @@
 </template>
 
 <script lang="ts">
-import { SecretResponse } from '../app/api';
 import { computed, defineComponent, PropType, toRefs } from 'vue';
+import { SecretResponse } from '../app/api';
+import { projectGroupNewSecretLink, projectNewSecretLink } from '../util/link';
 import secrets from './secrets.vue';
 
 export default defineComponent({
@@ -34,18 +56,48 @@ export default defineComponent({
       required: true,
     },
     refType: { type: String, required: true },
+    ownertype: {
+      type: String,
+      required: true,
+    },
+    ownername: {
+      type: String,
+      required: true,
+    },
+    projectref: { type: Array as PropType<Array<string>>, required: true },
   },
-  setup(props) {
-    const { refType } = toRefs(props);
-
+  setup(props, { emit }) {
+    const { refType, ownertype, ownername, projectref } = toRefs(props);
     const refTypetitle = computed(() => {
       if (refType.value == 'project') return 'Project';
       if (refType.value == 'projectgroup') return 'Project group';
       return '';
     });
+    const newSecretLink = computed(() => {
+      if (refType.value == 'project')
+        return projectNewSecretLink(
+          ownertype.value,
+          ownername.value,
+          projectref.value
+        );
+      if (refType.value == 'projectgroup')
+        return projectGroupNewSecretLink(
+          ownertype.value,
+          ownername.value,
+          projectref.value
+        );
+      return '';
+    });
+
+    const handleDeleteSecret = () => {
+      emit('delete-secret');
+    };
 
     return {
       refTypetitle,
+      newSecretLink,
+
+      handleDeleteSecret,
     };
   },
 });

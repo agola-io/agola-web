@@ -41,6 +41,10 @@
           v-if="secrets && allSecrets"
           :secrets="secrets"
           :allSecrets="allSecrets"
+          :ownertype="ownertype"
+          :ownername="ownername"
+          :projectref="projectgroupref"
+          @delete-secret="handleDeleteSecret"
           refType="projectgroup"
         />
       </div>
@@ -194,6 +198,11 @@ export default defineComponent({
     const resetErrors = () => {
       updateProjectGroupError.value = undefined;
       deleteProjectGroupError.value = undefined;
+    };
+
+    const handleDeleteSecret = () => {
+      refreshSecrets();
+      refreshAllSecrets();
     };
 
     const isRootProjectGroup = computed(() => {
@@ -442,7 +451,7 @@ export default defineComponent({
       projectGroupIsPrivate,
       projectGroupNameToDelete,
       Visibility,
-
+      handleDeleteSecret,
       updateProjectGroup,
       deleteProjectGroup,
     };

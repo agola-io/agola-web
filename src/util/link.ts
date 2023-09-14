@@ -237,6 +237,44 @@ export function projectSettingsLink(
   };
 }
 
+export function projectNewSecretLink(
+  ownertype: string,
+  ownername: string,
+  projectref: string[]
+): RouteLocationRaw {
+  const path = projectPath(ownertype, ownername, projectref);
+  return { path: `${path}/secrets/new` };
+}
+
+export function projectUpdateSecretLink(
+  ownertype: string,
+  ownername: string,
+  projectref: string[],
+  secretName?: string
+): RouteLocationRaw {
+  const path = projectPath(ownertype, ownername, projectref);
+  return { path: `${path}/secrets/update/${secretName}` };
+}
+
+export function projectGroupNewSecretLink(
+  ownertype: string,
+  ownername: string,
+  projectgroupref: string[]
+): RouteLocationRaw {
+  const path = projectGroupPath(ownertype, ownername, projectgroupref);
+  return { path: `${path}/secrets/new` };
+}
+
+export function projectGroupUpdateSecretLink(
+  ownertype: string,
+  ownername: string,
+  projectgroupref: string[],
+  secretName?: string
+): RouteLocationRaw {
+  const path = projectGroupPath(ownertype, ownername, projectgroupref);
+  return { path: `${path}/secrets/update/${secretName}` };
+}
+
 export function projectGroupCreateProjectGroupLink(
   ownertype: string,
   ownername: string,
