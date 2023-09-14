@@ -104,8 +104,6 @@ export interface API {
 
   getUser(userRef: string, signal?: AbortSignal): Promise<User>;
 
-  searchUsers(q: string, signal?: AbortSignal): Promise<User[]>;
-
   getUserRemoteRepos(
     remoteSourceID: string,
     signal?: AbortSignal
@@ -628,18 +626,6 @@ export function newAPI(): API {
     if (!user) throw new ApiError();
 
     return user;
-  }
-
-  async function searchUsers(q: string, signal?: AbortSignal): Promise<User[]> {
-    const apiURL = baseURL();
-    apiURL.pathname += `/search/users`;
-    apiURL.searchParams.append('q', q);
-
-    const res = await fetch(apiURL.toString(), { signal });
-
-    const users = TypedJSON.parseAsArray(await res.text(), User);
-
-    return users;
   }
 
   async function getUserRemoteRepos(
@@ -1309,7 +1295,6 @@ export function newAPI(): API {
     createRemoteSource,
     getAuthUser,
     getUser,
-    searchUsers,
     getUserRemoteRepos,
     createUserToken,
     deleteUserToken,
