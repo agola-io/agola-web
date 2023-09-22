@@ -12,13 +12,29 @@
       </li>
     </ul>
     <div v-else>No Members</div>
+    <div class="flex justify-center my-3">
+      <button
+        v-if="hasMoreOrgMembers"
+        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        @click="loadMoreOrgMembers()"
+      >
+        Load more...
+      </button>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { useAsyncState } from '@vueuse/core';
-import { defineComponent, onUnmounted, toRefs, watch } from 'vue';
-import { ApiError, useAPI } from '../app/api';
+import {
+  computed,
+  defineComponent,
+  onUnmounted,
+  Ref,
+  ref,
+  toRefs,
+  watch,
+} from 'vue';
+import { ApiError, OrgMembersResponse, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 
 export default defineComponent({
@@ -38,6 +54,9 @@ export default defineComponent({
 
     let fetchAbort = new AbortController();
 
+    const orgMembers: Ref<OrgMembersResponse | undefined> = ref();
+    const orgMembersCursor: Ref<string | undefined> = ref();
+
     onUnmounted(() => {
       fetchAbort.abort();
     });
@@ -47,15 +66,31 @@ export default defineComponent({
       fetchAbort = new AbortController();
     };
 
-    const update = async () => {
+    const loadMoreOrgMembers = async () => {
       abortFetch();
 
-      refreshOrgMembers();
+      await fetchOrgMembers();
     };
 
     const fetchOrgMembers = async () => {
       try {
-        return await api.getOrgMembers(orgname.value, fetchAbort.signal);
+        if (!orgMembersCursor.value) {
+          orgMembers.value = undefined;
+        }
+
+        const { res, cursor } = await api.getOrgMembers(
+          orgname.value,
+          orgMembersCursor.value,
+          fetchAbort.signal
+        );
+
+        if (orgMembers.value) {
+          orgMembers.value.members.push(...res.members);
+        } else {
+          orgMembers.value = res;
+        }
+
+        orgMembersCursor.value = cursor;
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;
@@ -64,29 +99,31 @@ export default defineComponent({
       }
     };
 
-    const {
-      state: orgMembers,
-      // isReady: fetchedOrgMembers,
-      execute: refreshOrgMembers,
-    } = useAsyncState(
-      async () => {
-        return await fetchOrgMembers();
-      },
-      undefined,
-      { immediate: false, shallow: false }
-    );
+    const refreshOrgMembers = async () => {
+      abortFetch();
+
+      orgMembers.value = undefined;
+      orgMembersCursor.value = undefined;
+
+      await fetchOrgMembers();
+    };
 
     watch(
       props,
       () => {
-        orgMembers.value = undefined;
-
-        update();
+        refreshOrgMembers();
       },
       { immediate: true }
     );
 
-    return { orgMembers };
+    return {
+      orgMembers,
+      hasMoreOrgMembers: computed(() => !!orgMembersCursor.value),
+
+      orgMembersCursor,
+
+      loadMoreOrgMembers,
+    };
   },
 });
 </script>
