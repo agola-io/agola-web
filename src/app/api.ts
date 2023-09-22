@@ -86,7 +86,10 @@ export interface API {
     signal?: AbortSignal
   ): Promise<RemoteSourceAuthResponse>;
 
-  getRemoteSources(): Promise<RemoteSourceResponse[]>;
+  getRemoteSources(
+    cursor?: string,
+    signal?: AbortSignal
+  ): Promise<{ res: RemoteSourceResponse[]; cursor?: string }>;
 
   createRemoteSource(
     token: string,
@@ -553,10 +556,13 @@ export function newAPI(): API {
   }
 
   async function getRemoteSources(
+    cursor?: string,
     signal?: AbortSignal
-  ): Promise<RemoteSourceResponse[]> {
+  ): Promise<{ res: RemoteSourceResponse[]; cursor?: string }> {
     const apiURL = baseURL();
     apiURL.pathname += `/remotesources`;
+
+    if (cursor) apiURL.searchParams.append('cursor', cursor);
 
     const res = await fetch(apiURL.toString(), { signal });
 
@@ -566,7 +572,7 @@ export function newAPI(): API {
     );
     if (!remoteSources) throw new ApiError();
 
-    return remoteSources;
+    return { res: remoteSources, cursor: getCursor(res) };
   }
 
   async function createRemoteSource(

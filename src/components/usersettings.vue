@@ -170,6 +170,7 @@ import {
 } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { userAddLinkedAccountLink } from '../util/link';
+import { getAllRemoteSources } from '../util/remotesource';
 
 export default defineComponent({
   components: {},
@@ -238,7 +239,7 @@ export default defineComponent({
 
     const fetchRemoteSources = async () => {
       try {
-        return await api.getRemoteSources();
+        return await getAllRemoteSources(api);
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;
