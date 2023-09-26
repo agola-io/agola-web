@@ -47,6 +47,10 @@ function apiErrorToString(e: ApiError): string {
   }
 }
 
+function getCursor(res: Response): string | undefined {
+  return res.headers.get('X-Agola-Cursor') || undefined;
+}
+
 export interface API {
   baseURL(): URL;
 
@@ -145,8 +149,9 @@ export interface API {
 
   getOrgMembers(
     orgref: string,
+    cursor?: string,
     signal?: AbortSignal
-  ): Promise<OrgMembersResponse>;
+  ): Promise<{ res: OrgMembersResponse; cursor?: string }>;
 
   getProjectGroupSubgroups(
     projectgroupref: string,
@@ -789,17 +794,20 @@ export function newAPI(): API {
 
   async function getOrgMembers(
     orgref: string,
+    cursor?: string,
     signal?: AbortSignal
-  ): Promise<OrgMembersResponse> {
+  ): Promise<{ res: OrgMembersResponse; cursor?: string }> {
     const apiURL = baseURL();
     apiURL.pathname += '/orgs/' + orgref + '/members';
+
+    if (cursor) apiURL.searchParams.append('cursor', cursor);
 
     const res = await fetch(apiURL.toString(), { signal });
 
     const orgMembers = TypedJSON.parse(await res.text(), OrgMembersResponse);
     if (!orgMembers) throw new ApiError();
 
-    return orgMembers;
+    return { res: orgMembers, cursor: getCursor(res) };
   }
 
   async function getProjectGroupSubgroups(
