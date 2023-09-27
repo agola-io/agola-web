@@ -21,6 +21,7 @@ local task_build(version, arch) = {
     { type: 'save_cache', key: 'cache-node' + version + '-date-{{ year }}-{{ month }}-{{ day }}', contents: [{ source_dir: '/root/.pnpm-store' }] },
     { type: 'run', command: 'pnpm run check' },
     { type: 'run', command: 'pnpm run build' },
+    { type: 'run', command: 'pnpm run coverage' },
   ],
 };
 
