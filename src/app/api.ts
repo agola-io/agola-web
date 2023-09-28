@@ -139,7 +139,10 @@ export interface API {
     signal?: AbortSignal
   ): Promise<void>;
 
-  getUserOrgs(signal?: AbortSignal): Promise<UserOrgsResponse[]>;
+  getUserOrgs(
+    cursor?: string,
+    signal?: AbortSignal
+  ): Promise<{ res: UserOrgResponse[]; cursor?: string }>;
 
   createOrganization(
     orgname: string,
@@ -753,19 +756,23 @@ export function newAPI(): API {
   }
 
   async function getUserOrgs(
+    cursor?: string,
     signal?: AbortSignal
-  ): Promise<UserOrgsResponse[]> {
+  ): Promise<{ res: UserOrgResponse[]; cursor?: string }> {
     const apiURL = baseURL();
     apiURL.pathname += '/user/orgs';
 
+    if (cursor) apiURL.searchParams.append('cursor', cursor);
+
     const res = await fetch(apiURL.toString(), { signal });
+
     const organizations = TypedJSON.parseAsArray(
       await res.text(),
-      UserOrgsResponse
+      UserOrgResponse
     );
     if (!organizations) throw new ApiError();
 
-    return organizations;
+    return { res: organizations, cursor: getCursor(res) };
   }
 
   async function createOrganization(
@@ -1391,7 +1398,7 @@ export class OrgResponse {
 }
 
 @jsonObject
-export class UserOrgsResponse {
+export class UserOrgResponse {
   @jsonMember(OrgResponse)
   Organization!: OrgResponse;
 
