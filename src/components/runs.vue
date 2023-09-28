@@ -9,14 +9,14 @@
     </div>
 
     <div v-if="!fetchedRuns && runs?.length == 0" class="ml-6 flex w-48">
-      <div v-bind:class="{ spinner: !fetchedRuns }"></div>
+      <div :class="{ spinner: !fetchedRuns }"></div>
     </div>
     <div v-if="runs">
       <ul>
         <li
           class="mb-2 border-l-5 rounded-l"
           v-for="run in runs"
-          v-bind:key="run.number"
+          :key="run.number"
           :class="runResultClass(run)"
         >
           <div class="pl-4 flex items-center border border-l-0 rounded-r">

@@ -2,13 +2,13 @@
   <div>
     <h4 class="text-xl my-3">Projects</h4>
     <div v-if="!fetchedProjects" class="ml-6 flex w-48">
-      <div v-bind:class="{ spinner: !fetchedProjects }"></div>
+      <div :class="{ spinner: !fetchedProjects }"></div>
     </div>
     <ul v-else-if="projects && projects.length > 0">
       <li
         class="mb-2 border rounded-l"
         v-for="project in projects"
-        v-bind:key="project.id"
+        :key="project.id"
       >
         <div class="pl-4 py-4 flex items-center">
           <router-link
@@ -26,13 +26,13 @@
 
     <h4 class="text-xl my-3">Project Groups</h4>
     <div v-if="!fetchedProjectGroups" class="ml-6 flex w-48">
-      <div v-bind:class="{ spinner: !fetchedProjectGroups }"></div>
+      <div :class="{ spinner: !fetchedProjectGroups }"></div>
     </div>
     <ul v-else-if="projectGroups && projectGroups.length > 0">
       <li
         class="mb-2 border rounded-l"
         v-for="projectGroup in projectGroups"
-        v-bind:key="projectGroup.id"
+        :key="projectGroup.id"
       >
         <div class="pl-4 py-4 flex items-center">
           <router-link

@@ -1,6 +1,6 @@
 <template>
   <ul>
-    <li v-for="task in sortedTasks" v-bind:key="task.id">
+    <li v-for="task in sortedTasks" :key="task.id">
       <div class="mb-2 border-l-5 rounded-l" :class="taskClass(task)">
         <div
           class="px-4 py-4 flex justify-between items-center border border-l-0 rounded-r"
@@ -23,7 +23,7 @@
               <li
                 class="font-thin text-xs text-gray-600"
                 v-for="dep in task.parents"
-                v-bind:key="dep"
+                :key="dep"
               >
                 {{ dep }}
               </li>
