@@ -9,7 +9,7 @@
       scroll
       overflow="scroll"
     >
-      <g v-for="(segment, i) in segments" v-bind:key="i">
+      <g v-for="(segment, i) in segments" :key="i">
         <line
           :x1="segment.x1"
           :y1="segment.y1"
@@ -21,7 +21,7 @@
           :class="['stroke-current', segment.stroke]"
         />
       </g>
-      <g v-for="(task, idx) in outTasks" v-bind:key="idx">
+      <g v-for="(task, idx) in outTasks" :key="idx">
         <foreignObject
           :x="(taskWidth + taskXSpace) * task.level"
           :y="(taskHeight + taskYSpace) * task.row"

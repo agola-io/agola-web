@@ -46,7 +46,7 @@
         <div
           class="my-6 flex justify-center items-center"
           v-for="rs in remoteSources"
-          v-bind:key="rs.id"
+          :key="rs.id"
         >
           <div v-if="rs.registrationEnabled">
             <LoginForm

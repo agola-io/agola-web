@@ -49,21 +49,21 @@
       </div>
       <step
         v-if="task.setupStep"
-        v-bind:rungrouptype="rungrouptype"
-        v-bind:rungroupref="rungroupref"
-        v-bind:runnumber="runnumber"
-        v-bind:taskid="taskid"
-        v-bind:setup="true"
-        v-bind:step="task.setupStep"
+        :rungrouptype="rungrouptype"
+        :rungroupref="rungroupref"
+        :runnumber="runnumber"
+        :taskid="taskid"
+        :setup="true"
+        :step="task.setupStep"
       />
-      <div v-for="(step, index) in task.steps" v-bind:key="index">
+      <div v-for="(step, index) in task.steps" :key="index">
         <step
-          v-bind:rungrouptype="rungrouptype"
-          v-bind:rungroupref="rungroupref"
-          v-bind:runnumber="runnumber"
-          v-bind:taskid="taskid"
-          v-bind:stepnum="index"
-          v-bind:step="step"
+          :rungrouptype="rungrouptype"
+          :rungroupref="rungroupref"
+          :runnumber="runnumber"
+          :taskid="taskid"
+          :stepnum="index"
+          :step="step"
         />
       </div>
     </div>

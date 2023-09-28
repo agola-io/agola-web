@@ -49,7 +49,7 @@
           <pre
             class="font-mono leading-snug text-xs"
             v-for="(error, i) in run.setupErrors"
-            v-bind:key="i"
+            :key="i"
             >{{ error }}</pre
           >
         </div>

@@ -13,7 +13,7 @@
         }}</router-link>
       </li>
       <template v-if="projectref">
-        <li v-for="(ref, i) in projectref" v-bind:key="i">
+        <li v-for="(ref, i) in projectref" :key="i">
           <span class="mx-2">/</span>
           <router-link
             v-if="i + 1 < projectref.length"
@@ -31,7 +31,7 @@
       </template>
 
       <template v-if="projectgroupref">
-        <li v-for="(ref, i) in projectgroupref" v-bind:key="i">
+        <li v-for="(ref, i) in projectgroupref" :key="i">
           <span class="mx-2">/</span>
           <router-link
             :to="

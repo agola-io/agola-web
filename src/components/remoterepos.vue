@@ -4,7 +4,7 @@
       <label
         class="block px-4 py-2 border-b"
         v-for="(repo, index) in remoterepos"
-        v-bind:key="repo.id"
+        :key="repo.id"
         @click="select(index)"
       >
         <input type="radio" :checked="selectedRepo == index" />

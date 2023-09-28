@@ -16,7 +16,7 @@
         </div>
       </div>
     </div>
-    <div class="flex" v-for="variable in variables" v-bind:key="variable.id">
+    <div class="flex" v-for="variable in variables" :key="variable.id">
       <div class="w-2/12">
         <span class="name">{{ variable.name }}</span>
         <div v-if="showparentpath" class="text-sm font-light">
@@ -24,7 +24,7 @@
         </div>
       </div>
       <div class="w-10/12">
-        <div class="flex" v-for="(val, i) in variable.values" v-bind:key="i">
+        <div class="flex" v-for="(val, i) in variable.values" :key="i">
           <div class="w-2/12">
             <span>{{ val.secretName }}</span>
             <div v-if="val.matchingSecretParentPath" class="text-sm">
@@ -39,7 +39,7 @@
             <div v-if="val.when">
               <div
                 v-for="whenCondition in getWhenConditions(val.when)"
-                v-bind:key="whenCondition.condType"
+                :key="whenCondition.condType"
               >
                 <div v-if="whenCondition.cond">
                   <div class="flex">
@@ -49,7 +49,7 @@
                     <div class="w-1/3">
                       <div
                         v-for="include in whenCondition.cond.include"
-                        v-bind:key="include.match"
+                        :key="include.match"
                       >
                         <div>{{ include.match }}</div>
                       </div>
@@ -57,7 +57,7 @@
                     <div class="w-1/3">
                       <div
                         v-for="exclude in whenCondition.cond.exclude"
-                        v-bind:key="exclude.match"
+                        :key="exclude.match"
                       >
                         <div>{{ exclude.match }}</div>
                       </div>

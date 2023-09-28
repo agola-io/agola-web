@@ -3,7 +3,7 @@
     <div class="my-3 flex font-bold">
       <div class="w-2/12">Name</div>
     </div>
-    <div class="flex" v-for="secret in secrets" v-bind:key="secret.id">
+    <div class="flex" v-for="secret in secrets" :key="secret.id">
       <div class="w-2/12">
         <span class="name">{{ secret.name }}</span>
         <div v-if="showparentpath" class="text-sm font-light">
