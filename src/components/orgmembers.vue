@@ -1,21 +1,37 @@
 <template>
   <div>
     <h4 class="mb-3 text-xl">Organization Members</h4>
-    <ul v-if="orgMembers">
+    <ul v-if="orgMembers?.members && orgMembers.members.length > 0">
       <li
         class="flex"
         v-for="member in orgMembers.members"
-        v-bind:key="member.user.id"
+        :key="member.user.id"
       >
         <span class="w-1/2 font-bold">{{ member.user.username }}</span>
         <span class="w-1/2">{{ member.role }}</span>
       </li>
     </ul>
-    <div v-else>No Members</div>
+    <div
+      v-else-if="
+        !loadingOrgMembers &&
+        orgMembers?.members &&
+        orgMembers.members.length == 0
+      "
+      class="font-bold"
+    >
+      No Members
+    </div>
+
+    <delay v-if="loadingOrgMembers" :timeout="500">
+      <div class="mt-4 ml-6 flex w-48">
+        <div :class="{ spinner: loadingOrgMembers }"></div>
+      </div>
+    </delay>
+
     <div class="flex justify-center my-3">
       <button
-        v-if="hasMoreOrgMembers"
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        v-if="hasMoreOrgMembers && !loadingOrgMembers"
+        class="bg-transparent text-blue-700 font-semibold hover:(bg-blue-500 text-white border-transparent) py-2 px-4 border border-blue-500 disabled:(bg-blue-500 opacity-50 cursor-not-allowed) rounded"
         @click="loadMoreOrgMembers()"
       >
         Load more...
@@ -54,6 +70,7 @@ export default defineComponent({
 
     let fetchAbort = new AbortController();
 
+    const loadingOrgMembers = ref(false);
     const orgMembers: Ref<OrgMembersResponse | undefined> = ref();
     const orgMembersCursor: Ref<string | undefined> = ref();
 
@@ -74,6 +91,8 @@ export default defineComponent({
 
     const fetchOrgMembers = async () => {
       try {
+        loadingOrgMembers.value = true;
+
         if (!orgMembersCursor.value) {
           orgMembers.value = undefined;
         }
@@ -96,6 +115,8 @@ export default defineComponent({
           if (e.aborted) return;
         }
         appState.setGlobalError(e);
+      } finally {
+        loadingOrgMembers.value = false;
       }
     };
 
@@ -117,10 +138,10 @@ export default defineComponent({
     );
 
     return {
-      orgMembers,
+      loadingOrgMembers,
       hasMoreOrgMembers: computed(() => !!orgMembersCursor.value),
 
-      orgMembersCursor,
+      orgMembers,
 
       loadMoreOrgMembers,
     };
