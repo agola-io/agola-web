@@ -51,6 +51,7 @@ import { useRouter } from 'vue-router';
 import { ApiError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import LoginForm from '../components/loginform.vue';
+import { getAllRemoteSources } from '../util/remotesource';
 
 export default defineComponent({
   name: 'AddLinkedAccount',
@@ -93,7 +94,7 @@ export default defineComponent({
 
     const fetchremoteSources = async () => {
       try {
-        return await api.getRemoteSources();
+        return await getAllRemoteSources(api);
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;

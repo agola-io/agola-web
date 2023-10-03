@@ -74,6 +74,7 @@
 
 <script lang="ts">
 import { useAsyncState } from '@vueuse/core';
+import { getAllRemoteSources } from '../util/remotesource';
 import {
   computed,
   defineComponent,
@@ -197,7 +198,7 @@ export default defineComponent({
 
     const fetchRemoteSources = async () => {
       try {
-        return await api.getRemoteSources();
+        return await getAllRemoteSources(api);
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;

@@ -82,6 +82,7 @@ import { useAppState } from '../app/appstate';
 import { useAuth } from '../app/auth';
 import LoginForm from '../components/loginform.vue';
 import RegisterForm from '../components/registerform.vue';
+import { getAllRemoteSources } from '../util/remotesource';
 
 export default defineComponent({
   name: 'Register',
@@ -121,7 +122,7 @@ export default defineComponent({
 
     const fetchRemoteSources = async () => {
       try {
-        return await api.getRemoteSources();
+        return await getAllRemoteSources(api);
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;

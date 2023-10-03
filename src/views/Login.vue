@@ -56,6 +56,7 @@
 
 <script lang="ts">
 import { useAsyncState } from '@vueuse/core';
+import { getAllRemoteSources } from '../util/remotesource';
 import { computed, defineComponent } from 'vue';
 import { ApiError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
@@ -78,7 +79,7 @@ export default defineComponent({
       // execute: refreshRemoteSources,
     } = useAsyncState(async () => {
       try {
-        return await api.getRemoteSources();
+        return await getAllRemoteSources(api);
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;
