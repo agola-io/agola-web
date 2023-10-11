@@ -145,6 +145,7 @@
       <router-view :key="routerKey" />
     </div>
   </div>
+  <div id="modals"></div>
 </template>
 
 <script lang="ts">

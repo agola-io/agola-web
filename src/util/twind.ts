@@ -57,6 +57,11 @@ const config = defineConfig({
       'bg-red-500 text-white hover:(bg-red-700) disabled:(bg-red-500 opacity-50 cursor-not-allowed) focus:(bg-red-500 outline-none ring)',
     ],
 
+    [
+      'btn-gray',
+      'bg-gray-500 text-white hover:(bg-gray-700) disabled:(bg-gray-300 opacity-50 cursor-not-allowed) focus:(bg-gray-500 outline-none ring)',
+    ],
+
     ['tab', 'flex border-b-2'],
 
     ['tab-element', 'px-4 -m-[2px] border-b-2'],
