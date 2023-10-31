@@ -10,22 +10,37 @@
             type="text"
             placeholder="Project Name"
             v-model="project.name"
+            data-test="projectNameInput"
           />
         </div>
         <div class="mb-4">
           <label>
-            <input type="checkbox" v-model="projectIsPrivate" />
+            <input
+              type="checkbox"
+              v-model="projectIsPrivate"
+              data-test="projectIsPrivateInput"
+            />
             Private
           </label>
         </div>
         <div class="mb-4">
           <label>
-            <input type="checkbox" v-model="project.passVarsToForkedPR" />
+            <input
+              type="checkbox"
+              v-model="project.passVarsToForkedPR"
+              data-test="projectPassVarsToForkedPRInput"
+            />
             Pass variables to run even if triggered by PR from forked repo
             (DANGEROUS)
           </label>
         </div>
-        <button class="btn btn-blue" @click="updateProject()">Update</button>
+        <button
+          class="btn btn-blue"
+          @click="updateProject()"
+          data-test="updateProjectButton"
+        >
+          Update
+        </button>
         <div
           v-if="updateProjectError"
           class="mb-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
