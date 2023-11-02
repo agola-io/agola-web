@@ -33,7 +33,7 @@ local task_build(version, arch) = {
         [
           task_build(version, arch),
         ]
-        for version in ['16', '18']
+        for version in ['18', '20']
         for arch in ['amd64']
       ]) + [
         {
