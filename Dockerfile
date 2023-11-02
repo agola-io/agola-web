@@ -1,4 +1,4 @@
-FROM node:16-alpine AS web_build
+FROM node:20-alpine AS web_build
 
 WORKDIR /agola-web
 
