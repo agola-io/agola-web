@@ -4,8 +4,8 @@ WORKDIR /agola-web
 
 RUN npm install -g pnpm
 
-# copy both 'package.json' and 'package-lock.json' (if available)
-COPY package*.json ./
+# copy both 'package.json' and 'pnpm-lock.yaml' (if available)
+COPY package.json pnpm-lock.yaml ./
 COPY stub/ ./stub/
 
 # install project dependencies
