@@ -12,6 +12,7 @@ export const handlers = [
       id: '1',
       name: 'proj01',
       visibility: 'public',
+      members_can_perform_run_actions: false,
     });
   }),
 
@@ -20,6 +21,7 @@ export const handlers = [
       id: '1',
       name: 'newproj01',
       visibility: 'public',
+      members_can_perform_run_actions: true,
     });
   }),
 
@@ -78,11 +80,15 @@ test('update project name', async () => {
   const projectName = wrapper.find<HTMLInputElement>(
     '[data-test="projectNameInput"]'
   );
+  const membersCanPerformRunActions = wrapper.find<HTMLInputElement>(
+    '[data-test="membersCanPerformRunActions"]'
+  );
   const updateProjectButton = wrapper.find<HTMLInputElement>(
     '[data-test="updateProjectButton"]'
   );
 
   projectName.setValue('newproj01');
+  membersCanPerformRunActions.setValue(true);
   updateProjectButton.element.click();
 
   await flushPromises();
@@ -91,4 +97,51 @@ test('update project name', async () => {
   expect(wrapper.router.push).toHaveBeenCalledWith({
     path: '/org/org01/projects/newproj01.proj/settings',
   });
+});
+
+test('update org project membersCanPerformRunActions', async () => {
+  await flushPromises();
+
+  const membersCanPerformRunActions = wrapper.find<HTMLInputElement>(
+    '[data-test="membersCanPerformRunActions"]'
+  );
+  const updateProjectButton = wrapper.find<HTMLInputElement>(
+    '[data-test="updateProjectButton"]'
+  );
+  const initialValue = membersCanPerformRunActions.element.checked;
+
+  membersCanPerformRunActions.setValue(!initialValue);
+
+  updateProjectButton.element.click();
+
+  await flushPromises();
+
+  expect(wrapper.router.push).toHaveBeenCalledTimes(1);
+  expect(wrapper.router.push).toHaveBeenCalledWith({
+    path: '/org/org01/projects/proj01.proj/settings',
+  });
+
+  expect(membersCanPerformRunActions.element.checked).toBe(!initialValue);
+});
+
+test('check membersCanPerformRunActions is not shown on user projects', async () => {
+  const api = newAPI();
+  const appState = newAppState();
+  wrapper = mount(projectSettings, {
+    global: {
+      provide: {
+        [APIInjectionKey as symbol]: api,
+        [AppStateInjectionKey as symbol]: appState,
+      },
+    },
+    props: { ownertype: 'user01', ownername: 'org01', projectref: ['proj01'] },
+  });
+
+  await flushPromises();
+
+  const membersCanPerformRunActions = wrapper.find<HTMLInputElement>(
+    '[data-test="membersCanPerformRunActions"]'
+  );
+
+  expect(membersCanPerformRunActions.exists()).toBe(false);
 });

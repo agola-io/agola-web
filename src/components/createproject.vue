@@ -7,16 +7,35 @@
       type="text"
       placeholder="Project Name"
       v-model="projectName"
+      data-test="projectName"
     />
     <div class="mb-4">
       <label>
-        <input type="checkbox" v-model="projectIsPrivate" />
+        <input
+          type="checkbox"
+          v-model="projectIsPrivate"
+          data-test="projectIsPrivate"
+        />
         Private
+      </label>
+    </div>
+    <div class="mb-4" v-if="ownertype === 'org'">
+      <label>
+        <input
+          type="checkbox"
+          v-model="membersCanPerformRunActions"
+          data-test="membersCanPerformRunActions"
+        />
+        Members can perform run action (restart, stop and cancel a run)
       </label>
     </div>
     <div class="mb-4">
       <label>
-        <input type="checkbox" v-model="passVarsToForkedPR" />
+        <input
+          type="checkbox"
+          v-model="passVarsToForkedPR"
+          data-test="passVarsToForkedPR"
+        />
         Pass variables to run even if triggered by PR from forked repo
         (DANGEROUS)
       </label>
@@ -26,6 +45,7 @@
         <select
           class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
           v-model="selectedRemoteSourceIndex"
+          data-test="selectedRemoteSourceIndex"
         >
           <option :value="undefined" disabled>Select the remote source</option>
           <option
@@ -38,10 +58,12 @@
         </select>
       </div>
       <button
+        type="button"
         class="ml-3 btn btn-blue"
         :class="{ spinner: fetchRemoteReposLoading }"
         :disabled="selectedRemoteSourceIndex == null"
         @click="refreshRemoteRepos()"
+        data-test="selectedRemoteSourceIndexButton"
       >
         Fetch remote repositories
       </button>
@@ -54,10 +76,12 @@
         v-on:reposelected="repoSelected($event)"
       />
       <button
+        type="button"
         class="btn btn-blue"
         :class="{ spinner: createProjectLoading }"
         :disabled="!createProjectButtonEnabled"
         @click="createProject()"
+        data-test="createProjectButton"
       >
         Create Project
       </button>
@@ -124,6 +148,7 @@ export default defineComponent({
 
     const createProjectLoading = ref(false);
     const fetchRemoteReposLoading = ref(false);
+    const membersCanPerformRunActions = ref(false);
 
     onUnmounted(() => {
       fetchAbort.abort();
@@ -172,7 +197,8 @@ export default defineComponent({
           visibility,
           remoteSource.name,
           remoteRepoPath.value,
-          passVarsToForkedPR.value
+          passVarsToForkedPR.value,
+          membersCanPerformRunActions.value
         );
 
         let newProjectref = [projectName.value];
@@ -263,6 +289,7 @@ export default defineComponent({
         projectName.value = '';
         projectIsPrivate.value = false;
         passVarsToForkedPR.value = false;
+        membersCanPerformRunActions.value = false;
 
         update();
       },
@@ -282,6 +309,7 @@ export default defineComponent({
       createProjectButtonEnabled,
       createProjectLoading,
       fetchRemoteReposLoading,
+      membersCanPerformRunActions,
 
       refreshRemoteRepos,
       repoSelected,

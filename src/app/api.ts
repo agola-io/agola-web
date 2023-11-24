@@ -202,6 +202,7 @@ export interface API {
     remotesourcename: string,
     remoterepopath: string,
     passvarstoforkedpr: boolean,
+    membersCanPerformRunActions: boolean,
     signal?: AbortSignal
   ): Promise<ProjectResponse>;
 
@@ -210,6 +211,7 @@ export interface API {
     name: string,
     visibility: string,
     passvarstoforkedpr: boolean,
+    membersCanPerformRunActions: boolean,
     signal?: AbortSignal
   ): Promise<ProjectResponse>;
 
@@ -912,7 +914,6 @@ export function newAPI(): API {
   ): Promise<ProjectGroupResponse> {
     const apiURL = baseURL();
     apiURL.pathname += '/projectgroups/' + encodeURIComponent(projectgroupref);
-
     const init = {
       method: 'PUT',
       body: JSON.stringify({
@@ -969,6 +970,7 @@ export function newAPI(): API {
     remotesourcename: string,
     remoterepopath: string,
     passvarstoforkedpr: boolean,
+    membersCanPerformRunActions: boolean,
     signal?: AbortSignal
   ): Promise<ProjectResponse> {
     const apiURL = baseURL();
@@ -983,6 +985,7 @@ export function newAPI(): API {
         remote_source_name: remotesourcename,
         repo_path: remoterepopath,
         pass_vars_to_forked_pr: passvarstoforkedpr,
+        members_can_perform_run_actions: membersCanPerformRunActions,
       }),
       signal,
     };
@@ -1000,6 +1003,7 @@ export function newAPI(): API {
     name: string,
     visibility: string,
     passvarstoforkedpr: boolean,
+    membersCanPerformRunActions: boolean,
     signal?: AbortSignal
   ): Promise<ProjectResponse> {
     const apiURL = baseURL();
@@ -1011,6 +1015,7 @@ export function newAPI(): API {
         name: name,
         visibility: visibility,
         pass_vars_to_forked_pr: passvarstoforkedpr,
+        members_can_perform_run_actions: membersCanPerformRunActions,
       }),
       signal,
     };
@@ -1662,6 +1667,9 @@ export class ProjectResponse {
 
   @jsonMember(Boolean, { name: 'pass_vars_to_forked_pr' })
   passVarsToForkedPR = false;
+
+  @jsonMember(Boolean, { name: 'members_can_perform_run_actions' })
+  membersCanPerformRunActions = false;
 }
 
 export enum SecretType {
