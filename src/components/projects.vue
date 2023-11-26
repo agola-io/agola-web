@@ -1,13 +1,32 @@
 <template>
   <div>
-    <h4 class="text-xl my-3">Projects</h4>
+    <div class="flex justify-between mb-4 items-center">
+      <h4 class="text-xl my-3">Projects</h4>
+      <button @click="toggleSortProjects" class="flex items-center relative">
+        <i
+          class="mdi mdi-sort-alphabetical-variant"
+          style="font-size: 24px"
+        ></i>
+        <i
+          v-if="sortOrderProjects === SortOrder.ASC"
+          class="absolute right-0 top-2/3 transform -translate-y-1/2 -mt-1.5 ml-1 mdi mdi-arrow-up mr-6"
+        ></i>
+        <i
+          v-if="sortOrderProjects === SortOrder.DESC"
+          class="absolute right-0 top-2/3 transform -translate-y-1/2 -mt-1.5 ml-1 mdi mdi-arrow-down mr-6"
+        ></i>
+      </button>
+    </div>
     <div v-if="!fetchedProjects" class="ml-6 flex w-48">
       <div :class="{ spinner: !fetchedProjects }"></div>
     </div>
-    <ul v-else-if="projects && projects.length > 0">
+    <ul
+      v-else-if="sortedProjects && sortedProjects.length > 0"
+      data-test="projectsSection"
+    >
       <li
         class="mb-2 border rounded-l"
-        v-for="project in projects"
+        v-for="project in sortedProjects"
         :key="project.id"
       >
         <div class="pl-4 py-4 flex items-center">
@@ -15,8 +34,11 @@
             class="item"
             :to="projectLink(ownertype, ownername, projectRef(project.name))"
           >
-            <span class="font-bold">{{ project.name }}</span>
+            <span class="font-bold" data-test="projectsItem">{{
+              project.name
+            }}</span>
           </router-link>
+          <i class="mdi mdi-your-icon-class"></i>
         </div>
       </li>
     </ul>
@@ -24,14 +46,37 @@
 
     <hr class="my-6 border-t" />
 
-    <h4 class="text-xl my-3">Project Groups</h4>
+    <!-- Project Groups Section -->
+    <div class="flex justify-between mb-4">
+      <h4 class="text-xl my-3">Project Groups</h4>
+      <button
+        @click="toggleSortProjectGroups"
+        class="flex items-center relative"
+      >
+        <i
+          class="mdi mdi-sort-alphabetical-variant"
+          style="font-size: 24px"
+        ></i>
+        <i
+          v-if="sortOrderProjectGroups === SortOrder.ASC"
+          class="absolute right-0 top-2/3 transform -translate-y-1/2 -mt-1.5 ml-1 mdi mdi-arrow-up mr-6"
+        ></i>
+        <i
+          v-if="sortOrderProjectGroups === SortOrder.DESC"
+          class="absolute right-0 top-2/3 transform -translate-y-1/2 -mt-1.5 ml-1 mdi mdi-arrow-down mr-6"
+        ></i>
+      </button>
+    </div>
     <div v-if="!fetchedProjectGroups" class="ml-6 flex w-48">
       <div :class="{ spinner: !fetchedProjectGroups }"></div>
     </div>
-    <ul v-else-if="projectGroups && projectGroups.length > 0">
+    <ul
+      v-else-if="sortedProjectGroups && sortedProjectGroups.length > 0"
+      data-test="projectsGroupSection"
+    >
       <li
         class="mb-2 border rounded-l"
-        v-for="projectGroup in projectGroups"
+        v-for="projectGroup in sortedProjectGroups"
         :key="projectGroup.id"
       >
         <div class="pl-4 py-4 flex items-center">
@@ -45,8 +90,11 @@
               )
             "
           >
-            <span class="font-bold">{{ projectGroup.name }}</span>
+            <span class="font-bold" data-test="projectsGroupItem">{{
+              projectGroup.name
+            }}</span>
           </router-link>
+          <i class="mdi mdi-your-icon-class"></i>
         </div>
       </li>
     </ul>
@@ -56,10 +104,23 @@
 
 <script lang="ts">
 import { useAsyncState } from '@vueuse/core';
-import { defineComponent, onUnmounted, PropType, toRefs, watch } from 'vue';
+import {
+  defineComponent,
+  onUnmounted,
+  PropType,
+  toRefs,
+  watch,
+  ref,
+  computed,
+} from 'vue';
 import { ApiError, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { projectGroupLink, projectLink } from '../util/link';
+
+enum SortOrder {
+  ASC = 'asc',
+  DESC = 'desc',
+}
 
 export default defineComponent({
   components: {},
@@ -82,6 +143,9 @@ export default defineComponent({
     const api = useAPI();
 
     let fetchAbort = new AbortController();
+
+    const sortOrderProjects = ref<SortOrder>(SortOrder.ASC);
+    const sortOrderProjectGroups = ref<SortOrder>(SortOrder.ASC);
 
     onUnmounted(() => {
       fetchAbort.abort();
@@ -146,6 +210,20 @@ export default defineComponent({
       }
     };
 
+    const toggleSortProjects = () => {
+      sortOrderProjects.value =
+        sortOrderProjects.value === SortOrder.ASC
+          ? SortOrder.DESC
+          : SortOrder.ASC;
+    };
+
+    const toggleSortProjectGroups = () => {
+      sortOrderProjectGroups.value =
+        sortOrderProjectGroups.value === SortOrder.ASC
+          ? SortOrder.DESC
+          : SortOrder.ASC;
+    };
+
     const {
       state: projects,
       isReady: fetchedProjects,
@@ -170,6 +248,27 @@ export default defineComponent({
       { immediate: false, shallow: false }
     );
 
+    const sortedProjects = computed(() => {
+      const items = projects.value || [];
+      return sortItems(items, sortOrderProjects.value) as {
+        id: string;
+        name: string;
+      }[];
+    });
+
+    const sortedProjectGroups = computed(() => {
+      const items = projectGroups.value || [];
+      return sortItems(items, sortOrderProjectGroups.value) as {
+        id: string;
+        name: string;
+      }[];
+    });
+
+    const sortItems = (items: { name: string }[], sortOrder: SortOrder) => {
+      const sorted = [...items].sort((a, b) => a.name.localeCompare(b.name));
+      return sortOrder === SortOrder.ASC ? sorted : sorted.reverse();
+    };
+
     watch(
       props,
       () => {
@@ -184,14 +283,19 @@ export default defineComponent({
     return {
       fetchedProjects,
       fetchedProjectGroups,
-
       projects,
       projectGroups,
+      sortOrderProjects,
+      sortedProjects,
+      sortOrderProjectGroups,
+      sortedProjectGroups,
+      SortOrder,
 
       projectLink,
       projectGroupLink,
-
       projectRef,
+      toggleSortProjects,
+      toggleSortProjectGroups,
     };
   },
 });
