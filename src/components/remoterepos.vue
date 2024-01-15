@@ -7,7 +7,11 @@
         :key="repo.id"
         @click="select(index)"
       >
-        <input type="radio" :checked="selectedRepo == index" />
+        <input
+          type="radio"
+          :checked="selectedRepo == index"
+          :data-test="'selectedRepo-' + index"
+        />
         {{ repo.path }}
       </label>
     </div>

@@ -23,6 +23,16 @@
             Private
           </label>
         </div>
+        <div class="mb-4" v-if="ownertype === 'org'">
+          <label>
+            <input
+              type="checkbox"
+              v-model="project.membersCanPerformRunActions"
+              data-test="membersCanPerformRunActions"
+            />
+            Members can perform run action (restart, stop and cancel a run)
+          </label>
+        </div>
         <div class="mb-4">
           <label>
             <input
@@ -194,6 +204,7 @@ export default defineComponent({
     const updateProjectError: Ref<unknown | undefined> = ref();
     const deleteProjectError: Ref<unknown | undefined> = ref();
     const updateRepoLinkedAccountError: Ref<unknown | undefined> = ref();
+    const membersCanPerformRunActions = ref(false);
 
     onUnmounted(() => {
       fetchAbort.abort();
@@ -248,7 +259,8 @@ export default defineComponent({
           apiProjectRef.value,
           project.value.name,
           project.value.visibility,
-          project.value.passVarsToForkedPR
+          project.value.passVarsToForkedPR,
+          project.value.membersCanPerformRunActions
         );
 
         const newProjectRef = projectref.value.slice(0, -1);
@@ -488,6 +500,7 @@ export default defineComponent({
       projectIsPrivate,
       projectNameToDelete,
       Visibility,
+      membersCanPerformRunActions,
 
       updateProject,
       deleteProject,
