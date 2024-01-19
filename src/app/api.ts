@@ -34,6 +34,8 @@ export function errorToString(e?: unknown): string | undefined {
 
   if (e instanceof ApiError) return apiErrorToString(e);
 
+  if (e instanceof Error) return e.message;
+
   return 'An error occurred';
 }
 
