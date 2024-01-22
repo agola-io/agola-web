@@ -3,31 +3,182 @@
     <div class="my-3 flex font-bold">
       <div class="w-2/12">Name</div>
     </div>
-    <div class="flex" v-for="secret in secrets" :key="secret.id">
-      <div class="w-2/12">
-        <span class="name">{{ secret.name }}</span>
-        <div v-if="showparentpath" class="text-sm font-light">
-          from {{ secret.parentPath }}
+    <div
+      class="flex hover:bg-gray-100 transition duration-300 ease-in-out pl-2"
+      v-for="(secret, index) in secrets"
+      :key="secret.id"
+    >
+      <div class="w-11/12 flex justify-between py-2 border-gray-200">
+        <div class="flex flex-col">
+          <span class="name">{{ secret.name }}</span>
+          <div v-if="showparentpath" class="text-sm font-light">
+            from {{ secret.parentPath }}
+          </div>
+        </div>
+        <div
+          v-if="!showparentpath"
+          class="col-span-1 flex items-center justify-end space-x-2"
+        >
+          <button
+            type="button"
+            class="bg-transparent group-hover:bg-blue-100 transition duration-300 ease-in-out"
+            @click="openDialog(secret)"
+            :data-test="'deleteSecretButton-' + index"
+          >
+            <span class="mdi mdi-delete"></span>
+          </button>
+          <button
+            type="button"
+            class="bg-transparent group-hover:bg-blue-100 transition duration-300 ease-in-out"
+            @click="updateSecret(secret.name)"
+            :data-test="'updateSecretButton-' + index"
+          >
+            <span class="mdi mdi-pencil"></span>
+          </button>
         </div>
       </div>
     </div>
   </div>
+
+  <confirmationDialog
+    v-if="showDialog"
+    :show="showDialog"
+    @result="handleResult"
+  >
+    <template v-slot:title> Delete secret</template>
+    <template v-slot:body> {{ modalDescription }}</template>
+  </confirmationDialog>
 </template>
 
 <script lang="ts">
-import { SecretResponse } from '../app/api';
-import { defineComponent, PropType } from 'vue';
+import { computed, defineComponent, PropType, ref, Ref, toRefs } from 'vue';
+import { useRouter } from 'vue-router';
+import { ApiError, errorToString, SecretResponse, useAPI } from '../app/api';
+import { useAppState } from '../app/appstate';
+import {
+  projectGroupUpdateSecretLink,
+  projectUpdateSecretLink,
+} from '../util/link';
+import confirmationDialog from './modals/confirmationDialog.vue';
 
 export default defineComponent({
-  components: {},
+  components: { confirmationDialog },
   name: 'secrets',
   props: {
     secrets: {
       type: Array as PropType<Array<SecretResponse>>,
       required: true,
     },
-
+    refType: { type: String, required: true },
+    ownertype: {
+      type: String,
+      required: true,
+    },
+    ownername: {
+      type: String,
+      required: true,
+    },
+    projectref: { type: Array as PropType<Array<string>>, required: true },
     showparentpath: Boolean,
+  },
+  setup(props, { emit }) {
+    const { ownertype, ownername, projectref, refType } = toRefs(props);
+    const api = useAPI();
+    const appState = useAppState();
+    const router = useRouter();
+    const confirmationMessage = ref('');
+    const showDialog = ref(false);
+    const secretNameToDelete = ref<SecretResponse>({
+      id: '',
+      name: '',
+      parentPath: '',
+    });
+
+    const deleteSecretError: Ref<unknown | undefined> = ref();
+
+    const apiRef = computed(() => {
+      if (projectref.value) {
+        return [ownertype.value, ownername.value, ...projectref.value].join(
+          '/'
+        );
+      }
+
+      return '';
+    });
+
+    const modalDescription = computed(() => {
+      return `Are you sure you want to delete the secret
+        '${secretNameToDelete.value.name}'?`;
+    });
+
+    async function handleResult(value: boolean) {
+      showDialog.value = false;
+      if (value) {
+        await removeSecret(secretNameToDelete.value);
+        emit('secret-removed');
+      }
+    }
+
+    const openDialog = (secretToDelete: SecretResponse) => {
+      showDialog.value = true;
+      secretNameToDelete.value = secretToDelete;
+    };
+
+    const closeDialog = () => {
+      showDialog.value = false;
+    };
+
+    const removeSecret = async (secretNameToDelete: SecretResponse) => {
+      try {
+        if (refType.value === 'project') {
+          await api.deleteProjectSecret(secretNameToDelete.name, apiRef.value);
+        } else {
+          await api.deleteProjectGroupSecret(
+            secretNameToDelete.name,
+            apiRef.value
+          );
+        }
+        emit('delete-secret', secretNameToDelete);
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
+
+    const updateSecret = (secretToUpdate: string) => {
+      if (refType.value == 'project')
+        router.push(
+          projectUpdateSecretLink(
+            ownertype.value,
+            ownername.value,
+            projectref.value,
+            secretToUpdate
+          )
+        );
+      if (refType.value == 'projectgroup')
+        router.push(
+          projectGroupUpdateSecretLink(
+            ownertype.value,
+            ownername.value,
+            projectref.value,
+            secretToUpdate
+          )
+        );
+    };
+
+    return {
+      deleteSecretError: computed(() => errorToString(deleteSecretError.value)),
+      modalDescription,
+      showDialog,
+      confirmationMessage,
+
+      updateSecret,
+      openDialog,
+      closeDialog,
+      handleResult,
+    };
   },
 });
 </script>
