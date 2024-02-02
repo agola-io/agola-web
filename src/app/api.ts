@@ -290,10 +290,11 @@ export interface API {
   getRuns(
     rungrouptype: string,
     rungroupref: string,
+    cursor?: string,
     subgroup?: string,
-    startRunNumber?: number,
+    startRunCounter?: number,
     signal?: AbortSignal
-  ): Promise<RunResponse[]>;
+  ): Promise<{ res: RunResponse[]; cursor?: string }>;
 
   restartRun(
     rungrouptype: string,
@@ -1334,26 +1335,29 @@ export function newAPI(): API {
   async function getRuns(
     rungrouptype: string,
     rungroupref: string,
+    cursor?: string,
     subgroup?: string,
-    startRunNumber?: number,
+    startRunCounter?: number,
     signal?: AbortSignal
-  ): Promise<RunResponse[]> {
+  ): Promise<{ res: RunResponse[]; cursor?: string }> {
     const apiURL = baseURL();
     apiURL.pathname +=
       '/' + rungrouptype + '/' + encodeURIComponent(rungroupref) + '/runs';
 
+    if (cursor) apiURL.searchParams.append('cursor', cursor);
+
     if (subgroup) {
       apiURL.searchParams.append('subgroup', subgroup);
     }
-    if (startRunNumber) {
-      apiURL.searchParams.append('start', startRunNumber.toString());
+    if (startRunCounter) {
+      apiURL.searchParams.append('start', startRunCounter.toString());
     }
 
     const res = await fetch(apiURL.toString(), { signal });
 
     const runs = TypedJSON.parseAsArray(await res.text(), RunResponse);
 
-    return runs;
+    return { res: runs, cursor: getCursor(res) };
   }
 
   async function restartRun(
