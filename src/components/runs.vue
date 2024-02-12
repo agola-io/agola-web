@@ -8,9 +8,6 @@
       <div>{{ fetchRunsError }}</div>
     </div>
 
-    <div v-if="!fetchedRuns && runs?.length == 0" class="ml-6 flex w-48">
-      <div :class="{ spinner: !fetchedRuns }"></div>
-    </div>
     <div v-if="runs">
       <ul>
         <li
@@ -75,7 +72,7 @@
               >Still running</span
             >
             <div class="w-32">
-              <span>#{{ run.number }}</span>
+              <span data-test="runNumber">#{{ run.number }}</span>
               <a
                 :href="run.annotations.commit_link"
                 class="block"
@@ -98,11 +95,19 @@
           </div>
         </li>
       </ul>
+
+      <delay v-if="loadingRuns" :timeout="500">
+        <div class="mt-4 ml-6 flex w-48">
+          <div :class="{ spinner: loadingRuns }"></div>
+        </div>
+      </delay>
+
       <div class="flex justify-center my-3">
         <button
           v-if="hasMoreRuns"
-          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+          class="bg-transparent text-blue-700 font-semibold hover:(bg-blue-500 text-white border-transparent) py-2 px-4 border border-blue-500 disabled:(bg-blue-500 opacity-50 cursor-not-allowed) rounded"
           @click="loadMoreRuns()"
+          data-test="loadMoreRunsButton"
         >
           Load more...
         </button>
@@ -113,7 +118,7 @@
 </template>
 
 <script lang="ts">
-import { useAsyncState, useNow, useTimeoutFn } from '@vueuse/core';
+import { useNow, useTimeoutFn } from '@vueuse/core';
 import {
   computed,
   defineComponent,
@@ -128,6 +133,8 @@ import { ApiError, errorToString, RunResponse, useAPI } from '../app/api';
 import { projectRunLink, userDirectRunLink } from '../util/link';
 import { runResultClass } from '../util/run';
 import { endTime, endTimeHuman, formatDuration } from '../util/time';
+
+const RUNS_INCREMENT_VALUE = 25;
 
 export default defineComponent({
   components: {},
@@ -151,10 +158,14 @@ export default defineComponent({
 
     let fetchAbort = new AbortController();
 
-    const wantedRunsNumber = ref(25);
+    const wantedRunsNumber = ref(RUNS_INCREMENT_VALUE);
     const hasMoreRuns = ref(false);
     const now = useNow();
     const fetchRunsError: Ref<unknown | undefined> = ref();
+
+    const loadMoreDisabled = ref(false);
+    const loadingRuns = ref(false);
+    const runs: Ref<RunResponse[] | undefined> = ref();
 
     onUnmounted(() => {
       fetchAbort.abort();
@@ -210,7 +221,9 @@ export default defineComponent({
     };
 
     const loadMoreRuns = async () => {
-      wantedRunsNumber.value += 25;
+      wantedRunsNumber.value += RUNS_INCREMENT_VALUE;
+      loadMoreDisabled.value = true;
+
       abortFetch();
 
       await refreshRuns();
@@ -218,6 +231,8 @@ export default defineComponent({
 
     // TODO(sgotti) use run events instead of refetching all runs everytime
     const fetchRuns = async () => {
+      loadingRuns.value = true;
+
       let subgroup = '';
       if (projectref.value) {
         if (query.value == 'branches') {
@@ -229,54 +244,66 @@ export default defineComponent({
         }
       }
 
-      let newRuns: RunResponse[] = [];
+      const newRuns: RunResponse[] = [];
       let stopFetch = false;
       let runCount = 0;
-      let startRunNumber = undefined;
 
+      let runsCursor: string | undefined;
       try {
         while (!stopFetch) {
-          const fetchedRuns = await api.getRuns(
-            rungrouptype.value,
-            rungroupref.value,
-            subgroup,
-            startRunNumber,
-            fetchAbort.signal
-          );
+          let res: RunResponse[];
+          let cursor: string | undefined;
+          if (runsCursor) {
+            ({ res, cursor } = await api.getRuns(
+              rungrouptype.value,
+              rungroupref.value,
+              runsCursor
+            ));
+          } else {
+            ({ res, cursor } = await api.getRuns(
+              rungrouptype.value,
+              rungroupref.value,
+              undefined,
+              subgroup,
+              undefined,
+              fetchAbort.signal
+            ));
+          }
 
-          runCount += fetchedRuns.length;
-          if (runCount >= wantedRunsNumber.value || fetchedRuns.length == 0) {
-            hasMoreRuns.value = fetchedRuns.length != 0;
+          runsCursor = cursor;
+          hasMoreRuns.value = !!cursor;
+
+          runCount += res.length;
+          if (runCount >= wantedRunsNumber.value || !cursor) {
             stopFetch = true;
           }
-          newRuns = newRuns.concat(fetchedRuns);
-          if (newRuns.length) {
-            startRunNumber = newRuns[newRuns.length - 1].number;
+
+          newRuns.push(...res);
+          if (newRuns.length > wantedRunsNumber.value) {
+            wantedRunsNumber.value = newRuns.length;
           }
         }
+
+        runs.value = newRuns;
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;
         }
         fetchRunsError.value = e;
         return;
+      } finally {
+        loadingRuns.value = false;
+        loadMoreDisabled.value = false;
       }
 
       fetchRunsError.value = undefined;
-      return newRuns;
     };
 
-    const {
-      state: runs,
-      isReady: fetchedRuns,
-      execute: refreshRuns,
-    } = useAsyncState(
-      async () => {
-        return await fetchRuns();
-      },
-      undefined,
-      { immediate: false, resetOnExecute: false }
-    );
+    const refreshRuns = async () => {
+      abortFetch();
+
+      await fetchRuns();
+    };
 
     const duration = (run: RunResponse) => {
       return formatDuration(run, now.value);
@@ -294,6 +321,7 @@ export default defineComponent({
 
     return {
       fetchRunsError: computed(() => errorToString(fetchRunsError.value)),
+      loadingRuns,
       runs,
       projectRunLink,
       userDirectRunLink,
@@ -304,7 +332,6 @@ export default defineComponent({
       duration,
       endTime,
       endTimeHuman,
-      fetchedRuns,
 
       loadMoreRuns,
     };
