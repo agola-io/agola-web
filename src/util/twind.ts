@@ -56,9 +56,15 @@ const config = defineConfig({
       'btn-red',
       'bg-red-500 text-white hover:(bg-red-700) disabled:(bg-red-500 opacity-50 cursor-not-allowed) focus:(bg-red-500 outline-none ring)',
     ],
+
     [
-      'btn-gray',
-      'bg-gray-500 text-white hover:(bg-gray-700) disabled:(bg-gray-300 opacity-50 cursor-not-allowed) focus:(bg-gray-500 outline-none ring)',
+      'btn-blue',
+      'bg-blue-500 text-white hover:(bg-blue-700) disabled:(bg-blue-500 opacity-50 cursor-not-allowed) focus:(bg-blue-500 outline-none ring)',
+    ],
+
+    [
+      'btn-green',
+      'bg-green-500 text-white hover:(bg-green-700) disabled:(bg-green-300 opacity-50 cursor-not-allowed) focus:(bg-green-500 outline-none ring)',
     ],
 
     [

@@ -40,7 +40,7 @@
             :data-test="'secretPairValueInput-' + index"
           />
           <button
-            class="btn-gray font-bold py-1 px-3 ml-2 rounded"
+            class="btn btn-gray"
             v-if="secretvalues.length > 1"
             @click="removeKeyValuePair(index)"
             :disabled="secretvalues.length === 1"
@@ -56,7 +56,7 @@
       <div class="flex mt-4">
         <button
           id="secret-name-add-key"
-          class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          class="btn btn-green"
           @click="addKeyValuePair"
           data-test="addSecretPairButton"
         >
@@ -64,7 +64,7 @@
         </button>
         <button
           id="submit-save"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 ml-2 rounded"
+          class="btn btn-blue ml-2"
           :class="{ 'opacity-50 cursor-not-allowed': isSaveButtonDisabled }"
           type="submit"
           :disabled="isSaveButtonDisabled"
