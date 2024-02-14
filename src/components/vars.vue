@@ -1,66 +1,148 @@
 <template>
   <div>
-    <div class="my-3 flex font-bold">
-      <div class="w-2/12">Name</div>
-      <div class="w-10/12">
-        <div class="flex">
-          <div class="w-2/12">Secret Name</div>
-          <div class="w-2/12">Secret Value</div>
-          <div class="w-8/12">
-            <div class="flex">
-              <div class="w-1/3 mr-2">Conditions</div>
-              <div class="w-1/3 mr-2">Include</div>
-              <div class="w-1/3 mr-2">Exclude</div>
-            </div>
-          </div>
-        </div>
+    <!-- Header -->
+    <div class="w-full grid grid-cols-6 font-bold bg-gray-200 my-3 p-2 rounded">
+      <div class="col-span-1">Name</div>
+      <div class="col-span-1">Secret Name</div>
+      <div class="col-span-1">Secret Value</div>
+      <div class="col-span-3 grid grid-cols-3">
+        <div class="col-span-1">Conditions</div>
+        <div class="col-span-1">Include</div>
+        <div class="col-span-1">Exclude</div>
       </div>
     </div>
-    <div class="flex" v-for="variable in variables" :key="variable.id">
-      <div class="w-2/12">
-        <span class="name">{{ variable.name }}</span>
-        <div v-if="showparentpath" class="text-sm font-light">
-          from {{ variable.parentPath }}
+    <div class="flex flex-col" v-for="variable in variables" :key="variable.id">
+      <div
+        class="w-full grid grid-cols-6 my-2 px-2 rounded gap-4 group hover:bg-gray-100 transition duration-300 ease-in-out"
+        :key="variable.id + '-header'"
+      >
+        <div class="col-span-1">
+          <span class="name text-ellipsis overflow-hidden">{{
+            variable.name
+          }}</span>
+          <div
+            v-if="showparentpath"
+            class="text-sm font-light text-gray-500 text-ellipsis overflow-hidden"
+          >
+            from {{ variable.parentPath }}
+          </div>
+        </div>
+        <div class="col-span-1">
+          <span class="text-ellipsis overflow-hidden">{{
+            variable.values[0].secretName
+          }}</span>
+          <div
+            v-if="variable.values[0].matchingSecretParentPath"
+            class="text-sm text-green-600 text-ellipsis overflow-hidden"
+          >
+            <span class="mdi mdi-check-circle"></span> using secret from
+            {{ variable.values[0].matchingSecretParentPath }}
+          </div>
+          <div v-else class="text-sm text-red-600">
+            <span class="mdi mdi-alert-circle"></span> no matching secret
+          </div>
+        </div>
+        <div class="col-span-1">
+          <span>{{ variable.values[0].secretVar }}</span>
+        </div>
+        <div class="col-span-3">
+          <div v-if="variable.values[0].when">
+            <div
+              v-for="(whenCondition, condIndex) in getWhenConditions(
+                variable.values[0].when
+              )"
+              :key="condIndex"
+            >
+              <div
+                v-if="whenCondition.cond"
+                class="grid grid-cols-3 gap-4 text-ellipsis overflow-hidden"
+              >
+                <span class="text-ellipsis overflow-hidden">{{
+                  whenCondition.condType
+                }}</span>
+                <div class="col-span-1">
+                  <div
+                    v-for="(include, includeIndex) in whenCondition.cond
+                      .include"
+                    :key="includeIndex"
+                  >
+                    <div class="text-ellipsis overflow-hidden">
+                      {{ include.match }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-span-1 text-ellipsis overflow-hidden">
+                  <div
+                    v-for="(exclude, excludeIndex) in whenCondition.cond
+                      .exclude"
+                    :key="excludeIndex"
+                  >
+                    <div class="text-ellipsis overflow-hidden">
+                      {{ exclude.match }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="w-10/12">
-        <div class="flex" v-for="(val, i) in variable.values" :key="i">
-          <div class="w-2/12">
-            <span>{{ val.secretName }}</span>
-            <div v-if="val.matchingSecretParentPath" class="text-sm">
-              using secret from {{ val.matchingSecretParentPath }}
-            </div>
-            <div v-else class="text-sm text-red-600">no matching secret</div>
+      <div
+        v-for="(val, i) in variable.values.slice(1)"
+        class="w-full grid grid-cols-6 my-2 px-2 rounded gap-4 group hover:bg-gray-100 transition duration-300 ease-in-out"
+        :key="i"
+      >
+        <div class="col-span-1"></div>
+        <div class="col-span-1">
+          <span class="text-ellipsis overflow-hidden">{{
+            val.secretName
+          }}</span>
+          <div
+            v-if="val.matchingSecretParentPath"
+            class="text-sm text-green-600 text-ellipsis overflow-hidden"
+          >
+            <span class="mdi mdi-check-circle"></span> using secret from
+            {{ val.matchingSecretParentPath }}
           </div>
-          <div class="w-2/12">
-            <span>{{ val.secretVar }}</span>
+          <div v-else class="text-sm text-red-600">
+            <span class="mdi mdi-alert-circle"></span> no matching secret
           </div>
-          <div class="w-8/12">
-            <div v-if="val.when">
+        </div>
+        <div class="col-span-1">
+          <span>{{ val.secretVar }}</span>
+        </div>
+        <div class="col-span-3">
+          <div v-if="val.when">
+            <div
+              v-for="(whenCondition, condIndex) in getWhenConditions(val.when)"
+              :key="condIndex"
+            >
               <div
-                v-for="whenCondition in getWhenConditions(val.when)"
-                :key="whenCondition.condType"
+                v-if="whenCondition.cond"
+                class="grid grid-cols-3 gap-4 text-ellipsis overflow-hidden"
               >
-                <div v-if="whenCondition.cond">
-                  <div class="flex">
-                    <div class="w-1/3">
-                      <span>{{ whenCondition.condType }}</span>
+                <span class="text-ellipsis overflow-hidden">{{
+                  whenCondition.condType
+                }}</span>
+                <div class="col-span-1">
+                  <div
+                    v-for="(include, includeIndex) in whenCondition.cond
+                      .include"
+                    :key="includeIndex"
+                  >
+                    <div class="text-ellipsis overflow-hidden">
+                      {{ include.match }}
                     </div>
-                    <div class="w-1/3">
-                      <div
-                        v-for="include in whenCondition.cond.include"
-                        :key="include.match"
-                      >
-                        <div>{{ include.match }}</div>
-                      </div>
-                    </div>
-                    <div class="w-1/3">
-                      <div
-                        v-for="exclude in whenCondition.cond.exclude"
-                        :key="exclude.match"
-                      >
-                        <div>{{ exclude.match }}</div>
-                      </div>
+                  </div>
+                </div>
+                <div class="col-span-1 text-ellipsis overflow-hidden">
+                  <div
+                    v-for="(exclude, excludeIndex) in whenCondition.cond
+                      .exclude"
+                    :key="excludeIndex"
+                  >
+                    <div class="text-ellipsis overflow-hidden">
+                      {{ exclude.match }}
                     </div>
                   </div>
                 </div>
