@@ -1,6 +1,10 @@
 <template>
   <div class="panel">
-    <p class="panel-title">New Secret</p>
+    <p class="panel-title">
+      {{
+        operationType == OperationType.Create ? 'New Secret' : 'Update Secret'
+      }}
+    </p>
     <form @submit.prevent="submitForm" class="p-4">
       <div class="mt-4">
         <input
@@ -85,6 +89,7 @@
 </template>
 <script lang="ts">
 import { useAsyncState } from '@vueuse/core';
+import { OperationType } from '../app/types';
 import { computed, onUnmounted, PropType, Ref, ref, toRefs, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ApiError, errorToString, useAPI } from '../app/api';
@@ -113,7 +118,7 @@ export default {
     },
     refType: { type: String, required: true },
     refParam: { type: Array as PropType<Array<string>>, required: true },
-    operationType: { type: String, required: true },
+    operationType: { type: String as PropType<OperationType>, required: true },
     secretNameParam: { type: String },
   },
   setup(props) {
@@ -149,7 +154,7 @@ export default {
       abortFetch();
       await refreshSecrets();
 
-      if (operationType.value === 'update') {
+      if (operationType.value === OperationType.Update) {
         if (!secretNameParam.value) {
           appState.setGlobalError(new Error('empty secret name'));
           return;
@@ -226,7 +231,7 @@ export default {
         secrets.value &&
         !secrets.value.some((secret) => {
           if (
-            operationType.value == 'update' &&
+            operationType.value === OperationType.Update &&
             secretName.value == secretNameParam.value
           )
             return false;
@@ -276,7 +281,7 @@ export default {
       try {
         if (props.refType === 'project') {
           switch (operationType.value) {
-            case 'update':
+            case OperationType.Update:
               if (!secretNameParam.value) return;
               await api.updateProjectSecret(
                 apiRef.value,
@@ -285,7 +290,7 @@ export default {
                 secretName.value
               );
               break;
-            case 'create':
+            case OperationType.Create:
               await api.createProjectSecret(
                 apiRef.value,
                 secretName.value,
@@ -303,7 +308,7 @@ export default {
         }
         if (props.refType === 'projectgroup') {
           switch (operationType.value) {
-            case 'update':
+            case OperationType.Update:
               if (!secretNameParam.value) return;
               await api.updateProjectGroupSecret(
                 apiRef.value,
@@ -312,7 +317,7 @@ export default {
                 secretName.value
               );
               break;
-            case 'create':
+            case OperationType.Create:
               await api.createProjectGroupSecret(
                 apiRef.value,
                 secretName.value,
@@ -361,6 +366,8 @@ export default {
       submitForm,
       validateSecretName,
       validateSecretPairKey,
+
+      OperationType,
     };
   },
 };
