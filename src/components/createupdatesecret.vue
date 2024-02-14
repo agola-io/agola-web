@@ -7,9 +7,12 @@
     </p>
     <form @submit.prevent="submitForm" class="p-4">
       <div class="mt-4">
+        <label for="secret-name" class="block text-sm font-medium leading-6">
+          Variable Name
+        </label>
         <input
           id="secret-name"
-          class="mb-2 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+          class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           required
           placeholder="Secret name"
@@ -17,43 +20,61 @@
           @input="validateSecretName"
           data-test="secretNameInput"
         />
-        <div v-if="secretNameError" class="text-red-500">
+        <div v-if="secretNameError" class="text-red-500 text-sm">
           {{ secretNameError }}
         </div>
       </div>
 
       <div v-for="(pair, index) in secretvalues" :key="index">
         <div class="flex items-center mt-4">
-          <input
-            :id="'secret-name-input-' + index"
-            class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
-            type="text"
-            required
-            placeholder="Key"
-            v-model.trim="pair.key"
-            @input="validateSecretPairKey(index)"
-            :data-test="'secretPairKeyInput-' + index"
-          />
-          <textarea
-            :id="'secret-value-input-' + index"
-            class="ml-2 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
-            type="text"
-            rows="1"
-            placeholder="Value"
-            v-model="pair.value"
-            :data-test="'secretPairValueInput-' + index"
-          />
-          <button
-            class="btn btn-gray"
-            v-if="secretvalues.length > 1"
-            @click="removeKeyValuePair(index)"
-            :disabled="secretvalues.length === 1"
-            :data-test="'removeSecretPairButton-' + index"
-          >
-            Remove
-          </button>
+          <div class="flex flex-col">
+            <label
+              :for="'secret-name-input-' + index"
+              class="block text-sm font-medium leading-6"
+            >
+              Secret Name
+            </label>
+            <input
+              :id="'secret-name-input-' + index"
+              class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              type="text"
+              required
+              placeholder="Secret Name"
+              v-model.trim="pair.key"
+              @input="validateSecretPairKey(index)"
+              :data-test="'secretPairKeyInput-' + index"
+            />
+          </div>
+          <div class="col-span-1 flex flex-col ml-2">
+            <label
+              :for="'secret-value-input-' + index"
+              class="block text-sm font-medium leading-6"
+            >
+              Secret Value
+            </label>
+            <textarea
+              :id="'secret-value-input-' + index"
+              class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              type="text"
+              rows="1"
+              placeholder="Secret Value"
+              v-model="pair.value"
+              :data-test="'secretPairValueInput-' + index"
+            />
+          </div>
+          <div class="col-span-1 self-end ml-2">
+            <button
+              class="btn btn-gray"
+              v-if="secretvalues.length > 1"
+              @click="removeKeyValuePair(index)"
+              :disabled="secretvalues.length === 1"
+              :data-test="'removeSecretPairButton-' + index"
+            >
+              Remove
+            </button>
+          </div>
         </div>
-        <div v-if="pair.error" class="text-red-500">
+        <div v-if="pair.error" class="text-red-500 text-sm">
           {{ pair.error }}
         </div>
       </div>
