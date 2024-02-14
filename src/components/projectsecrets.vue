@@ -2,9 +2,7 @@
   <div>
     <div class="flex">
       <h5 class="text-2xl">{{ refTypetitle }} Secrets</h5>
-      <button
-        class="relative flex items-center focus:outline-none bg-green-500 hover:bg-green-600 text-white font-semibold hover:text-white py-1 px-2 ml-3 border border-green-700 rounded"
-      >
+      <button class="btn btn-green py-1 px-2 ml-3">
         <router-link class="block hover:text-white" :to="newSecretLink"
           >Add Secret</router-link
         >
