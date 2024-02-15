@@ -57,6 +57,10 @@
           v-if="variables && allVariables"
           :variables="variables"
           :allVariables="allVariables"
+          :ownertype="ownertype"
+          :ownername="ownername"
+          :projectref="projectgroupref"
+          @variable-deleted="handleVariableDeleted"
           refType="projectgroup"
         />
       </div>
@@ -203,6 +207,11 @@ export default defineComponent({
     const handleSecretDeleted = () => {
       refreshSecrets();
       refreshAllSecrets();
+    };
+
+    const handleVariableDeleted = () => {
+      refreshVariables();
+      refreshAllVariables();
     };
 
     const isRootProjectGroup = computed(() => {
@@ -452,6 +461,7 @@ export default defineComponent({
       projectGroupNameToDelete,
       Visibility,
       handleSecretDeleted,
+      handleVariableDeleted,
       updateProjectGroup,
       deleteProjectGroup,
     };

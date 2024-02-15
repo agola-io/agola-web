@@ -7,6 +7,7 @@ import createorganization from '../components/createorganization.vue';
 import createproject from '../components/createproject.vue';
 import createprojectgroup from '../components/createprojectgroup.vue';
 import createupdatesecret from '../components/createupdatesecret.vue';
+import createupdatevariable from '../components/createupdatevariable.vue';
 import orgmembers from '../components/orgmembers.vue';
 import projectgroupsettings from '../components/projectgroupsettings.vue';
 import projects from '../components/projects.vue';
@@ -293,6 +294,35 @@ const routes: Array<RouteRecordRaw> = [
           };
         },
       },
+      {
+        path: 'variables/new',
+        name: 'user project settings new variable',
+        component: createupdatevariable,
+        props: (route) => {
+          return {
+            ownertype: 'user',
+            ownername: firstEntry(route.params.username),
+            refType: 'project',
+            refParam: parseRef(firstEntry(route.params.projectref)),
+            operationType: 'create',
+          };
+        },
+      },
+      {
+        path: 'variables/update/:variableName',
+        name: 'user project settings update variable',
+        component: createupdatevariable,
+        props: (route) => {
+          return {
+            ownertype: 'user',
+            ownername: firstEntry(route.params.username),
+            refType: 'project',
+            refParam: parseRef(firstEntry(route.params.projectref)),
+            variableNameParam: firstEntry(route.params.variableName),
+            operationType: 'update',
+          };
+        },
+      },
     ],
   },
 
@@ -381,6 +411,35 @@ const routes: Array<RouteRecordRaw> = [
             refParam: parseRef(firstEntry(route.params.projectgroupref)),
             operationType: 'update',
             secretNameParam: firstEntry(route.params.secretName),
+          };
+        },
+      },
+      {
+        path: 'variables/new',
+        name: 'user projectgroup settings new variable',
+        component: createupdatevariable,
+        props: (route) => {
+          return {
+            ownertype: 'user',
+            ownername: firstEntry(route.params.username),
+            refType: 'projectgroup',
+            refParam: parseRef(firstEntry(route.params.projectgroupref)),
+            operationType: 'create',
+          };
+        },
+      },
+      {
+        path: 'variables/update/:variableName',
+        name: 'user projectgroup settings update variable',
+        component: createupdatevariable,
+        props: (route) => {
+          return {
+            ownertype: 'user',
+            ownername: firstEntry(route.params.username),
+            refType: 'projectgroup',
+            refParam: parseRef(firstEntry(route.params.projectgroupref)),
+            operationType: 'update',
+            variableNameParam: firstEntry(route.params.variableName),
           };
         },
       },
@@ -571,6 +630,34 @@ const routes: Array<RouteRecordRaw> = [
           };
         },
       },
+      {
+        path: 'variables/new',
+        name: 'org projectgroup settings new variable',
+        component: createupdatevariable,
+        props: (route) => {
+          return {
+            ownertype: 'org',
+            ownername: firstEntry(route.params.orgname),
+            refType: 'project',
+            refParam: parseRef(firstEntry(route.params.projectref)),
+            operationType: 'create',
+          };
+        },
+      },
+      {
+        path: 'variables/update/:variableName',
+        name: 'org projectgroup settings update variable',
+        component: createupdatevariable,
+        props: (route) => {
+          return {
+            ownertype: 'org',
+            ownername: firstEntry(route.params.orgname),
+            refType: 'project',
+            refParam: parseRef(firstEntry(route.params.projectref)),
+            variableNameParam: firstEntry(route.params.variableName),
+          };
+        },
+      },
     ],
   },
 
@@ -659,6 +746,35 @@ const routes: Array<RouteRecordRaw> = [
             refParam: parseRef(firstEntry(route.params.projectgroupref)),
             operationType: 'update',
             secretNameParam: firstEntry(route.params.secretName),
+          };
+        },
+      },
+      {
+        path: 'variables/new',
+        name: 'org projectgroup settings new variable',
+        component: createupdatevariable,
+        props: (route) => {
+          return {
+            ownertype: 'org',
+            ownername: firstEntry(route.params.orgname),
+            refType: 'projectgroup',
+            refParam: parseRef(firstEntry(route.params.projectgroupref)),
+            operationType: 'create',
+          };
+        },
+      },
+      {
+        path: 'variables/update/:variableName',
+        name: 'org projectgroup settings update variable',
+        component: createupdatevariable,
+        props: (route) => {
+          return {
+            ownertype: 'org',
+            ownername: firstEntry(route.params.orgname),
+            refType: 'projectgroup',
+            refParam: parseRef(firstEntry(route.params.projectgroupref)),
+            operationType: 'update',
+            variableNameParam: firstEntry(route.params.variableName),
           };
         },
       },

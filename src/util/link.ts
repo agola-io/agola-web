@@ -275,6 +275,44 @@ export function projectGroupUpdateSecretLink(
   return { path: `${path}/secrets/update/${secretName}` };
 }
 
+export function projectNewVariableLink(
+  ownertype: string,
+  ownername: string,
+  projectref: string[]
+): RouteLocationRaw {
+  const path = projectPath(ownertype, ownername, projectref);
+  return { path: `${path}/variables/new` };
+}
+
+export function projectUpdateVariableLink(
+  ownertype: string,
+  ownername: string,
+  projectref: string[],
+  variableName?: string
+): RouteLocationRaw {
+  const path = projectPath(ownertype, ownername, projectref);
+  return { path: `${path}/variables/update/${variableName}` };
+}
+
+export function projectGroupNewVariableLink(
+  ownertype: string,
+  ownername: string,
+  projectgroupref: string[]
+): RouteLocationRaw {
+  const path = projectGroupPath(ownertype, ownername, projectgroupref);
+  return { path: `${path}/variables/new` };
+}
+
+export function projectGroupUpdateVariableLink(
+  ownertype: string,
+  ownername: string,
+  projectgroupref: string[],
+  variableName?: string
+): RouteLocationRaw {
+  const path = projectGroupPath(ownertype, ownername, projectgroupref);
+  return { path: `${path}/variables/update/${variableName}` };
+}
+
 export function projectGroupCreateProjectGroupLink(
   ownertype: string,
   ownername: string,

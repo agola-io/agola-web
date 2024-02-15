@@ -84,6 +84,10 @@
           v-if="variables && allVariables"
           :variables="variables"
           :allVariables="allVariables"
+          :ownertype="ownertype"
+          :ownername="ownername"
+          :projectref="projectref"
+          @variable-deleted="handleVariableDeleted"
           refType="project"
         />
       </div>
@@ -256,6 +260,11 @@ export default defineComponent({
     const handleSecretDeleted = () => {
       refreshSecrets();
       refreshAllSecrets();
+    };
+
+    const handleVariableDeleted = () => {
+      refreshVariables();
+      refreshAllVariables();
     };
 
     const updateProject = async () => {
@@ -512,6 +521,7 @@ export default defineComponent({
       membersCanPerformRunActions,
 
       handleSecretDeleted,
+      handleVariableDeleted,
       updateProject,
       deleteProject,
       updateRepoLinkedAccount,
