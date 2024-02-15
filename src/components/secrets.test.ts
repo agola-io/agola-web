@@ -72,6 +72,6 @@ test('should open the confirmation dialog and delete the secret', async () => {
   confirmButton.trigger('click');
 
   await flushPromises();
-  const deleteSecretEvent = wrapper.emitted('secret-removed');
+  const deleteSecretEvent = wrapper.emitted('secret-deleted');
   expect(deleteSecretEvent).toBeTruthy();
 });

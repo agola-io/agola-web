@@ -22,7 +22,7 @@
           <button
             type="button"
             class="bg-transparent group-hover:bg-blue-100 transition duration-300 ease-in-out"
-            @click="openDialog(secret)"
+            @click="openDeleteSecretDialog(secret)"
             :data-test="'deleteSecretButton-' + index"
           >
             <span class="mdi mdi-delete"></span>
@@ -30,7 +30,7 @@
           <button
             type="button"
             class="bg-transparent group-hover:bg-blue-100 transition duration-300 ease-in-out"
-            @click="updateSecret(secret.name)"
+            @click="gotoSecretUpdate(secret.name)"
             :data-test="'updateSecretButton-' + index"
           >
             <span class="mdi mdi-pencil"></span>
@@ -41,12 +41,12 @@
   </div>
 
   <confirmationDialog
-    v-if="showDialog"
-    :show="showDialog"
-    @result="handleResult"
+    v-if="showDeleteSecretDialog"
+    :show="showDeleteSecretDialog"
+    @result="handleDeleteSecretDialogResult"
   >
-    <template v-slot:title> Delete secret</template>
-    <template v-slot:body> {{ modalDescription }}</template>
+    <template v-slot:title>Delete secret</template>
+    <template v-slot:body>{{ modalDescription }}</template>
   </confirmationDialog>
 </template>
 
@@ -64,6 +64,7 @@ import confirmationDialog from './modals/confirmationDialog.vue';
 export default defineComponent({
   components: { confirmationDialog },
   name: 'secrets',
+  emits: ['secret-deleted'],
   props: {
     secrets: {
       type: Array as PropType<Array<SecretResponse>>,
@@ -87,7 +88,7 @@ export default defineComponent({
     const appState = useAppState();
     const router = useRouter();
     const confirmationMessage = ref('');
-    const showDialog = ref(false);
+    const showDeleteSecretDialog = ref(false);
     const secretNameToDelete = ref<SecretResponse>({
       id: '',
       name: '',
@@ -111,24 +112,24 @@ export default defineComponent({
         '${secretNameToDelete.value.name}'?`;
     });
 
-    async function handleResult(value: boolean) {
-      showDialog.value = false;
+    const handleDeleteSecretDialogResult = async (value: boolean) => {
+      showDeleteSecretDialog.value = false;
       if (value) {
-        await removeSecret(secretNameToDelete.value);
-        emit('secret-removed');
+        await deleteSecret(secretNameToDelete.value);
+        emit('secret-deleted', secretNameToDelete.value);
       }
-    }
+    };
 
-    const openDialog = (secretToDelete: SecretResponse) => {
-      showDialog.value = true;
+    const openDeleteSecretDialog = (secretToDelete: SecretResponse) => {
+      showDeleteSecretDialog.value = true;
       secretNameToDelete.value = secretToDelete;
     };
 
-    const closeDialog = () => {
-      showDialog.value = false;
+    const closeDeleteSecretDialog = () => {
+      showDeleteSecretDialog.value = false;
     };
 
-    const removeSecret = async (secretNameToDelete: SecretResponse) => {
+    const deleteSecret = async (secretNameToDelete: SecretResponse) => {
       try {
         if (refType.value === 'project') {
           await api.deleteProjectSecret(secretNameToDelete.name, apiRef.value);
@@ -138,7 +139,6 @@ export default defineComponent({
             apiRef.value
           );
         }
-        emit('delete-secret', secretNameToDelete);
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;
@@ -147,7 +147,7 @@ export default defineComponent({
       }
     };
 
-    const updateSecret = (secretToUpdate: string) => {
+    const gotoSecretUpdate = (secretToUpdate: string) => {
       if (refType.value == 'project')
         router.push(
           projectUpdateSecretLink(
@@ -171,13 +171,13 @@ export default defineComponent({
     return {
       deleteSecretError: computed(() => errorToString(deleteSecretError.value)),
       modalDescription,
-      showDialog,
+      showDeleteSecretDialog,
       confirmationMessage,
 
-      updateSecret,
-      openDialog,
-      closeDialog,
-      handleResult,
+      gotoSecretUpdate,
+      openDeleteSecretDialog,
+      closeDeleteSecretDialog,
+      handleDeleteSecretDialogResult,
     };
   },
 });

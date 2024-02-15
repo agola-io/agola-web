@@ -72,7 +72,7 @@
           :ownername="ownername"
           :projectref="projectref"
           refType="project"
-          @delete-secret="handleDeleteSecret"
+          @secret-deleted="handleSecretDeleted"
         />
       </div>
     </div>
@@ -253,6 +253,11 @@ export default defineComponent({
       updateRepoLinkedAccountError.value = undefined;
     };
 
+    const handleSecretDeleted = () => {
+      refreshSecrets();
+      refreshAllSecrets();
+    };
+
     const updateProject = async () => {
       if (!project.value) return;
 
@@ -340,11 +345,6 @@ export default defineComponent({
       undefined,
       { immediate: false, shallow: false }
     );
-
-    const handleDeleteSecret = () => {
-      refreshSecrets();
-      refreshAllSecrets();
-    };
 
     const fetchSecrets = async () => {
       try {
@@ -511,7 +511,7 @@ export default defineComponent({
       Visibility,
       membersCanPerformRunActions,
 
-      handleDeleteSecret,
+      handleSecretDeleted,
       updateProject,
       deleteProject,
       updateRepoLinkedAccount,
