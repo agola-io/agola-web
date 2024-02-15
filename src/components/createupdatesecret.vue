@@ -8,7 +8,7 @@
     <form @submit.prevent="submitForm" class="p-4">
       <div class="mt-4">
         <label for="secret-name" class="block text-sm font-medium leading-6">
-          Variable Name
+          Secret Name
         </label>
         <input
           id="secret-name"
@@ -32,14 +32,14 @@
               :for="'secret-name-input-' + index"
               class="block text-sm font-medium leading-6"
             >
-              Secret Name
+              Key
             </label>
             <input
               :id="'secret-name-input-' + index"
               class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               required
-              placeholder="Secret Name"
+              placeholder="Key"
               v-model.trim="pair.key"
               @input="validateSecretPairKey(index)"
               :data-test="'secretPairKeyInput-' + index"
@@ -50,14 +50,14 @@
               :for="'secret-value-input-' + index"
               class="block text-sm font-medium leading-6"
             >
-              Secret Value
+              Value
             </label>
             <textarea
               :id="'secret-value-input-' + index"
               class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               rows="1"
-              placeholder="Secret Value"
+              placeholder="Value"
               v-model="pair.value"
               :data-test="'secretPairValueInput-' + index"
             />
