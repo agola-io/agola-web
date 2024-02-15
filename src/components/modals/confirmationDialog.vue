@@ -1,5 +1,5 @@
 <template>
-  <baseModal :show="show" @dismiss="emitResult(false)">
+  <baseModal @dismiss="emitResult(false)">
     <slot>
       <div class="p-4">
         <div class="p-4 text-lg font-bold text-gray-800">

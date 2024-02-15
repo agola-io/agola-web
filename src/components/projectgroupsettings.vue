@@ -44,7 +44,7 @@
           :ownertype="ownertype"
           :ownername="ownername"
           :projectref="projectgroupref"
-          @delete-secret="handleDeleteSecret"
+          @secret-deleted="handleSecretDeleted"
           refType="projectgroup"
         />
       </div>
@@ -200,7 +200,7 @@ export default defineComponent({
       deleteProjectGroupError.value = undefined;
     };
 
-    const handleDeleteSecret = () => {
+    const handleSecretDeleted = () => {
       refreshSecrets();
       refreshAllSecrets();
     };
@@ -451,7 +451,7 @@ export default defineComponent({
       projectGroupIsPrivate,
       projectGroupNameToDelete,
       Visibility,
-      handleDeleteSecret,
+      handleSecretDeleted,
       updateProjectGroup,
       deleteProjectGroup,
     };
