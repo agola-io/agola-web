@@ -275,6 +275,48 @@ export interface API {
     signal?: AbortSignal
   ): Promise<VariableResponse[]>;
 
+  createProjectGroupVariable(
+    projectgroupref: string,
+    variablename: string,
+    variablevalues: VariableValueRequest[],
+    signal?: AbortSignal
+  ): Promise<VariableResponse>;
+
+  createProjectVariable(
+    projectref: string,
+    variablename: string,
+    variablevalues: VariableValueRequest[],
+    signal?: AbortSignal
+  ): Promise<VariableResponse>;
+
+  updateProjectGroupVariable(
+    projectgroupref: string,
+    variablename: string,
+    variablevalues: VariableValueRequest[],
+    newVariableName: string,
+    signal?: AbortSignal
+  ): Promise<VariableResponse>;
+
+  updateProjectVariable(
+    projectref: string,
+    variablename: string,
+    variablevalues: VariableValueRequest[],
+    newVariableName: string,
+    signal?: AbortSignal
+  ): Promise<VariableResponse>;
+
+  deleteProjectGroupVariable(
+    variablename: string,
+    projecgrouptref: string,
+    signal?: AbortSignal
+  ): Promise<void>;
+
+  deleteProjectVariable(
+    variablename: string,
+    projectref: string,
+    signal?: AbortSignal
+  ): Promise<void>;
+
   projectUpdateRepoLinkedAccount(
     projectref: string,
     signal?: AbortSignal
@@ -1309,6 +1351,164 @@ export function newAPI(): API {
     return variables;
   }
 
+  async function createProjectVariable(
+    projectref: string,
+    variablename: string,
+    variableValues: VariableValueRequest[],
+    signal?: AbortSignal
+  ): Promise<VariableResponse> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projects/' + encodeURIComponent(projectref) + '/variables';
+
+    const req = new CreateVariableRequest();
+    req.name = variablename;
+    req.values = variableValues;
+
+    const init = {
+      method: 'POST',
+      body: TypedJSON.stringify(req, CreateVariableRequest),
+      signal,
+    };
+
+    const res = await fetch(apiURL.toString(), init);
+
+    const variable = TypedJSON.parse(await res.text(), VariableResponse);
+    if (!variable) throw new ApiError();
+
+    return variable;
+  }
+
+  async function createProjectGroupVariable(
+    projectgroupref: string,
+    variablename: string,
+    variableValues: VariableValueRequest[],
+    signal?: AbortSignal
+  ): Promise<VariableResponse> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projectgroups/' + encodeURIComponent(projectgroupref) + '/variables';
+
+    const req = new CreateVariableRequest();
+    req.name = variablename;
+    req.values = variableValues;
+
+    const init = {
+      method: 'POST',
+      body: TypedJSON.stringify(req, CreateVariableRequest),
+      signal,
+    };
+
+    const res = await fetch(apiURL.toString(), init);
+
+    const variable = TypedJSON.parse(await res.text(), VariableResponse);
+    if (!variable) throw new ApiError();
+
+    return variable;
+  }
+
+  async function updateProjectVariable(
+    projectref: string,
+    variablename: string,
+    variableValues: VariableValueRequest[],
+    newVariableName: string,
+    signal?: AbortSignal
+  ): Promise<VariableResponse> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projects/' +
+      encodeURIComponent(projectref) +
+      '/variables/' +
+      variablename;
+
+    const req = new UpdateVariableRequest();
+    req.name = newVariableName;
+    req.values = variableValues;
+
+    const init = {
+      method: 'PUT',
+      body: TypedJSON.stringify(req, UpdateVariableRequest),
+      signal,
+    };
+
+    const res = await fetch(apiURL.toString(), init);
+
+    const variable = TypedJSON.parse(await res.text(), VariableResponse);
+    if (!variable) throw new ApiError();
+
+    return variable;
+  }
+
+  async function updateProjectGroupVariable(
+    projectgroupref: string,
+    variablename: string,
+    variableValues: VariableValueRequest[],
+    newVariableName: string,
+    signal?: AbortSignal
+  ): Promise<VariableResponse> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projectgroups/' +
+      encodeURIComponent(projectgroupref) +
+      '/variables/' +
+      variablename;
+
+    const req = new UpdateVariableRequest();
+    req.name = newVariableName;
+    req.values = variableValues;
+
+    const init = {
+      method: 'PUT',
+      body: TypedJSON.stringify(req, UpdateVariableRequest),
+      signal,
+    };
+
+    const res = await fetch(apiURL.toString(), init);
+
+    const variable = TypedJSON.parse(await res.text(), VariableResponse);
+    if (!variable) throw new ApiError();
+
+    return variable;
+  }
+
+  async function deleteProjectGroupVariable(
+    variablename: string,
+    projectgroupref: string,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projectgroups/' +
+      encodeURIComponent(projectgroupref) +
+      '/variables/' +
+      variablename;
+    const init = {
+      method: 'DELETE',
+      signal,
+    };
+
+    await fetch(apiURL.toString(), init);
+  }
+
+  async function deleteProjectVariable(
+    variablename: string,
+    projectref: string,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const apiURL = baseURL();
+    apiURL.pathname +=
+      '/projects/' +
+      encodeURIComponent(projectref) +
+      '/variables/' +
+      variablename;
+    const init = {
+      method: 'DELETE',
+      signal,
+    };
+
+    await fetch(apiURL.toString(), init);
+  }
+
   async function getRun(
     rungrouptype: string,
     rungroupref: string,
@@ -1543,6 +1743,12 @@ export function newAPI(): API {
     deleteProjectGroupSecret,
     deleteProjectSecret,
     getVariables,
+    createProjectGroupVariable,
+    createProjectVariable,
+    updateProjectGroupVariable,
+    updateProjectVariable,
+    deleteProjectGroupVariable,
+    deleteProjectVariable,
     getRun,
     getRuns,
     restartRun,
@@ -1937,7 +2143,37 @@ export class VariableValue {
   matchingSecretParentPath!: string;
 
   @jsonMember(When)
-  when!: When;
+  when?: When;
+}
+
+@jsonObject
+export class VariableValueRequest {
+  @jsonMember(String, { name: 'secret_name' })
+  secretName!: string;
+
+  @jsonMember(String, { name: 'secret_var' })
+  secretVar!: string;
+
+  @jsonMember(When)
+  when?: When;
+}
+
+@jsonObject
+export class CreateVariableRequest {
+  @jsonMember(String)
+  name!: string;
+
+  @jsonArrayMember(VariableValue)
+  values: VariableValueRequest[] = [];
+}
+
+@jsonObject
+export class UpdateVariableRequest {
+  @jsonMember(String)
+  name!: string;
+
+  @jsonArrayMember(VariableValue)
+  values: VariableValueRequest[] = [];
 }
 
 @jsonObject
