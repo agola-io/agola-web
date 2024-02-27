@@ -13,6 +13,8 @@ export default defineConfig({
   resolve: { dedupe: ['vue'] },
   test: {
     globals: true,
+    // try to prevent issue https://github.com/vitest-dev/vitest/issues/3077
+    pool: 'forks',
     environment: 'jsdom',
     setupFiles: ['./tests/setup-router-mock.ts'],
   },
