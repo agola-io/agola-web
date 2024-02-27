@@ -1,4 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils';
+import { OperationType } from '../app/types';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll } from 'vitest';
@@ -430,7 +431,7 @@ test('reset component in create mode on prop change to update mode', async () =>
   await wrapper.setProps({
     ownertype: 'org',
     ownername: 'org02',
-    operationType: 'update',
+    operationType: OperationType.Update,
     variableNameParam: 'org02variable01',
   });
 
@@ -502,7 +503,7 @@ test('reset component in update mode on prop change to create mode', async () =>
   await wrapper.setProps({
     ownertype: 'org',
     ownername: 'org02',
-    operationType: 'create',
+    operationType: OperationType.Create,
     variableNameParam: '',
   });
 

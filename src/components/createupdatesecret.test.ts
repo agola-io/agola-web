@@ -4,6 +4,7 @@ import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll } from 'vitest';
 import { APIInjectionKey, newAPI } from '../app/api';
 import { AppStateInjectionKey, newAppState } from '../app/appstate';
+import { OperationType } from '../app/types';
 import createupdatesecret from './createupdatesecret.vue';
 
 const server = setupServer();
@@ -376,7 +377,7 @@ test('reset component in create mode on prop change to update mode', async () =>
   await wrapper.setProps({
     ownertype: 'org',
     ownername: 'org02',
-    operationType: 'update',
+    operationType: OperationType.Update,
     secretNameParam: 'org02secret01',
   });
 
@@ -438,7 +439,7 @@ test('reset component in update mode on prop change to create mode', async () =>
   await wrapper.setProps({
     ownertype: 'org',
     ownername: 'org02',
-    operationType: 'create',
+    operationType: OperationType.Create,
     secretNameParam: '',
   });
   await flushPromises();
