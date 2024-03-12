@@ -2050,6 +2050,9 @@ export class ProjectGroupResponse {
 
   @jsonMember(String, { name: 'global_visibility' })
   globalVisibility!: Visibility;
+
+  @jsonMember(Boolean, { name: 'isfavourite' })
+  isfavourite? = false;
 }
 
 @jsonObject
@@ -2077,6 +2080,9 @@ export class ProjectResponse {
 
   @jsonMember(Boolean, { name: 'members_can_perform_run_actions' })
   membersCanPerformRunActions = false;
+
+  @jsonMember(Boolean, { name: 'isfavourite' })
+  isfavourite? = false;
 }
 
 export enum SecretType {
