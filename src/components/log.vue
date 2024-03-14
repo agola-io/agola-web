@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import AnsiUp from 'ansi_up';
+import { AnsiUp } from 'ansi_up';
 import {
   computed,
   defineComponent,

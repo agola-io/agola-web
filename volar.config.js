@@ -1,10 +1,17 @@
-/** @type {import('@volar-plugins/prettier')} */
-const { volarPrettierPlugin } = require('@volar-plugins/prettier');
-
 module.exports = {
-  plugins: [
-    volarPrettierPlugin({
-      languages: ['html', 'css', 'scss', 'typescript', 'javascript'],
-    }),
+  services: [
+    require('volar-service-prettier').default(
+      {
+        languages: ['html', 'css', 'scss', 'typescript', 'javascript'],
+        html: {
+          breakContentsFromTags: true,
+        },
+        ignoreIdeOptions: true,
+      },
+      // provide your prettier options, otherwise auto resolve config file by plugin
+      () => ({
+        // ...
+      })
+    ),
   ],
 };
