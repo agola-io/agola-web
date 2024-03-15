@@ -133,11 +133,16 @@
                 </div>
               </div>
               <div
-                v-if="variableValue.when && variableValue.when[whenType] && variableValue.when[whenType]![whenConditionsType]"
+                v-if="
+                  variableValue.when &&
+                  variableValue.when[whenType] &&
+                  variableValue.when[whenType]![whenConditionsType]
+                "
               >
                 <div class="flex flex-col">
                   <div
-                    v-for="(whenCondition, whenConditionIndex) in variableValue.when[whenType]![whenConditionsType]"
+                    v-for="(whenCondition, whenConditionIndex) in variableValue
+                      .when[whenType]![whenConditionsType]"
                     :key="whenConditionIndex"
                     class="grid gap-x-8 gap-y-4 grid-cols-3 my-2 space-between"
                     :data-test="`whenCondition-${variableIndex}_${whenType}_${whenConditionsType}_${whenConditionIndex}`"
