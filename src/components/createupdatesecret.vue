@@ -352,7 +352,7 @@ export default {
         }
       } catch (e) {
         if (e instanceof APIAbortedError) return;
-        createSecretError.value = errorToString(e);
+        createSecretError.value = e;
       }
     };
 
@@ -374,7 +374,7 @@ export default {
       secretvalues,
       secretNameError,
       isSaveButtonDisabled,
-      createSecretError,
+      createSecretError: computed(() => errorToString(createSecretError.value)),
 
       addKeyValuePair,
       removeKeyValuePair,

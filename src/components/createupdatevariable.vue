@@ -573,7 +573,7 @@ export default {
         }
       } catch (e) {
         if (e instanceof APIAbortedError) return;
-        createVariableError.value = errorToString(e);
+        createVariableError.value = e;
       }
     };
 
@@ -660,7 +660,9 @@ export default {
     return {
       variableName,
       variableNameError,
-      createVariableError,
+      createVariableError: computed(() =>
+        errorToString(createVariableError.value)
+      ),
       isSaveButtonDisabled,
 
       validateVariableName,

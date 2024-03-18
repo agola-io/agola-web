@@ -15,15 +15,20 @@ export const GITHUB_API_URL = 'https://api.github.com';
 export const GITHUB_SSH_KEY =
   'github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=';
 
+export interface APIDetailedError {
+  code: string;
+  details: unknown;
+}
+
 export class APIError extends Error {
   httpStatus?: number;
-  code: string;
+  detailedErrors: APIDetailedError[];
 
-  constructor(httpStatus?: number, code?: string) {
+  constructor(httpStatus?: number, detailedErrors?: APIDetailedError[]) {
     super('api error');
     this.name = 'APIError';
     this.httpStatus = httpStatus;
-    this.code = code || 'generic';
+    this.detailedErrors = detailedErrors || [];
   }
 }
 
@@ -37,19 +42,180 @@ export class APIAbortedError extends Error {
 export function errorToString(e?: unknown): string | undefined {
   if (!e) return;
 
-  if (e instanceof APIError) return apiErrorToString(e);
+  if (e instanceof APIError) return apiDetailedErrorsToString(e);
 
   if (e instanceof Error) return e.message;
 
   return 'An error occurred';
 }
 
-function apiErrorToString(e: APIError): string {
-  switch (e.code) {
-    case 'generic':
-      return 'An error occurred';
+function apiDetailedErrorsToString(e: APIError): string {
+  const errorStrings: string[] = [];
+
+  if (e.httpStatus && e.httpStatus / 100 == 5) {
+    return 'An internal server error occurred';
+  }
+
+  if (e.detailedErrors.length == 0) {
+    return 'An error occurred';
+  }
+
+  for (const detailedError of e.detailedErrors) {
+    errorStrings.push(apiDetailedErrorToString(detailedError));
+  }
+
+  return errorStrings.join(', ');
+}
+
+function apiDetailedErrorToString(detailedError: APIDetailedError): string {
+  switch (detailedError.code) {
+    case 'invalidStartSequence':
+      return 'Invalid start sequence';
+    case 'invalidLimit':
+      return 'Invalid limit';
+    case 'invalidSortDirection':
+      return 'Invalid sort direction';
+    case 'invalidVisibility':
+      return 'Invalid visibility';
+    case 'invalidRole':
+      return 'Invalid role';
+    case 'userDoesNotExist':
+      return 'User does not exist';
+    case 'userAlreadyExists':
+      return 'User already exists';
+    case 'invalidUserName':
+      return 'Invalid username';
+
+    case 'userTokenDoesNotExist':
+      return 'User token does not exist';
+    case 'userTokenAlreadyExists':
+      return 'User token already exists';
+
+    case 'parentProjectGroupDoesNotExist':
+      return 'Parent project does not exist';
+
+    case 'projectGroupDoesNotExist':
+      return 'Project group does not exist';
+    case 'projectGroupAlreadyExists':
+      return 'Project group already exists';
+    case 'invalidProjectGroupName':
+      return 'Invalid project group name';
+
+    case 'projectDoesNotExist':
+      return 'Project does not exist';
+    case 'projectAlreadyExists':
+      return 'Project already exists';
+    case 'invalidProjectName':
+      return 'Invalid project name';
+    case 'cannotSetMembersCanPerformRunActionsOnUserProject':
+      return 'Cannot set "members can perform run actions" on a user project';
+
+    case 'remoteSourceDoesNotExist':
+      return 'Remote source does not exist';
+    case 'remoteSourceAlreadyExists':
+      return 'Remote source already exists';
+    case 'invalidRemoteSourceName':
+      return 'Invalid remote source name';
+    case 'invalidRemoteSourceType':
+      return 'Invalid remote source type';
+    case 'invalidRemoteSourceAuthType':
+      return 'Invalid remote source auth type';
+    case 'invalidRemoteSourceAPIURL':
+      return 'Invalid remote source API URL';
+    case 'invalidOauth2ClientID':
+      return 'Invalid oauth2 client id';
+    case 'invalidOauth2ClientSecret':
+      return 'Invalid oauth2 client secret';
+
+    case 'linkedAccountDoesNotExist':
+      return 'Linked account does not exist';
+    case 'linkedAccountAlreadyExists':
+      return 'Linked account already exists';
+
+    case 'invalidRepoPath':
+      return 'Invalid repository path';
+
+    case 'secretDoesNotExist':
+      return 'Secret does not exist';
+    case 'secretAlreadyExists':
+      return 'Secret already exists';
+    case 'invalidSecretName':
+      return 'Invalid secret name';
+    case 'invalidSecretType':
+      return 'Invalid secret type';
+    case 'invalidSecretData':
+      return 'Invalid secret data';
+
+    case 'variableDoesNotExist':
+      return 'Variable does not exist';
+    case 'variableAlreadyExists':
+      return 'Variable already exists';
+    case 'invalidVariableName':
+      return 'Invalid variable name';
+    case 'invalidVariableValues':
+      return 'Invalid variable values';
+
+    case 'creatorUserDoesNotExist':
+      return 'Creator user does not exist';
+
+    case 'organizationDoesNotExist':
+      return 'Organization does not exist';
+    case 'organizationAlreadyExists':
+      return 'Organization already exists';
+    case 'invalidOrganizationName':
+      return 'Invalid organization name';
+
+    case 'orgMemberDoesNotExist':
+      return 'Organization member does not exist';
+
+    case 'invitationDoesNotExist':
+      return 'Invitation does not exist';
+    case 'invitationAlreadyExists':
+      return 'Invitation already exists';
+
+    case 'cannotAddUserToOrganization':
+      return 'Cannot add use to organization';
+    case 'cannotCreateInvitation':
+      return 'Cannot create invitation';
+
+    case 'invalidRunGroup':
+      return 'Invalid run group';
+    case 'invalidRunNumber':
+      return 'Invalid run number';
+    case 'invalidRunTaskStepNumber':
+      return 'Invalid run task step number';
+    case 'runDoesNotExist':
+      return 'Run does not exist';
+    case 'runTaskDoesNotExist':
+      return 'Run task does not exist';
+    case 'runTaskStepDoesNotExist':
+      return 'Run task step does not exist';
+    case 'runCannotBeRestarted':
+      return 'Run cannot be restarted';
+    case 'runTaskNotWaitingApproval':
+      return 'Run task not waiting for approval';
+    case 'runTaskAlreadyApproved':
+      return 'Run task already approved';
+
+    case 'invalidDeliveryStatus':
+      return 'invalid delivery status';
+
+    case 'commitStatusDoesNotExist':
+      return 'Commit status does not exist';
+    case 'commitStatusDeliveryDoesNotExist':
+      return 'Commit status delivery does not exist';
+    case 'commitStatusDeliveryAlreadyInProgress':
+      return 'Delivery of commit status already in progress';
+
+    case 'runWebhookDoesNotExist':
+      return 'Run webhook does not exist';
+    case 'runWebhookDeliveryDoesNotExist':
+      return 'Run webhook delivery does not exist';
+    case 'runWebhookDeliveryAlreadyInProgress':
+      return 'Delivery of run webhook already in progress';
 
     default:
+      if (detailedError.code) return detailedError.code;
       return 'An error occurred';
   }
 }
@@ -397,19 +563,19 @@ export function newAPI(): API {
         if (auth) {
           auth.logout({ goToLogin: true });
         }
-        throw new APIError(res.status, 'unauthorized');
-      }
-
-      let errorMessage;
-      try {
-        errorMessage = JSON.parse(await res.text());
-      } catch (e) {
-        // not a json response
         throw new APIError(res.status);
       }
 
-      if (errorMessage.code) {
-        throw new APIError(res.status, errorMessage.code);
+      let detailedErrors;
+      try {
+        detailedErrors = JSON.parse(await res.text());
+      } catch (e) {
+        // not a json response
+        throw new APIError(res.status, detailedErrors);
+      }
+
+      if (detailedErrors) {
+        throw new APIError(res.status, detailedErrors);
       }
       throw new APIError(res.status);
     }
