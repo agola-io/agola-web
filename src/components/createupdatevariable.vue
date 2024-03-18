@@ -251,7 +251,7 @@ import {
 import { useAppState } from '../app/appstate';
 import { OperationType } from '../app/types';
 import { projectGroupSettingsLink, projectSettingsLink } from '../util/link';
-import { isValid } from '../util/validator';
+import { isValid, isValidName } from '../util/validator';
 
 interface VariableValue {
   secretName: string;
@@ -319,8 +319,6 @@ export default {
     const variableNameError: Ref<string | undefined> = ref();
 
     const createVariableError: Ref<unknown | undefined> = ref();
-    const variableNameRegExp = /^[a-zA-Z][a-zA-Z0-9]*([-]?[a-zA-Z0-9]+)+$/;
-    const regexMatchErrorMessage = ref('');
     let fetchAbort = new AbortController();
 
     onUnmounted(() => {
@@ -415,8 +413,8 @@ export default {
 
       if (!variableName.value) {
         return 'Variable name is required';
-      } else if (!variableNameRegExp.test(variableName.value)) {
-        return 'Variable name cannot contain special chars or spaces';
+      } else if (!isValidName(variableName.value)) {
+        return 'Variable name can only contain alphanumeric ASCII chars and optionally some single hypens in the middle';
       } else if (!varNameUnique) {
         return 'Variable with the specified name already exists';
       }
@@ -429,7 +427,7 @@ export default {
     const variableSecretNameValidator = (variable: VariableValue) => {
       if (!variable.secretName) {
         return 'Secret name is required.';
-      } else if (!variableNameRegExp.test(variable.secretName)) {
+      } else if (!isValidName(variable.secretName)) {
         return 'Secret name cannot contain special chars or spaces';
       }
     };
@@ -666,7 +664,6 @@ export default {
     return {
       variableName,
       variableNameError,
-      regexMatchErrorMessage,
       createVariableError,
       isSaveButtonDisabled,
 

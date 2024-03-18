@@ -36,6 +36,7 @@
     "tslib": "^2.6.2",
     "typedjson": "^1.8.0",
     "universal-cookie": "^7.1.0",
+    "uuidjs": "^5.0.1",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },

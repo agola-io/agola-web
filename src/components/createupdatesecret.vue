@@ -116,15 +116,13 @@ import { useRouter } from 'vue-router';
 import { ApiError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { projectGroupSettingsLink, projectSettingsLink } from '../util/link';
-import { isValid } from '../util/validator';
+import { isValid, isValidName } from '../util/validator';
 
 interface SecretValues {
   key: string;
   value: string;
   error: string | undefined;
 }
-
-const secretNameRegExp = /^[a-zA-Z][a-zA-Z0-9]*([-]?[a-zA-Z0-9]+)+$/;
 
 export default {
   name: 'createupdatesecret',
@@ -262,8 +260,8 @@ export default {
 
       if (!secretName.value) {
         return 'Secret name is required';
-      } else if (!secretNameRegExp.test(secretName.value)) {
-        return 'Secret name cannot contain special chars or spaces';
+      } else if (!isValidName(secretName.value)) {
+        return 'Secret name can only contain alphanumeric ASCII chars and optionally some single hypens in the middle';
       } else if (!secretNameUnique) {
         return 'Secret with the specified name already exists';
       }
