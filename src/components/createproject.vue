@@ -6,9 +6,13 @@
       class="mb-4 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
       type="text"
       placeholder="Project Name"
-      v-model="projectName"
+      v-model.trim="projectName"
+      @input="validateProjectName"
       data-test="projectName"
     />
+    <div v-if="projectNameError" class="text-red-500 text-sm">
+      {{ projectNameError }}
+    </div>
     <div class="mb-4">
       <label>
         <input
@@ -78,8 +82,11 @@
       <button
         type="button"
         class="btn btn-blue"
-        :class="{ spinner: createProjectLoading }"
-        :disabled="!createProjectButtonEnabled"
+        :class="{
+          'opacity-50 cursor-not-allowed': isSaveButtonDisabled,
+          spinner: createProjectLoading,
+        }"
+        :disabled="isSaveButtonDisabled"
         @click="createProject()"
         data-test="createProjectButton"
       >
@@ -98,7 +105,6 @@
 
 <script lang="ts">
 import { useAsyncState } from '@vueuse/core';
-import { getAllRemoteSources } from '../util/remotesource';
 import {
   computed,
   defineComponent,
@@ -114,6 +120,8 @@ import { ApiError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import remoterepos from '../components/remoterepos.vue';
 import { projectLink } from '../util/link';
+import { getAllRemoteSources } from '../util/remotesource';
+import { isValid, isValidName } from '../util/validator';
 
 export default defineComponent({
   components: { remoterepos },
@@ -144,6 +152,8 @@ export default defineComponent({
     const projectIsPrivate = ref(false);
     const passVarsToForkedPR = ref(false);
 
+    const projectNameError: Ref<string | undefined> = ref();
+
     const createProjectError: Ref<unknown | undefined> = ref();
 
     const createProjectLoading = ref(false);
@@ -162,65 +172,37 @@ export default defineComponent({
     const update = async () => {
       abortFetch();
 
-      refreshRemoteSources();
+      await refreshRemoteSources();
+      await refreshProjects();
     };
 
-    const resetErrors = () => {
-      createProjectError.value = undefined;
-    };
+    const apiParentProjectGroupRef = computed(() => {
+      return [ownertype.value, ownername.value, ...projectgroupref.value].join(
+        '/'
+      );
+    });
 
-    const createProject = async () => {
-      if (remoteSources.value == undefined) return;
-      if (selectedRemoteSourceIndex.value == undefined) return;
-      if (!remoteRepoPath.value) return;
-
-      createProjectLoading.value = true;
-      resetErrors();
-
-      let refArray = [ownertype.value, ownername.value];
-      if (projectgroupref.value) {
-        refArray = [...refArray, ...projectgroupref.value];
-      }
-      const parentref = refArray.join('/');
-
-      let visibility = 'public';
-      if (projectIsPrivate.value) {
-        visibility = 'private';
-      }
-
-      const remoteSource = remoteSources.value[selectedRemoteSourceIndex.value];
-
+    const fetchProjects = async () => {
       try {
-        await api.createProject(
-          parentref,
-          projectName.value,
-          visibility,
-          remoteSource.name,
-          remoteRepoPath.value,
-          passVarsToForkedPR.value,
-          membersCanPerformRunActions.value
-        );
-
-        let newProjectref = [projectName.value];
-        if (projectgroupref.value) {
-          newProjectref = projectgroupref.value.concat(projectName.value);
-        }
-        router.push(
-          projectLink(ownertype.value, ownername.value, newProjectref)
+        return await api.getProjectGroupProjects(
+          apiParentProjectGroupRef.value,
+          fetchAbort.signal
         );
       } catch (e) {
         if (e instanceof ApiError) {
           if (e.aborted) return;
         }
-        createProjectError.value = e;
-      } finally {
-        createProjectLoading.value = false;
+        appState.setGlobalError(e);
       }
     };
 
-    const createProjectButtonEnabled = computed(() => {
-      return projectName.value && remoteRepoPath.value;
-    });
+    const { state: projects, execute: refreshProjects } = useAsyncState(
+      async () => {
+        return await fetchProjects();
+      },
+      undefined,
+      { immediate: false, shallow: false }
+    );
 
     const fetchRemoteSources = async () => {
       try {
@@ -276,6 +258,76 @@ export default defineComponent({
       { immediate: false, shallow: false }
     );
 
+    const isSaveButtonDisabled = computed(() => {
+      return !isValid(projectNameValidator()) || !remoteRepoPath.value;
+    });
+
+    const projectNameValidator = () => {
+      const projectNameUnique =
+        projects.value &&
+        !projects.value.some((project) => {
+          return project.name === projectName.value;
+        });
+
+      if (!projectName.value) {
+        return 'Project name is required';
+      } else if (!isValidName(projectName.value)) {
+        return 'Project name can only contain alphanumeric ASCII chars and optionally some single hypens in the middle';
+      } else if (!projectNameUnique) {
+        return 'Project with the specified name already exists';
+      }
+    };
+
+    const validateProjectName = () => {
+      projectNameError.value = projectNameValidator();
+    };
+
+    const resetErrors = () => {
+      createProjectError.value = undefined;
+    };
+
+    const createProject = async () => {
+      if (remoteSources.value == undefined) return;
+      if (selectedRemoteSourceIndex.value == undefined) return;
+      if (!remoteRepoPath.value) return;
+
+      createProjectLoading.value = true;
+      resetErrors();
+
+      let visibility = 'public';
+      if (projectIsPrivate.value) {
+        visibility = 'private';
+      }
+
+      const remoteSource = remoteSources.value[selectedRemoteSourceIndex.value];
+
+      try {
+        await api.createProject(
+          apiParentProjectGroupRef.value,
+          projectName.value,
+          visibility,
+          remoteSource.name,
+          remoteRepoPath.value,
+          passVarsToForkedPR.value,
+          membersCanPerformRunActions.value
+        );
+
+        let newProjectref = [projectName.value];
+        newProjectref = projectgroupref.value.concat(projectName.value);
+
+        router.push(
+          projectLink(ownertype.value, ownername.value, newProjectref)
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        createProjectError.value = e;
+      } finally {
+        createProjectLoading.value = false;
+      }
+    };
+
     const repoSelected = (repoPath: string) => {
       remoteRepoPath.value = repoPath;
     };
@@ -297,16 +349,21 @@ export default defineComponent({
     );
 
     return {
+      projectName,
+      projectNameError,
+      projectIsPrivate,
+      remoteSources,
+      remoteRepos,
+      passVarsToForkedPR,
+      selectedRemoteSourceIndex,
+
       createProjectError: computed(() =>
         errorToString(createProjectError.value)
       ),
-      remoteSources,
-      remoteRepos,
-      projectName,
-      projectIsPrivate,
-      passVarsToForkedPR,
-      selectedRemoteSourceIndex,
-      createProjectButtonEnabled,
+
+      isSaveButtonDisabled,
+
+      validateProjectName,
       createProjectLoading,
       fetchRemoteReposLoading,
       membersCanPerformRunActions,

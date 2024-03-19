@@ -1,45 +1,51 @@
 import { expect, test } from 'vitest';
 import { isValidName } from './validator';
 
-test.each([
-  // good names
-  ['0', true],
-  ['a', true],
-  ['Z', true],
-  ['bar', true],
-  ['foo-bar', true],
-  ['foo-bar-baz', true],
-  ['foo1', true],
-  ['foo-1', true],
-  ['foo-1-bar', true],
-  ['f12oo-bar33', true],
-  ['cba7b810-9dad-11d1-80b4-00c04fd430c', true],
-  ['cba7b810-9dad-11d1-80b4000c04fd430c8', true],
-  ['cba7b8109dad11d180b400c04fd430c89', true],
-  ['cba7b8109dad11d180b400c04fd430c', true],
+export const validNames = [
+  '0',
+  'a',
+  'Z',
+  'bar',
+  'foo-bar',
+  'foo-bar-baz',
+  'foo1',
+  'foo-1',
+  'foo-1-bar',
+  'f12oo-bar33',
+  'cba7b810-9dad-11d1-80b4-00c04fd430c',
+  'cba7b810-9dad-11d1-80b4000c04fd430c8',
+  'cba7b8109dad11d180b400c04fd430c89',
+  'cba7b8109dad11d180b400c04fd430c',
+];
 
-  // bad names
-  ['', false],
-  ['-', false],
-  ['È', false],
-  ['Èà', false],
-  ['foo bar', false],
-  [' foo bar', false],
-  ['foo bar ', false],
-  ['-bar', false],
-  ['bar-', false],
-  ['-foo-bar', false],
-  ['foo-bar-', false],
-  ['foo--bar', false],
-  ['foo.bar', false],
-  ['foo_bar', false],
-  ['foo#bar', false],
-  ['1foobar', false],
-  ['cba7b810-9dad-11d1-80b4-00c04fd430c8', false], // uuid
-  ['{cba7b810-9dad-11d1-80b4-00c04fd430c8}', false], // uuid
-  ['urn:uuid:cba7b810-9dad-11d1-80b4-00c04fd430c8', false], // uuid
-  ['cba7b8109dad11d180b400c04fd430c8', false], // uuid
-  ['abcdefghijklmnopqrstuvwxyz0123456789abcde', false], // 41 ascii chars length
-])('%s is valid name -> %s', (name, expected) => {
-  expect(isValidName(name)).toBe(expected);
+export const invalidNames = [
+  '',
+  '-',
+  'È',
+  'Èà',
+  'foo bar',
+  ' foo bar',
+  'foo bar ',
+  '-bar',
+  'bar-',
+  '-foo-bar',
+  'foo-bar-',
+  'foo--bar',
+  'foo.bar',
+  'foo_bar',
+  'foo#bar',
+  '1foobar',
+  'cba7b810-9dad-11d1-80b4-00c04fd430c8', // uuid
+  '{cba7b810-9dad-11d1-80b4-00c04fd430c8}', // uuid
+  'urn:uuid:cba7b810-9dad-11d1-80b4-00c04fd430c8', // uuid
+  'cba7b8109dad11d180b400c04fd430c8', // uuid
+  'abcdefghijklmnopqrstuvwxyz0123456789abcde', // 41 ascii chars length
+];
+
+test.each(validNames)('"%s" is valid name', (name) => {
+  expect(isValidName(name)).toBe(true);
+});
+
+test.each(invalidNames)('"%s" is invalid name', (name) => {
+  expect(isValidName(name)).toBe(false);
 });
