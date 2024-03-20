@@ -9,9 +9,13 @@
             class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             type="text"
             placeholder="Project Name"
-            v-model="project.name"
+            v-model.trim="project.name"
+            @input="validateProjectName"
             data-test="projectNameInput"
           />
+          <div v-if="projectNameError" class="text-red-500 text-sm">
+            {{ projectNameError }}
+          </div>
         </div>
         <div class="mb-4">
           <label>
@@ -46,6 +50,11 @@
         </div>
         <button
           class="btn btn-blue"
+          :class="{
+            'opacity-50 cursor-not-allowed': isUpdateProjectButtonDisabled,
+            spinner: updateProjectLoading,
+          }"
+          :disabled="isUpdateProjectButtonDisabled"
           @click="updateProject()"
           data-test="updateProjectButton"
         >
@@ -109,7 +118,7 @@
         </div>
         <label class="block mb-2">
           Please type the project name for confirmation:
-          <span class="text-red-500 font-bold">{{ projectName }}</span>
+          <span class="text-red-500 font-bold">{{ startProjectName }}</span>
         </label>
         <div class="mb-4">
           <input
@@ -122,7 +131,7 @@
         <button
           class="btn btn-red"
           @click="deleteProject()"
-          :disabled="!deleteButtonEnabled"
+          :disabled="isDeleteButtonDisabled"
         >
           Delete Project
         </button>
@@ -182,6 +191,7 @@ import { useRouter } from 'vue-router';
 import { ApiError, errorToString, useAPI, Visibility } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { projectGroupLink, projectSettingsLink } from '../util/link';
+import { isValid, isValidName } from '../util/validator';
 import projectsecrets from './projectsecrets.vue';
 import projectvars from './projectvars.vue';
 
@@ -209,10 +219,13 @@ export default defineComponent({
     let fetchAbort = new AbortController();
 
     const projectNameToDelete = ref('');
+    const projectNameError: Ref<string | undefined> = ref();
     const updateProjectError: Ref<unknown | undefined> = ref();
     const deleteProjectError: Ref<unknown | undefined> = ref();
     const updateRepoLinkedAccountError: Ref<unknown | undefined> = ref();
     const membersCanPerformRunActions = ref(false);
+
+    const updateProjectLoading = ref(false);
 
     onUnmounted(() => {
       fetchAbort.abort();
@@ -227,13 +240,14 @@ export default defineComponent({
       abortFetch();
 
       refreshProject();
+      refreshProjects();
       refreshSecrets();
       refreshAllSecrets();
       refreshVariables();
       refreshAllVariables();
     };
 
-    const projectName = computed(() => {
+    const startProjectName = computed(() => {
       return projectref.value[projectref.value.length - 1];
     });
 
@@ -247,9 +261,48 @@ export default defineComponent({
       return [ownertype.value, ownername.value, ...projectref.value].join('/');
     });
 
-    const deleteButtonEnabled = computed(() => {
-      return projectNameToDelete.value == projectName.value;
+    const parentProjectGroupRef = computed(() => {
+      return projectref.value.slice(0, -1);
     });
+
+    const apiParentProjectGroupRef = computed(() => {
+      return [
+        ownertype.value,
+        ownername.value,
+        ...parentProjectGroupRef.value,
+      ].join('/');
+    });
+
+    const isUpdateProjectButtonDisabled = computed(() => {
+      return !isValid(projectNameValidator());
+    });
+
+    const isDeleteButtonDisabled = computed(() => {
+      return projectNameToDelete.value != startProjectName.value;
+    });
+
+    const projectNameValidator = () => {
+      const projectNameUnique =
+        projects.value &&
+        project.value &&
+        !projects.value.some((p) => {
+          if (project.value?.name == startProjectName.value) return false;
+
+          return p.name === project.value?.name;
+        });
+
+      if (!project.value?.name) {
+        return 'Project name is required';
+      } else if (!isValidName(project.value?.name)) {
+        return 'Project name can only contain alphanumeric ASCII chars and optionally some single hypens in the middle';
+      } else if (!projectNameUnique) {
+        return 'Project with the specified name already exists';
+      }
+    };
+
+    const validateProjectName = () => {
+      projectNameError.value = projectNameValidator();
+    };
 
     const resetErrors = () => {
       updateProjectError.value = undefined;
@@ -270,6 +323,7 @@ export default defineComponent({
     const updateProject = async () => {
       if (!project.value) return;
 
+      updateProjectLoading.value = true;
       resetErrors();
 
       try {
@@ -281,7 +335,7 @@ export default defineComponent({
           project.value.membersCanPerformRunActions
         );
 
-        const newProjectRef = projectref.value.slice(0, -1);
+        const newProjectRef = [...parentProjectGroupRef.value];
         newProjectRef.push(project.value.name);
 
         router.push(
@@ -292,13 +346,15 @@ export default defineComponent({
           if (e.aborted) return;
         }
         updateProjectError.value = e;
+      } finally {
+        updateProjectLoading.value = false;
       }
     };
 
     const deleteProject = async () => {
       resetErrors();
 
-      if (projectNameToDelete.value != projectName.value) {
+      if (projectNameToDelete.value != startProjectName.value) {
         return;
       }
 
@@ -308,7 +364,7 @@ export default defineComponent({
           projectGroupLink(
             ownertype.value,
             ownername.value,
-            projectref.value.slice(0, -1)
+            parentProjectGroupRef.value
           )
         );
       } catch (e) {
@@ -331,6 +387,28 @@ export default defineComponent({
         updateRepoLinkedAccountError.value = e;
       }
     };
+
+    const fetchProjects = async () => {
+      try {
+        return await api.getProjectGroupProjects(
+          apiParentProjectGroupRef.value,
+          fetchAbort.signal
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
+
+    const { state: projects, execute: refreshProjects } = useAsyncState(
+      async () => {
+        return await fetchProjects();
+      },
+      undefined,
+      { immediate: false, shallow: false }
+    );
 
     const fetchProject = async () => {
       try {
@@ -507,24 +585,29 @@ export default defineComponent({
       updateRepoLinkedAccountError: computed(() =>
         errorToString(updateRepoLinkedAccountError.value)
       ),
-      projectPath,
-      projectName,
       project,
+      projectNameError,
+      projectPath,
+      projectIsPrivate,
+      startProjectName,
       secrets,
       allSecrets,
       variables,
       allVariables,
-      deleteButtonEnabled,
-      projectIsPrivate,
+      isUpdateProjectButtonDisabled,
+      isDeleteButtonDisabled,
       projectNameToDelete,
-      Visibility,
       membersCanPerformRunActions,
+      validateProjectName,
+      updateProjectLoading,
 
       handleSecretDeleted,
       handleVariableDeleted,
       updateProject,
       deleteProject,
       updateRepoLinkedAccount,
+
+      Visibility,
     };
   },
 });

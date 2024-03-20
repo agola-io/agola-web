@@ -10,17 +10,35 @@
               class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Project Group Name"
-              v-model="projectGroup.name"
+              v-model.trim="projectGroup.name"
+              @input="validateProjectGroupName"
+              data-test="projectGroupNameInput"
             />
+            <div v-if="projectGroupNameError" class="text-red-500 text-sm">
+              {{ projectGroupNameError }}
+            </div>
           </div>
         </div>
         <div class="mb-4">
           <label>
-            <input type="checkbox" v-model="projectGroupIsPrivate" />
+            <input
+              type="checkbox"
+              v-model="projectGroupIsPrivate"
+              data-test="projectGroupIsPrivateInput"
+            />
             Private
           </label>
         </div>
-        <button class="btn btn-blue" @click="updateProjectGroup()">
+        <button
+          class="btn btn-blue"
+          :class="{
+            'opacity-50 cursor-not-allowed': isUpdateProjectGroupButtonDisabled,
+            spinner: updateProjectGroupLoading,
+          }"
+          :disabled="isUpdateProjectGroupButtonDisabled"
+          @click="updateProjectGroup()"
+          data-test="updateProjectGroupButton"
+        >
           Update
         </button>
 
@@ -82,7 +100,9 @@
         </div>
         <label class="block mb-2">
           Please type the project group name for confirmation:
-          <span class="text-red-500 font-bold">{{ projectGroupName }}</span>
+          <span class="text-red-500 font-bold">{{
+            startProjectGroupName
+          }}</span>
         </label>
         <div class="mb-4">
           <input
@@ -95,7 +115,7 @@
         <button
           class="btn btn-red"
           @click="deleteProjectGroup()"
-          :disabled="!deleteButtonEnabled"
+          :disabled="isDeleteButtonDisabled"
         >
           Delete Project Group
         </button>
@@ -127,6 +147,7 @@ import { useRouter } from 'vue-router';
 import { ApiError, errorToString, useAPI, Visibility } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { projectGroupLink, projectGroupSettingsLink } from '../util/link';
+import { isValid, isValidName } from '../util/validator';
 import projectsecrets from './projectsecrets.vue';
 import projectvars from './projectvars.vue';
 
@@ -154,8 +175,11 @@ export default defineComponent({
     let fetchAbort = new AbortController();
 
     const projectGroupNameToDelete = ref('');
+    const projectGroupNameError: Ref<string | undefined> = ref();
     const updateProjectGroupError: Ref<unknown | undefined> = ref();
     const deleteProjectGroupError: Ref<unknown | undefined> = ref();
+
+    const updateProjectGroupLoading = ref(false);
 
     onUnmounted(() => {
       fetchAbort.abort();
@@ -170,13 +194,14 @@ export default defineComponent({
       abortFetch();
 
       refreshProjectGroup();
+      refreshProjectGroups();
       refreshSecrets();
       refreshAllSecrets();
       refreshVariables();
       refreshAllVariables();
     };
 
-    const projectGroupName = computed(() => {
+    const startProjectGroupName = computed(() => {
       return projectgroupref.value[projectgroupref.value.length - 1];
     });
 
@@ -195,9 +220,49 @@ export default defineComponent({
       );
     });
 
-    const deleteButtonEnabled = computed(() => {
-      return projectGroupNameToDelete.value == projectGroupName.value;
+    const parentProjectGroupRef = computed(() => {
+      return projectgroupref.value.slice(0, -1);
     });
+
+    const apiParentProjectGroupRef = computed(() => {
+      return [
+        ownertype.value,
+        ownername.value,
+        ...parentProjectGroupRef.value,
+      ].join('/');
+    });
+
+    const isUpdateProjectGroupButtonDisabled = computed(() => {
+      return !isValid(projectGroupNameValidator());
+    });
+
+    const isDeleteButtonDisabled = computed(() => {
+      return projectGroupNameToDelete.value != startProjectGroupName.value;
+    });
+
+    const projectGroupNameValidator = () => {
+      const projectGroupNameUnique =
+        projectGroups.value &&
+        projectGroup.value &&
+        !projectGroups.value.some((pg) => {
+          if (projectGroup.value?.name == startProjectGroupName.value)
+            return false;
+
+          return pg.name === projectGroup.value?.name;
+        });
+
+      if (!projectGroup.value?.name) {
+        return 'Project Group name is required';
+      } else if (!isValidName(projectGroup.value?.name)) {
+        return 'Project Group name can only contain alphanumeric ASCII chars and optionally some single hypens in the middle';
+      } else if (!projectGroupNameUnique) {
+        return 'Project Group with the specified name already exists';
+      }
+    };
+
+    const validateProjectGroupName = () => {
+      projectGroupNameError.value = projectGroupNameValidator();
+    };
 
     const resetErrors = () => {
       updateProjectGroupError.value = undefined;
@@ -251,7 +316,7 @@ export default defineComponent({
     const deleteProjectGroup = async () => {
       resetErrors();
 
-      if (projectGroupNameToDelete.value != projectGroupName.value) {
+      if (projectGroupNameToDelete.value != startProjectGroupName.value) {
         return;
       }
 
@@ -297,6 +362,33 @@ export default defineComponent({
       undefined,
       { immediate: false, shallow: false }
     );
+
+    const fetchProjectGroups = async () => {
+      if (isRootProjectGroup.value) {
+        return [];
+      }
+
+      try {
+        return await api.getProjectGroupSubgroups(
+          apiParentProjectGroupRef.value,
+          fetchAbort.signal
+        );
+      } catch (e) {
+        if (e instanceof ApiError) {
+          if (e.aborted) return;
+        }
+        appState.setGlobalError(e);
+      }
+    };
+
+    const { state: projectGroups, execute: refreshProjectGroups } =
+      useAsyncState(
+        async () => {
+          return await fetchProjectGroups();
+        },
+        undefined,
+        { immediate: false, shallow: false }
+      );
 
     const fetchSecrets = async () => {
       try {
@@ -447,23 +539,28 @@ export default defineComponent({
       deleteProjectGroupError: computed(() =>
         errorToString(deleteProjectGroupError.value)
       ),
-      projectGroupPath,
-      projectGroupName,
       projectGroup,
+      projectGroupNameError,
+      projectGroupPath,
+      projectGroupIsPrivate,
       isRootProjectGroup,
+      startProjectGroupName,
       secrets,
       allSecrets,
       variables,
       allVariables,
-      deleteButtonEnabled,
-
-      projectGroupIsPrivate,
+      isUpdateProjectGroupButtonDisabled,
+      isDeleteButtonDisabled,
       projectGroupNameToDelete,
-      Visibility,
+      validateProjectGroupName,
+      updateProjectGroupLoading,
+
       handleSecretDeleted,
       handleVariableDeleted,
       updateProjectGroup,
       deleteProjectGroup,
+
+      Visibility,
     };
   },
 });
