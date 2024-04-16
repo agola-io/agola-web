@@ -1,6 +1,6 @@
 import { until } from '@vueuse/shared';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { API, ApiError } from '../app/api';
+import { API, APIAbortedError } from '../app/api';
 import { AppState } from '../app/appstate';
 import { Auth } from '../app/auth';
 import createorganization from '../components/createorganization.vue';
@@ -822,9 +822,7 @@ export const setupNavigationGuards = (
 
         return { path: nextPath.path, replace: true };
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     }

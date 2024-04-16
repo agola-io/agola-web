@@ -116,7 +116,7 @@ import {
   watch,
 } from 'vue';
 import { useRouter } from 'vue-router';
-import { ApiError, errorToString, useAPI } from '../app/api';
+import { APIAbortedError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import remoterepos from '../components/remoterepos.vue';
 import { projectLink } from '../util/link';
@@ -189,9 +189,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -208,9 +206,7 @@ export default defineComponent({
       try {
         return await getAllRemoteSources(api);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -237,9 +233,7 @@ export default defineComponent({
           remoteSources.value[selectedRemoteSourceIndex.value];
         return await api.getUserRemoteRepos(remoteSource.id);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       } finally {
         fetchRemoteReposLoading.value = false;
@@ -319,9 +313,7 @@ export default defineComponent({
           projectLink(ownertype.value, ownername.value, newProjectref)
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         createProjectError.value = e;
       } finally {
         createProjectLoading.value = false;

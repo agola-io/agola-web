@@ -83,7 +83,12 @@ import {
   toRefs,
   watch,
 } from 'vue';
-import { ApiError, errorToString, RunTaskResponse, useAPI } from '../app/api';
+import {
+  APIAbortedError,
+  errorToString,
+  RunTaskResponse,
+  useAPI,
+} from '../app/api';
 import rundetail from '../components/rundetail.vue';
 import step from '../components/step.vue';
 
@@ -174,9 +179,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         fetchRunError.value = e;
       }
     };
@@ -203,9 +206,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         fetchTaskError.value = e;
       }
     };
@@ -237,9 +238,7 @@ export default defineComponent({
           taskid
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         approveTaskError.value = e;
       }
     };

@@ -36,7 +36,7 @@
 <script lang="ts">
 import { computed, defineComponent, Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ApiError, errorToString, useAPI } from '../app/api';
+import { APIAbortedError, errorToString, useAPI } from '../app/api';
 import { ownerLink } from '../util/link';
 
 export default defineComponent({
@@ -68,9 +68,7 @@ export default defineComponent({
         await api.createOrganization(orgName.value, visibility);
         router.push(ownerLink('org', orgName.value));
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         createOrgError.value = e;
       }
     };

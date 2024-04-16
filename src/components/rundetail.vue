@@ -157,8 +157,8 @@
 </template>
 
 <script lang="ts">
-import { useNow } from '@vueuse/core';
 import { vOnClickOutside } from '@vueuse/components';
+import { useNow } from '@vueuse/core';
 import {
   computed,
   defineComponent,
@@ -170,7 +170,7 @@ import {
 } from 'vue';
 import { useRouter } from 'vue-router';
 import {
-  ApiError,
+  APIAbortedError,
   errorToString,
   RunResponse,
   RunResponseTask,
@@ -239,9 +239,7 @@ export default defineComponent({
       try {
         await api.stopRun(rungrouptype.value, rungroupref.value, runnumber);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         stopRunError.value = e;
       }
     };
@@ -252,9 +250,7 @@ export default defineComponent({
       try {
         await api.cancelRun(rungrouptype.value, rungroupref.value, runnumber);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         cancelRunError.value = e;
       }
     };
@@ -282,9 +278,7 @@ export default defineComponent({
         }
         router.push(runLink);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         restartRunError.value = e;
       }
     };

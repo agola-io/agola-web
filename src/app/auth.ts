@@ -7,7 +7,7 @@ import { LocationQuery, Router } from 'vue-router';
 import { execIfNotRunning } from '../util/function';
 import {
   API,
-  ApiError,
+  APIError,
   AuthorizeResponse,
   AuthType,
   LoginUserResponse,
@@ -83,7 +83,7 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
       user.value = userRes;
     } catch (e) {
       user.value = undefined;
-      if (e instanceof ApiError) {
+      if (e instanceof APIError) {
         if (e.code === 'unauthorized') {
           await logout();
         }

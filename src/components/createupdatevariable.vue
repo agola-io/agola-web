@@ -240,13 +240,13 @@ import { useAsyncState } from '@vueuse/core';
 import { computed, onUnmounted, PropType, Ref, ref, toRefs, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import {
-  ApiError,
-  errorToString,
-  useAPI,
+  APIAbortedError,
   VariableValue as APIVariableValue,
   When as APIWhen,
   WhenCondition as APIWhenCondition,
   WhenConditions as APIWhenConditions,
+  errorToString,
+  useAPI,
 } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { OperationType } from '../app/types';
@@ -373,9 +373,7 @@ export default {
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -574,9 +572,7 @@ export default {
           );
         }
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         createVariableError.value = errorToString(e);
       }
     };

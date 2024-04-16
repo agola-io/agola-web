@@ -194,11 +194,11 @@
 </template>
 
 <script lang="ts">
-import { useAsyncState } from '@vueuse/core';
 import { vOnClickOutside } from '@vueuse/components';
+import { useAsyncState } from '@vueuse/core';
 import { defineComponent, onUnmounted, ref, toRefs, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { ApiError, useAPI } from '../app/api';
+import { APIAbortedError, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import createprojectbutton from '../components/createprojectbutton.vue';
 import tabarrow from '../components/tabarrow.vue';
@@ -210,8 +210,8 @@ import {
   projectGroupCreateProjectLink,
   projectGroupSettingsLink,
   userDirectRunLink,
-  userDirectRunsLink,
   userDirectRunTaskLink,
+  userDirectRunsLink,
   userOrganizationsLink,
 } from '../util/link';
 
@@ -261,9 +261,7 @@ export default defineComponent({
             fetchAbort.signal
           );
         } catch (e) {
-          if (e instanceof ApiError) {
-            if (e.aborted) return;
-          }
+          if (e instanceof APIAbortedError) return;
           appState.setGlobalError(e);
         }
       }

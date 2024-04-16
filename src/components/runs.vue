@@ -120,16 +120,21 @@
 <script lang="ts">
 import { useNow, useTimeoutFn } from '@vueuse/core';
 import {
+  PropType,
+  Ref,
   computed,
   defineComponent,
   onUnmounted,
-  PropType,
-  Ref,
   ref,
   toRefs,
   watch,
 } from 'vue';
-import { ApiError, errorToString, RunResponse, useAPI } from '../app/api';
+import {
+  APIAbortedError,
+  RunResponse,
+  errorToString,
+  useAPI,
+} from '../app/api';
 import { projectRunLink, userDirectRunLink } from '../util/link';
 import { runResultClass } from '../util/run';
 import { endTime, endTimeHuman, formatDuration } from '../util/time';
@@ -286,9 +291,7 @@ export default defineComponent({
 
         runs.value = newRuns;
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         fetchRunsError.value = e;
         return;
       } finally {

@@ -163,7 +163,7 @@ import { useAsyncState } from '@vueuse/core';
 import { computed, defineComponent, onUnmounted, Ref, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
-  ApiError,
+  APIAbortedError,
   errorToString,
   LinkedAccountResponse,
   useAPI,
@@ -218,9 +218,7 @@ export default defineComponent({
       try {
         return await api.getAuthUser(fetchAbort.signal);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -241,9 +239,7 @@ export default defineComponent({
       try {
         return await getAllRemoteSources(api);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -300,9 +296,7 @@ export default defineComponent({
 
         await refreshUser();
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         createUserTokenError.value = e;
       }
     };
@@ -321,9 +315,7 @@ export default defineComponent({
 
         await refreshUser();
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         deleteUserTokenError.value = e;
       }
     };
@@ -338,9 +330,7 @@ export default defineComponent({
 
         await refreshUser();
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         deleteLinkedAccountError.value = e;
       }
     };

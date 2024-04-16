@@ -50,7 +50,7 @@ import {
   toRefs,
   watch,
 } from 'vue';
-import { ApiError, OrgMembersResponse, useAPI } from '../app/api';
+import { APIAbortedError, OrgMembersResponse, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 
 export default defineComponent({
@@ -111,9 +111,7 @@ export default defineComponent({
 
         orgMembersCursor.value = cursor;
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       } finally {
         loadingOrgMembers.value = false;

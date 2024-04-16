@@ -214,8 +214,8 @@
 </template>
 
 <script lang="ts">
-import { useAsyncState } from '@vueuse/core';
 import { vOnClickOutside } from '@vueuse/components';
+import { useAsyncState } from '@vueuse/core';
 import {
   computed,
   defineComponent,
@@ -225,7 +225,7 @@ import {
   toRefs,
   watch,
 } from 'vue';
-import { ApiError, useAPI } from '../app/api';
+import { APIAbortedError, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import projbreadcrumbs from '../components/projbreadcrumbs.vue';
 import tabarrow from '../components/tabarrow.vue';
@@ -296,9 +296,7 @@ export default defineComponent({
             fetchAbort.signal
           );
         } catch (e) {
-          if (e instanceof ApiError) {
-            if (e.aborted) return;
-          }
+          if (e instanceof APIAbortedError) return;
           appState.setGlobalError(e);
         }
       }

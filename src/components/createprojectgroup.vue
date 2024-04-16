@@ -59,7 +59,7 @@ import {
   watch,
 } from 'vue';
 import { useRouter } from 'vue-router';
-import { ApiError, errorToString, useAPI } from '../app/api';
+import { APIAbortedError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { projectGroupLink } from '../util/link';
 import { isValid, isValidName } from '../util/validator';
@@ -124,9 +124,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -192,9 +190,7 @@ export default defineComponent({
           projectGroupLink(ownertype.value, ownername.value, newProjectgroupref)
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         createProjectGroupError.value = e;
       } finally {
         createProjectGroupLoading.value = false;

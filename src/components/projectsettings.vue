@@ -188,7 +188,7 @@ import {
   watch,
 } from 'vue';
 import { useRouter } from 'vue-router';
-import { ApiError, errorToString, useAPI, Visibility } from '../app/api';
+import { APIAbortedError, errorToString, useAPI, Visibility } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { projectGroupLink, projectSettingsLink } from '../util/link';
 import { isValid, isValidName } from '../util/validator';
@@ -342,9 +342,7 @@ export default defineComponent({
           projectSettingsLink(ownertype.value, ownername.value, newProjectRef)
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         updateProjectError.value = e;
       } finally {
         updateProjectLoading.value = false;
@@ -368,9 +366,7 @@ export default defineComponent({
           )
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         deleteProjectError.value = e;
       }
     };
@@ -381,9 +377,7 @@ export default defineComponent({
       try {
         await api.projectUpdateRepoLinkedAccount(apiProjectRef.value);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         updateRepoLinkedAccountError.value = e;
       }
     };
@@ -395,9 +389,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -414,9 +406,7 @@ export default defineComponent({
       try {
         return await api.getProject(apiProjectRef.value, fetchAbort.signal);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -442,9 +432,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -470,9 +458,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -498,9 +484,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -526,9 +510,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };

@@ -16,7 +16,7 @@
 <script lang="ts">
 import { computed, defineComponent, Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ApiError, errorToString, useAPI } from '../app/api';
+import { APIAbortedError, errorToString, useAPI } from '../app/api';
 import CreateSourceForm from '../components/createsourceform.vue';
 
 export interface createSourceEvent {
@@ -76,9 +76,7 @@ export default defineComponent({
         );
         router.push({ name: 'login' });
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         createRemoteSourceError.value = e;
       }
     };

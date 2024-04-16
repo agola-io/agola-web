@@ -53,7 +53,12 @@
 <script lang="ts">
 import { computed, defineComponent, PropType, ref, Ref, toRefs } from 'vue';
 import { useRouter } from 'vue-router';
-import { ApiError, errorToString, SecretResponse, useAPI } from '../app/api';
+import {
+  APIAbortedError,
+  errorToString,
+  SecretResponse,
+  useAPI,
+} from '../app/api';
 import { useAppState } from '../app/appstate';
 import {
   projectGroupUpdateSecretLink,
@@ -140,9 +145,7 @@ export default defineComponent({
           );
         }
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
