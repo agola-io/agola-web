@@ -48,7 +48,7 @@ import {
   watch,
 } from 'vue';
 import { useRouter } from 'vue-router';
-import { ApiError, errorToString, useAPI } from '../app/api';
+import { APIAbortedError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import LoginForm from '../components/loginform.vue';
 import { getAllRemoteSources } from '../util/remotesource';
@@ -96,9 +96,7 @@ export default defineComponent({
       try {
         return await getAllRemoteSources(api);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -144,9 +142,7 @@ export default defineComponent({
           params: { username: username.value },
         });
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         addLinkedAccountError.value = e;
       }
     };

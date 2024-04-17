@@ -15,31 +15,36 @@ export const GITHUB_API_URL = 'https://api.github.com';
 export const GITHUB_SSH_KEY =
   'github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=';
 
-export class ApiError extends Error {
+export class APIError extends Error {
   httpStatus?: number;
   code: string;
-  aborted: boolean;
 
-  constructor(httpStatus?: number, code?: string, aborted?: boolean) {
+  constructor(httpStatus?: number, code?: string) {
     super('api error');
-    this.name = 'ApiError';
+    this.name = 'APIError';
     this.httpStatus = httpStatus;
     this.code = code || 'generic';
-    this.aborted = aborted ?? false;
+  }
+}
+
+export class APIAbortedError extends Error {
+  constructor() {
+    super('api aborted error');
+    this.name = 'APIAbortedError';
   }
 }
 
 export function errorToString(e?: unknown): string | undefined {
   if (!e) return;
 
-  if (e instanceof ApiError) return apiErrorToString(e);
+  if (e instanceof APIError) return apiErrorToString(e);
 
   if (e instanceof Error) return e.message;
 
   return 'An error occurred';
 }
 
-function apiErrorToString(e: ApiError): string {
+function apiErrorToString(e: APIError): string {
   switch (e.code) {
     case 'generic':
       return 'An error occurred';
@@ -392,7 +397,7 @@ export function newAPI(): API {
         if (auth) {
           auth.logout({ goToLogin: true });
         }
-        throw new ApiError(res.status, 'unauthorized');
+        throw new APIError(res.status, 'unauthorized');
       }
 
       let errorMessage;
@@ -400,13 +405,13 @@ export function newAPI(): API {
         errorMessage = JSON.parse(await res.text());
       } catch (e) {
         // not a json response
-        throw new ApiError(res.status);
+        throw new APIError(res.status);
       }
 
       if (errorMessage.code) {
-        throw new ApiError(res.status, errorMessage.code);
+        throw new APIError(res.status, errorMessage.code);
       }
-      throw new ApiError(res.status);
+      throw new APIError(res.status);
     }
   }
 
@@ -479,13 +484,12 @@ export function newAPI(): API {
       return res;
     } catch (e) {
       if (e instanceof DOMException) {
-        if (e.name == 'AbortError')
-          throw new ApiError(undefined, undefined, true);
+        if (e.name == 'AbortError') throw new APIAbortedError();
       }
 
-      if (e instanceof ApiError) throw e;
+      if (e instanceof APIError) throw e;
 
-      throw new ApiError();
+      throw new APIError();
     }
   }
 
@@ -520,7 +524,7 @@ export function newAPI(): API {
 
     const authResponse = TypedJSON.parse(await res.text(), LoginUserResponse);
     if (!authResponse) {
-      throw new ApiError();
+      throw new APIError();
     }
 
     if (authResponse.oauth2Redirect) {
@@ -562,7 +566,7 @@ export function newAPI(): API {
 
     const authResponse = TypedJSON.parse(await res.text(), AuthorizeResponse);
     if (!authResponse) {
-      throw new ApiError();
+      throw new APIError();
     }
 
     if (authResponse.oauth2Redirect) {
@@ -606,7 +610,7 @@ export function newAPI(): API {
 
     const authResponse = TypedJSON.parse(await res.text(), AuthorizeResponse);
     if (!authResponse) {
-      throw new ApiError();
+      throw new APIError();
     }
 
     if (authResponse.oauth2Redirect) {
@@ -638,7 +642,7 @@ export function newAPI(): API {
       RemoteSourceAuthResponse
     );
     if (!authResponse) {
-      throw new ApiError();
+      throw new APIError();
     }
 
     return authResponse;
@@ -659,7 +663,7 @@ export function newAPI(): API {
       await res.text(),
       RemoteSourceResponse
     );
-    if (!remoteSources) throw new ApiError();
+    if (!remoteSources) throw new APIError();
 
     return { res: remoteSources, cursor: getCursor(res) };
   }
@@ -714,7 +718,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), { signal });
 
     const user = TypedJSON.parse(await res.text(), PrivateUserResponse);
-    if (!user) throw new ApiError();
+    if (!user) throw new APIError();
 
     return user;
   }
@@ -726,7 +730,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), { signal });
 
     const user = TypedJSON.parse(await res.text(), User);
-    if (!user) throw new ApiError();
+    if (!user) throw new APIError();
 
     return user;
   }
@@ -770,7 +774,7 @@ export function newAPI(): API {
       await res.text(),
       CreateUserTokenResponse
     );
-    if (!userToken) throw new ApiError();
+    if (!userToken) throw new APIError();
 
     return userToken;
   }
@@ -823,7 +827,7 @@ export function newAPI(): API {
       CreateUserLAResponse
     );
     if (!authResponse) {
-      throw new ApiError();
+      throw new APIError();
     }
 
     if (authResponse.oauth2Redirect) {
@@ -865,7 +869,7 @@ export function newAPI(): API {
       await res.text(),
       UserOrgResponse
     );
-    if (!organizations) throw new ApiError();
+    if (!organizations) throw new APIError();
 
     return { res: organizations, cursor: getCursor(res) };
   }
@@ -889,7 +893,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const org = TypedJSON.parse(await res.text(), OrgResponse);
-    if (!org) throw new ApiError();
+    if (!org) throw new APIError();
 
     return org;
   }
@@ -907,7 +911,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), { signal });
 
     const orgMembers = TypedJSON.parse(await res.text(), OrgMembersResponse);
-    if (!orgMembers) throw new ApiError();
+    if (!orgMembers) throw new APIError();
 
     return { res: orgMembers, cursor: getCursor(res) };
   }
@@ -958,7 +962,7 @@ export function newAPI(): API {
       await res.text(),
       ProjectGroupResponse
     );
-    if (!projectGroup) throw new ApiError();
+    if (!projectGroup) throw new APIError();
 
     return projectGroup;
   }
@@ -988,7 +992,7 @@ export function newAPI(): API {
       await res.text(),
       ProjectGroupResponse
     );
-    if (!projectGroup) throw new ApiError();
+    if (!projectGroup) throw new APIError();
 
     return projectGroup;
   }
@@ -1016,7 +1020,7 @@ export function newAPI(): API {
       await res.text(),
       ProjectGroupResponse
     );
-    if (!projectGroup) throw new ApiError();
+    if (!projectGroup) throw new APIError();
 
     return projectGroup;
   }
@@ -1045,7 +1049,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), { signal });
 
     const project = TypedJSON.parse(await res.text(), ProjectResponse);
-    if (!project) throw new ApiError();
+    if (!project) throw new APIError();
 
     return project;
   }
@@ -1080,7 +1084,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const project = TypedJSON.parse(await res.text(), ProjectResponse);
-    if (!project) throw new ApiError();
+    if (!project) throw new APIError();
 
     return project;
   }
@@ -1110,7 +1114,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const project = TypedJSON.parse(await res.text(), ProjectResponse);
-    if (!project) throw new ApiError();
+    if (!project) throw new APIError();
 
     return project;
   }
@@ -1195,7 +1199,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const secret = TypedJSON.parse(await res.text(), SecretResponse);
-    if (!secret) throw new ApiError();
+    if (!secret) throw new APIError();
 
     return secret;
   }
@@ -1222,7 +1226,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const secret = TypedJSON.parse(await res.text(), SecretResponse);
-    if (!secret) throw new ApiError();
+    if (!secret) throw new APIError();
 
     return secret;
   }
@@ -1250,7 +1254,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const secret = TypedJSON.parse(await res.text(), SecretResponse);
-    if (!secret) throw new ApiError();
+    if (!secret) throw new APIError();
 
     return secret;
   }
@@ -1281,7 +1285,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const secret = TypedJSON.parse(await res.text(), SecretResponse);
-    if (!secret) throw new ApiError();
+    if (!secret) throw new APIError();
 
     return secret;
   }
@@ -1374,7 +1378,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const variable = TypedJSON.parse(await res.text(), VariableResponse);
-    if (!variable) throw new ApiError();
+    if (!variable) throw new APIError();
 
     return variable;
   }
@@ -1402,7 +1406,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const variable = TypedJSON.parse(await res.text(), VariableResponse);
-    if (!variable) throw new ApiError();
+    if (!variable) throw new APIError();
 
     return variable;
   }
@@ -1434,7 +1438,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const variable = TypedJSON.parse(await res.text(), VariableResponse);
-    if (!variable) throw new ApiError();
+    if (!variable) throw new APIError();
 
     return variable;
   }
@@ -1466,7 +1470,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const variable = TypedJSON.parse(await res.text(), VariableResponse);
-    if (!variable) throw new ApiError();
+    if (!variable) throw new APIError();
 
     return variable;
   }
@@ -1527,7 +1531,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), { signal });
 
     const run = TypedJSON.parse(await res.text(), RunResponse);
-    if (!run) throw new ApiError();
+    if (!run) throw new APIError();
 
     return run;
   }
@@ -1589,7 +1593,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), init);
 
     const run = TypedJSON.parse(await res.text(), RunResponse);
-    if (!run) throw new ApiError();
+    if (!run) throw new APIError();
 
     return run;
   }
@@ -1669,7 +1673,7 @@ export function newAPI(): API {
     const res = await fetch(apiURL.toString(), { signal });
 
     const task = TypedJSON.parse(await res.text(), RunTaskResponse);
-    if (!task) throw new ApiError();
+    if (!task) throw new APIError();
 
     return task;
   }

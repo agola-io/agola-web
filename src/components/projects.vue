@@ -57,7 +57,7 @@
 <script lang="ts">
 import { useAsyncState } from '@vueuse/core';
 import { defineComponent, onUnmounted, PropType, toRefs, watch } from 'vue';
-import { ApiError, useAPI } from '../app/api';
+import { APIAbortedError, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { projectGroupLink, projectLink } from '../util/link';
 
@@ -120,9 +120,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -139,9 +137,7 @@ export default defineComponent({
           fetchAbort.signal
         );
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };

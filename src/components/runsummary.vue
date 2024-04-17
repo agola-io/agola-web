@@ -61,21 +61,21 @@
 <script lang="ts">
 import { useAsyncState, useTimeoutFn } from '@vueuse/core';
 import {
+  PropType,
+  Ref,
   computed,
   defineComponent,
   onUnmounted,
-  PropType,
-  Ref,
   ref,
   toRefs,
   watch,
 } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import {
-  ApiError,
-  errorToString,
+  APIAbortedError,
   RunResponse,
   RunResponseTask,
+  errorToString,
   useAPI,
 } from '../app/api';
 import rundetail from '../components/rundetail.vue';
@@ -208,9 +208,7 @@ export default defineComponent({
 
         return erun;
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         fetchRunError.value = e;
       }
     };

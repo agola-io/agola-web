@@ -56,12 +56,12 @@
 
 <script lang="ts">
 import { useAsyncState } from '@vueuse/core';
-import { getAllRemoteSources } from '../util/remotesource';
 import { computed, defineComponent } from 'vue';
-import { ApiError, errorToString, useAPI } from '../app/api';
+import { APIAbortedError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { useAuth } from '../app/auth';
 import LoginForm from '../components/loginform.vue';
+import { getAllRemoteSources } from '../util/remotesource';
 
 export default defineComponent({
   name: 'Login',
@@ -81,9 +81,7 @@ export default defineComponent({
       try {
         return await getAllRemoteSources(api);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     }, undefined);

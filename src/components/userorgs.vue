@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, onUnmounted, ref, Ref, watch } from 'vue';
-import { ApiError, useAPI, UserOrgResponse } from '../app/api';
+import { APIAbortedError, useAPI, UserOrgResponse } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { organizationLink } from '../util/link';
 
@@ -117,9 +117,7 @@ export default defineComponent({
 
         userOrgsCursor.value = cursor;
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
 
         userOrgsCursor.value = undefined;
 

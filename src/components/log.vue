@@ -57,7 +57,7 @@ import {
   toRefs,
   watch,
 } from 'vue';
-import { ApiError, useAPI } from '../app/api';
+import { APIAbortedError, APIError, useAPI } from '../app/api';
 
 export default defineComponent({
   name: 'Log',
@@ -216,8 +216,8 @@ export default defineComponent({
           error.value = true;
         }
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
+        if (e instanceof APIAbortedError) return;
+        if (e instanceof APIError) {
           if (e.httpStatus == 404) {
             logExists.value = false;
             return;

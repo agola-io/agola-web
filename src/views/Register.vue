@@ -77,7 +77,7 @@
 import { useAsyncState } from '@vueuse/core';
 import { computed, defineComponent, onUnmounted, Ref, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ApiError, errorToString, useAPI } from '../app/api';
+import { APIAbortedError, errorToString, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 import { useAuth } from '../app/auth';
 import LoginForm from '../components/loginform.vue';
@@ -124,9 +124,7 @@ export default defineComponent({
       try {
         return await getAllRemoteSources(api);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
@@ -170,9 +168,7 @@ export default defineComponent({
       try {
         await auth.authorize(remoteSourceName, username, password);
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         registerUserError.value = e;
       }
     };
@@ -196,9 +192,7 @@ export default defineComponent({
 
         router.push({ name: 'home' });
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         registerUserError.value = e;
       }
     };

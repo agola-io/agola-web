@@ -104,22 +104,22 @@
 </template>
 
 <script lang="ts">
+import { PropType, Ref, computed, defineComponent, ref, toRefs } from 'vue';
+import { useRouter } from 'vue-router';
 import {
-  ApiError,
+  APIAbortedError,
   VariableResponse,
   When,
   WhenConditions,
   errorToString,
   useAPI,
 } from '../app/api';
-import { computed, defineComponent, PropType, ref, Ref, toRefs } from 'vue';
 import { useAppState } from '../app/appstate';
-import confirmationDialog from './modals/confirmationDialog.vue';
 import {
   projectGroupUpdateVariableLink,
   projectUpdateVariableLink,
 } from '../util/link';
-import { useRouter } from 'vue-router';
+import confirmationDialog from './modals/confirmationDialog.vue';
 
 interface FlatWhenConditions {
   condType: string;
@@ -211,9 +211,7 @@ export default defineComponent({
           );
         }
       } catch (e) {
-        if (e instanceof ApiError) {
-          if (e.aborted) return;
-        }
+        if (e instanceof APIAbortedError) return;
         appState.setGlobalError(e);
       }
     };
