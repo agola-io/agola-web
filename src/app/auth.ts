@@ -84,7 +84,7 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
     } catch (e) {
       user.value = undefined;
       if (e instanceof APIError) {
-        if (e.code === 'unauthorized') {
+        if (e.httpStatus == 401) {
           await logout();
         }
       }

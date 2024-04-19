@@ -748,9 +748,12 @@ test('error response from the server is correctly displayed', async () => {
       ]);
     }),
     http.post('/api/v1alpha/projects/org%2Forg01%2Fproj01/variables', () => {
-      return new HttpResponse(JSON.stringify({ message: 'Server Error' }), {
-        status: 500,
-      });
+      return new HttpResponse(
+        JSON.stringify([{ code: 'projectGroupDoesNotExist' }]),
+        {
+          status: 400,
+        }
+      );
     }),
   ];
 
@@ -785,5 +788,5 @@ test('error response from the server is correctly displayed', async () => {
   expect(wrapper.router.push).not.toHaveBeenCalled();
 
   const serverError = wrapper.find('[data-test="serverError"]');
-  expect(serverError.text()).toContain('An error occurred');
+  expect(serverError.text()).toContain('Project group does not exist');
 });
