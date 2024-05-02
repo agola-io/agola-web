@@ -109,7 +109,7 @@
               </ul>
             </div>
           </div>
-          <div v-else class="navbar-item">
+          <div v-else-if="authReady" class="navbar-item">
             <router-link to="/register" @click="updateRouterKey()">
               <button class="btn btn-blue">Sign up</button>
             </router-link>
@@ -189,6 +189,7 @@ export default defineComponent({
       routerKey: computed(() => appState.routerKey.value),
       user: computed(() => auth.user.value),
       error: computed(() => errorToString(appState.globalError.value)),
+      authReady: computed(() => auth.isReady.value),
       navActive,
       userDropdownActive,
       createDropdownActive,
