@@ -841,7 +841,8 @@ export const setupNavigationGuards = (
         'org project run task',
       ].includes(to.name?.toString() || '')
     ) {
-      return { name: 'home' };
+      auth.setLoginReturnPath(path);
+      return { name: 'login' };
     }
   });
 };

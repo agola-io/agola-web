@@ -2,14 +2,13 @@ import { useAsyncState, useIntervalFn, useSessionStorage } from '@vueuse/core';
 import { useCookies } from '@vueuse/integrations/useCookies';
 import log from 'loglevel';
 import { TypedJSON } from 'typedjson';
-import { computed, inject, InjectionKey, nextTick, ref, Ref, watch } from 'vue';
+import { InjectionKey, Ref, computed, inject, ref, watch } from 'vue';
 import { LocationQuery, Router } from 'vue-router';
 import { execIfNotRunning } from '../util/function';
 import {
   API,
-  APIError,
-  AuthorizeResponse,
   AuthType,
+  AuthorizeResponse,
   LoginUserResponse,
   PrivateUserResponse,
   RegisterUserResponse,
@@ -37,7 +36,6 @@ export interface Auth {
   registerUser: Ref<RegisterUser | undefined>;
   user: Ref<PrivateUserResponse | undefined>;
 
-  refresh(): Promise<void>;
   setLoginReturnPath(path?: string): void;
   logout(options?: LogoutOptions): Promise<void>;
   login(
@@ -83,11 +81,6 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
       user.value = userRes;
     } catch (e) {
       user.value = undefined;
-      if (e instanceof APIError) {
-        if (e.httpStatus == 401) {
-          await logout();
-        }
-      }
     }
   };
 
@@ -103,10 +96,7 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
     }
   });
 
-  const { isReady: fetched } = useAsyncState(
-    nextTick(() => refresh()),
-    undefined
-  );
+  const { isReady: fetched } = useAsyncState(refresh(), undefined);
 
   watch(
     fetched,
@@ -132,10 +122,6 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
   const logout = async (options: LogoutOptions = {}) => {
     const { goToLogin = false } = options;
 
-    if (!isReady.value) {
-      return;
-    }
-
     // remove secondary session cookie
     cookies.set(SECONDARYSESSION_COOKIE_NAME, undefined, {
       path: '/',
@@ -146,6 +132,13 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
 
     if (goToLogin) {
       setLoginReturnPath(router.currentRoute.value.fullPath);
+    }
+
+    if (!isReady.value) {
+      return;
+    }
+
+    if (goToLogin) {
       await router.replace('/login');
     } else {
       await router.replace('/');
@@ -325,7 +318,6 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
     registerUser,
     user,
 
-    refresh,
     setLoginReturnPath,
     logout,
     login,
