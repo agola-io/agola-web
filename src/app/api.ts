@@ -224,12 +224,21 @@ function getCursor(res: Response): string | undefined {
   return res.headers.get('X-Agola-Cursor') || undefined;
 }
 
+interface FetchOptions {
+  admintoken?: string;
+  ignoreUnauthorized?: boolean;
+}
+
 export interface API {
   baseURL(): URL;
 
   setAuth(auth: Auth): void;
 
-  fetch(input: RequestInfo, init?: RequestInit): Promise<Response>;
+  fetch(
+    input: RequestInfo,
+    init?: RequestInit,
+    opts?: FetchOptions
+  ): Promise<Response>;
 
   login(
     remoteSourceName: string,
@@ -557,10 +566,13 @@ export function newAPI(): API {
     auth = newAuth;
   }
 
-  async function handleFetchError(res: Response): Promise<void> {
+  async function handleFetchError(
+    res: Response,
+    ignoreUnauthorized: boolean
+  ): Promise<void> {
     if (!res.ok) {
       if (res.status == 401) {
-        if (auth) {
+        if (!ignoreUnauthorized && auth) {
           auth.logout({ goToLogin: true });
         }
         throw new APIError(res.status);
@@ -634,8 +646,10 @@ export function newAPI(): API {
   async function fetch(
     input: RequestInfo,
     init?: RequestInit,
-    admintoken?: string
+    opts: FetchOptions = {}
   ): Promise<Response> {
+    const { admintoken, ignoreUnauthorized = false } = opts;
+
     try {
       const res = await fetchWrapper(input, init, admintoken);
 
@@ -645,7 +659,7 @@ export function newAPI(): API {
       }
 
       if (!res.ok) {
-        await handleFetchError(res);
+        await handleFetchError(res, ignoreUnauthorized);
       }
       return res;
     } catch (e) {
@@ -872,7 +886,7 @@ export function newAPI(): API {
       signal,
     };
 
-    await fetch(apiURL.toString(), init, admintoken);
+    await fetch(apiURL.toString(), init, { admintoken });
   }
 
   async function getAuthUser(
@@ -881,7 +895,11 @@ export function newAPI(): API {
     const apiURL = baseURL();
     apiURL.pathname += `/user`;
 
-    const res = await fetch(apiURL.toString(), { signal });
+    const res = await fetch(
+      apiURL.toString(),
+      { signal },
+      { ignoreUnauthorized: true }
+    );
 
     const user = TypedJSON.parse(await res.text(), PrivateUserResponse);
     if (!user) throw new APIError();
