@@ -578,18 +578,18 @@ export function newAPI(): API {
         throw new APIError(res.status);
       }
 
-      let detailedErrors;
       try {
-        detailedErrors = JSON.parse(await res.text());
+        const detailedErrors = JSON.parse(await res.text());
+        throw new APIError(res.status, detailedErrors);
       } catch (e) {
-        // not a json response
-        throw new APIError(res.status, detailedErrors);
-      }
+        if (e instanceof DOMException) {
+          if (e.name == 'AbortError') throw new APIAbortedError();
+        }
 
-      if (detailedErrors) {
-        throw new APIError(res.status, detailedErrors);
+        if (e instanceof APIError) throw e;
+
+        throw new APIError(res.status);
       }
-      throw new APIError(res.status);
     }
   }
 
@@ -667,6 +667,7 @@ export function newAPI(): API {
         if (e.name == 'AbortError') throw new APIAbortedError();
       }
 
+      if (e instanceof APIAbortedError) throw e;
       if (e instanceof APIError) throw e;
 
       throw new APIError();
