@@ -1,5 +1,19 @@
 ## Changelog
 
+### v0.10.0
+
+- api: handle AbortError in handleFetchError (@sgotti)             [#130](https://github.com/agola-io/agola-web/pull/130)
+- *: improve/fix login handling (@sgotti)                          [#129](https://github.com/agola-io/agola-web/pull/129)
+- App: show login/register only if auth is ready (@sgotti)         [#128](https://github.com/agola-io/agola-web/pull/128)
+- api: handle api error details (@sgotti)                          [#126](https://github.com/agola-io/agola-web/pull/126)
+- Dockerfile: install specific pnpm major version (@sgotti)        [#127](https://github.com/agola-io/agola-web/pull/127)
+- api: use custom APIAbortedError (@sgotti)                        [#125](https://github.com/agola-io/agola-web/pull/125)
+- project/projectgroup: add name validation (@sgotti)              [#124](https://github.com/agola-io/agola-web/pull/124)
+- *: use improved common name validator (@sgotti)                  [#123](https://github.com/agola-io/agola-web/pull/123)
+- npm: update dependencies (@sgotti)                               [#122](https://github.com/agola-io/agola-web/pull/122)
+- npm: update vite (@sgotti)                                       [#121](https://github.com/agola-io/agola-web/pull/121)
+- npm: use esm by default (@sgotti)                                [#120](https://github.com/agola-io/agola-web/pull/120)
+
 ### v0.9.0
 
 - npm: update vitest and vue test-utils (@sgotti)                                     [#119](https://github.com/agola-io/agola-web/pull/119)
