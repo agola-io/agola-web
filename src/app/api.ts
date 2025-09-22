@@ -1,15 +1,15 @@
 import _ from 'lodash';
 import 'reflect-metadata';
 import {
-  IJsonMemberOptions,
+  type IJsonMemberOptions,
   jsonArrayMember,
   jsonMember,
   jsonObject,
-  Serializable,
+  type Serializable,
   TypedJSON,
 } from 'typedjson';
-import { inject, InjectionKey } from 'vue';
-import { Auth } from './auth';
+import { inject, type InjectionKey } from 'vue';
+import type { Auth } from './auth';
 
 export const GITHUB_API_URL = 'https://api.github.com';
 export const GITHUB_SSH_KEY =

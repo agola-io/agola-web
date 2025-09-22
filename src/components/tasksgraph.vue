@@ -30,33 +30,31 @@
           :width="taskWidth"
           :height="taskHeight"
         >
-          <body>
-            <div
-              class="mb-2 border-l-5 rounded-l"
-              :class="taskClass(task)"
-              @mouseover="hoverTask = task"
-              @mouseleave="hoverTask = null"
+          <div
+            class="mb-2 border-l-5 rounded-l"
+            :class="taskClass(task)"
+            @mouseover="hoverTask = task"
+            @mouseleave="hoverTask = null"
+          >
+            <router-link
+              :to="task.link"
+              class="px-1 flex flex-col border border-l-0 rounded-r"
+              :style="{ height: taskHeight + 'px' }"
+              :title="task.name"
             >
-              <router-link
-                :to="task.link"
-                class="px-1 flex flex-col border border-l-0 rounded-r"
-                :style="{ height: taskHeight + 'px' }"
-                :title="task.name"
-              >
-                <div class="flex justify-end">
-                  <div class="text-right text-xs">{{ task.duration }}</div>
-                </div>
-                <div class="font-bold truncate">{{ task.name }}</div>
-                <div class="flex justify-end">
-                  <span
-                    v-if="task.waitingApproval"
-                    class="bg-gray-200 rounded-full px-2 py-0 text-xs text-center font-semibold"
-                    >Waiting Approval</span
-                  >
-                </div>
-              </router-link>
-            </div>
-          </body>
+              <div class="flex justify-end">
+                <div class="text-right text-xs">{{ task.duration }}</div>
+              </div>
+              <div class="font-bold truncate">{{ task.name }}</div>
+              <div class="flex justify-end">
+                <span
+                  v-if="task.waitingApproval"
+                  class="bg-gray-200 rounded-full px-2 py-0 text-xs text-center font-semibold"
+                  >Waiting Approval</span
+                >
+              </div>
+            </router-link>
+          </div>
         </foreignObject>
       </g>
     </svg>
