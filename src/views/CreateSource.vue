@@ -8,7 +8,7 @@
       <span class="block sm:inline">{{ createRemoteSourceError }}</span>
     </div>
     <div class="flex justify-center items-center">
-      <CreateSourceForm v-on:createSource="createSource($event)" />
+      <CreateSourceForm @create-source="createSource($event)" />
     </div>
   </div>
 </template>

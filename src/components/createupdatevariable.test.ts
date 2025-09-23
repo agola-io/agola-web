@@ -504,7 +504,7 @@ test('reset component in update mode on prop change to create mode', async () =>
     ownertype: 'org',
     ownername: 'org02',
     operationType: OperationType.Create,
-    variableNameParam: '',
+    variableNameParam: undefined,
   });
 
   await flushPromises();

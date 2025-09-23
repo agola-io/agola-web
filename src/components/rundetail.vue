@@ -96,8 +96,8 @@
                 v-if="
                   run.canRestartFromScratch || run.canRestartFromFailedTasks
                 "
-                class="flex"
                 v-on-click-outside="() => (dropdownActive = false)"
+                class="flex"
               >
                 <div class="flex items-center">
                   <button
@@ -134,15 +134,15 @@
                 </ul>
               </div>
               <button
-                class="btn btn-red"
                 v-if="run.phase == 'queued'"
+                class="btn btn-red"
                 @click="cancelRun(run.number)"
               >
                 Cancel
               </button>
               <button
-                class="btn btn-red"
                 v-if="run.phase == 'running'"
+                class="btn btn-red"
                 :disabled="run.stopping"
                 @click="stopRun(run.number)"
               >
@@ -181,7 +181,7 @@ import { runResultClass, runStatus } from '../util/run';
 import { endTime, endTimeHuman, formatDuration } from '../util/time';
 
 export default defineComponent({
-  name: 'rundetail',
+  name: 'Rundetail',
   directives: {
     onClickOutside: vOnClickOutside,
   },
@@ -190,7 +190,7 @@ export default defineComponent({
     rungroupref: { type: String, required: true },
     ownertype: { type: String, required: true },
     ownername: { type: String, required: true },
-    projectref: Array as PropType<Array<string>>,
+    projectref: { type: Array as PropType<Array<string>>, default: undefined },
     run: {
       type: Object as PropType<RunResponse>,
       required: true,

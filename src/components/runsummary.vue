@@ -23,18 +23,18 @@
 
           <div class="flex">
             <button
-              @click="tasksDisplay = 'graph'"
               class="relative flex items-center focus:outline-none bg-blue-500 hover:bg-blue-600 text-white font-semibold hover:text-white py-2 px-4 border border-blue-700 rounded rounded-r-none"
               :class="{ 'bg-blue-600': tasksDisplay == 'graph' }"
               title="Tasks Graph"
+              @click="tasksDisplay = 'graph'"
             >
               <i class="mr-1 mdi mdi-file-tree" />
             </button>
             <button
-              @click="tasksDisplay = 'list'"
               class="relative flex items-center focus:outline-none bg-blue-500 hover:bg-blue-600 text-white font-semibold hover:text-white py-2 px-4 border border-l-0 border-blue-700 rounded rounded-l-none"
               title="Tasks List"
               :class="{ 'bg-blue-600': tasksDisplay == 'list' }"
+              @click="tasksDisplay = 'list'"
             >
               <i class="mr-1 mdi mdi-format-list-bulleted-square" />
             </button>
@@ -47,9 +47,9 @@
         <h2 class="my-4 text-2xl">Setup Errors</h2>
         <div class="p-3 rounded bg-gray-800 text-white">
           <pre
-            class="font-mono leading-snug text-xs"
             v-for="(error, i) in run.setupErrors"
             :key="i"
+            class="font-mono leading-snug text-xs"
             >{{ error }}</pre
           >
         </div>
@@ -96,12 +96,12 @@ export class Run extends RunResponse {
 }
 
 export default defineComponent({
-  name: 'runsummary',
+  name: 'Runsummary',
   components: { rundetail, tasks, tasksgraph },
   props: {
     ownertype: { type: String, required: true },
     ownername: { type: String, required: true },
-    projectref: Array as PropType<Array<string>>,
+    projectref: { type: Array as PropType<Array<string>>, default: undefined },
     runnumber: { type: Number, required: true },
   },
   setup(props) {

@@ -6,9 +6,9 @@
     </div>
     <ul v-else-if="projects && projects.length > 0">
       <li
-        class="mb-2 border rounded-l"
         v-for="project in projects"
         :key="project.id"
+        class="mb-2 border rounded-l"
       >
         <div class="pl-4 py-4 flex items-center">
           <router-link
@@ -30,9 +30,9 @@
     </div>
     <ul v-else-if="projectGroups && projectGroups.length > 0">
       <li
-        class="mb-2 border rounded-l"
         v-for="projectGroup in projectGroups"
         :key="projectGroup.id"
+        class="mb-2 border rounded-l"
       >
         <div class="pl-4 py-4 flex items-center">
           <router-link
@@ -62,8 +62,8 @@ import { useAppState } from '../app/appstate';
 import { projectGroupLink, projectLink } from '../util/link';
 
 export default defineComponent({
-  components: {},
   name: 'Projects',
+  components: {},
   props: {
     ownertype: {
       type: String,
@@ -73,7 +73,10 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    projectgroupref: Array as PropType<Array<string>>,
+    projectgroupref: {
+      type: Array as PropType<Array<string>>,
+      default: undefined,
+    },
   },
   setup(props) {
     const { ownertype, ownername, projectgroupref } = toRefs(props);

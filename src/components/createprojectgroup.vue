@@ -3,12 +3,12 @@
     <h4 class="mb-4 text-xl font-bold">Create Project Group</h4>
 
     <input
+      v-model.trim="projectGroupName"
       class="mb-4 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
       type="text"
       placeholder="Project Group Name"
-      v-model.trim="projectGroupName"
-      @input="validateProjectGroupName"
       data-test="projectGroupName"
+      @input="validateProjectGroupName"
     />
     <div v-if="projectGroupNameError" class="text-red-500 text-sm">
       {{ projectGroupNameError }}
@@ -16,8 +16,8 @@
     <div class="mb-4">
       <label>
         <input
-          type="checkbox"
           v-model="projectGroupIsPrivate"
+          type="checkbox"
           data-test="projectGroupIsPrivate"
         />
         Private
@@ -31,8 +31,8 @@
         spinner: createProjectGroupLoading,
       }"
       :disabled="isSaveButtonDisabled"
-      @click="createProjectGroup()"
       data-test="createProjectGroupButton"
+      @click="createProjectGroup()"
     >
       Create ProjectGroup
     </button>
@@ -65,8 +65,8 @@ import { projectGroupLink } from '../util/link';
 import { isValid, isValidName } from '../util/validator';
 
 export default defineComponent({
+  name: 'Createprojectgroup',
   components: {},
-  name: 'createprojectgroup',
   props: {
     ownertype: {
       type: String,

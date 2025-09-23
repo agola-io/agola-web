@@ -6,12 +6,12 @@
         <div class="mb-4">
           <label class="block font-bold mb-2">Project Name</label>
           <input
+            v-model.trim="project.name"
             class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             type="text"
             placeholder="Project Name"
-            v-model.trim="project.name"
-            @input="validateProjectName"
             data-test="projectNameInput"
+            @input="validateProjectName"
           />
           <div v-if="projectNameError" class="text-red-500 text-sm">
             {{ projectNameError }}
@@ -20,18 +20,18 @@
         <div class="mb-4">
           <label>
             <input
-              type="checkbox"
               v-model="projectIsPrivate"
+              type="checkbox"
               data-test="projectIsPrivateInput"
             />
             Private
           </label>
         </div>
-        <div class="mb-4" v-if="ownertype === 'org'">
+        <div v-if="ownertype === 'org'" class="mb-4">
           <label>
             <input
-              type="checkbox"
               v-model="project.membersCanPerformRunActions"
+              type="checkbox"
               data-test="membersCanPerformRunActions"
             />
             Members can perform run action (restart, stop and cancel a run)
@@ -40,8 +40,8 @@
         <div class="mb-4">
           <label>
             <input
-              type="checkbox"
               v-model="project.passVarsToForkedPR"
+              type="checkbox"
               data-test="projectPassVarsToForkedPRInput"
             />
             Pass variables to run even if triggered by PR from forked repo
@@ -55,8 +55,8 @@
             spinner: updateProjectLoading,
           }"
           :disabled="isUpdateProjectButtonDisabled"
-          @click="updateProject()"
           data-test="updateProjectButton"
+          @click="updateProject()"
         >
           Update
         </button>
@@ -76,11 +76,11 @@
         <projectsecrets
           v-if="secrets && allSecrets"
           :secrets="secrets"
-          :allSecrets="allSecrets"
+          :all-secrets="allSecrets"
           :ownertype="ownertype"
           :ownername="ownername"
           :projectref="projectref"
-          refType="project"
+          ref-type="project"
           @secret-deleted="handleSecretDeleted"
         />
       </div>
@@ -92,12 +92,12 @@
         <projectvars
           v-if="variables && allVariables"
           :variables="variables"
-          :allVariables="allVariables"
+          :all-variables="allVariables"
           :ownertype="ownertype"
           :ownername="ownername"
           :projectref="projectref"
+          ref-type="project"
           @variable-deleted="handleVariableDeleted"
-          refType="project"
         />
       </div>
     </div>
@@ -122,16 +122,16 @@
         </label>
         <div class="mb-4">
           <input
-            class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             v-model="projectNameToDelete"
+            class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             type="email"
             placeholder="Project name to delete"
           />
         </div>
         <button
           class="btn btn-red"
-          @click="deleteProject()"
           :disabled="isDeleteButtonDisabled"
+          @click="deleteProject()"
         >
           Delete Project
         </button>
@@ -196,8 +196,8 @@ import projectsecrets from './projectsecrets.vue';
 import projectvars from './projectvars.vue';
 
 export default defineComponent({
+  name: 'Projectsettings',
   components: { projectsecrets, projectvars },
-  name: 'projectsettings',
   props: {
     ownertype: {
       type: String,

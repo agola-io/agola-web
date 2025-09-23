@@ -23,7 +23,7 @@ loglevel.setDefaultLevel('info');
 const app = createApp(App);
 
 /* eslint-disable vue/component-definition-name-casing */
-// eslint-disable-next-line vue/multi-word-component-names
+ 
 app.component('delay', delay);
 
 const appState = newAppState();

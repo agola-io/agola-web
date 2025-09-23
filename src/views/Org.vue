@@ -18,7 +18,7 @@
 
     <div class="mb-8 flex justify-between">
       <span class="text-3xl">{{ orgname }}</span>
-      <createprojectbutton v-on:click="goToCreate($event)" />
+      <createprojectbutton @click="goToCreate($event)" />
     </div>
 
     <div class="flex justify-between">
@@ -83,8 +83,8 @@
         <li>
           <div class="relative">
             <div
-              class="flex -mt-3"
               v-on-click-outside="() => (dropdownActive = false)"
+              class="flex -mt-3"
               @click="dropdownActive = !dropdownActive"
             >
               <button

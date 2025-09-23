@@ -9,8 +9,8 @@
           >Remote Username</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="username"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           placeholder="Username"
           :disabled="true"
@@ -22,11 +22,11 @@
           >Username</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="username"
+          v-model="curUsername"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           placeholder="Username"
-          v-model="curUsername"
         />
       </div>
       <div class="flex justify-center">
@@ -47,8 +47,8 @@ import { defineComponent, ref, toRefs } from 'vue';
 export default defineComponent({
   name: 'RegisterForm',
   props: {
-    remoteUsername: String,
-    username: String,
+    remoteUsername: { type: String, default: undefined },
+    username: { type: String, default: undefined },
   },
   emits: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -57,8 +57,8 @@
         <li>
           <div class="relative">
             <div
-              class="flex -mt-3"
               v-on-click-outside="() => (dropdownActive = false)"
+              class="flex -mt-3"
               @click="dropdownActive = !dropdownActive"
             >
               <button

@@ -25,15 +25,15 @@
       </div>
       <div v-else>
         <div
-          class="my-6 flex justify-center items-center"
           v-for="rs in remoteSources"
           :key="rs.id"
+          class="my-6 flex justify-center items-center"
         >
           <div v-if="rs.loginEnabled">
             <LoginForm
+              v-if="rs.authType == 'password'"
               action="Login"
               :name="rs.name"
-              v-if="rs.authType == 'password'"
               @login="
                 (username, password) => doLogin(username, password, rs.name)
               "

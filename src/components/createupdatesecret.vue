@@ -5,20 +5,20 @@
         operationType == OperationType.Create ? 'New Secret' : 'Update Secret'
       }}
     </p>
-    <form @submit.prevent="submitForm" class="p-4">
+    <form class="p-4" @submit.prevent="submitForm">
       <div class="mt-4">
         <label for="secret-name" class="block text-sm font-medium leading-6">
           Secret Name
         </label>
         <input
           id="secret-name"
+          v-model.trim="secretName"
           class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           required
           placeholder="Secret name"
-          v-model.trim="secretName"
-          @input="validateSecretName"
           data-test="secretNameInput"
+          @input="validateSecretName"
         />
         <div v-if="secretNameError" class="text-red-500 text-sm">
           {{ secretNameError }}
@@ -36,13 +36,13 @@
             </label>
             <input
               :id="'secret-name-input-' + index"
+              v-model.trim="pair.key"
               class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               required
               placeholder="Key"
-              v-model.trim="pair.key"
-              @input="validateSecretPairKey(index)"
               :data-test="'secretPairKeyInput-' + index"
+              @input="validateSecretPairKey(index)"
             />
           </div>
           <div class="col-span-1 flex flex-col ml-2">
@@ -54,21 +54,21 @@
             </label>
             <textarea
               :id="'secret-value-input-' + index"
+              v-model="pair.value"
               class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               rows="1"
               placeholder="Value"
-              v-model="pair.value"
               :data-test="'secretPairValueInput-' + index"
             />
           </div>
           <div class="col-span-1 self-end ml-2">
             <button
-              class="btn btn-gray"
               v-if="secretvalues.length > 1"
-              @click="removeKeyValuePair(index)"
+              class="btn btn-gray"
               :disabled="secretvalues.length === 1"
               :data-test="'removeSecretPairButton-' + index"
+              @click="removeKeyValuePair(index)"
             >
               Remove
             </button>
@@ -82,8 +82,8 @@
         <button
           id="secret-name-add-key"
           class="btn btn-green"
-          @click="addKeyValuePair"
           data-test="addSecretPairButton"
+          @click="addKeyValuePair"
         >
           Add Key-Value Pair
         </button>
@@ -125,7 +125,7 @@ interface SecretValues {
 }
 
 export default {
-  name: 'createupdatesecret',
+  name: 'Createupdatesecret',
   props: {
     ownertype: {
       type: String,
@@ -138,7 +138,7 @@ export default {
     refType: { type: String, required: true },
     refParam: { type: Array as PropType<Array<string>>, required: true },
     operationType: { type: String as PropType<OperationType>, required: true },
-    secretNameParam: { type: String },
+    secretNameParam: { type: String, default: undefined },
   },
   setup(props) {
     const {

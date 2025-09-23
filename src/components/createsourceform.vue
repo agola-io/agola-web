@@ -31,19 +31,19 @@
           >Agola Admin token</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="admintoken"
+          v-model="admintoken"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="password"
           placeholder="Agola Admin token"
-          v-model="admintoken"
         />
       </div>
       <div class="mb-4">
         <label class="block text-sm font-bold mb-2" for="type">Type</label>
         <select
-          class="border bg-white rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="type"
           v-model="type"
+          class="border bg-white rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
         >
           <option value="gitea">Gitea</option>
           <option value="gitlab">GitLab</option>
@@ -55,12 +55,12 @@
           >Source name</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="name"
+          v-model="name"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           pattern="^[a-zA-Z][a-zA-Z0-9]*([-]?[a-zA-Z0-9]+)+$"
           type="text"
           placeholder="Source name (only numbers, letters and -)"
-          v-model="name"
         />
       </div>
       <div class="mb-4">
@@ -68,19 +68,19 @@
           >Source API URL</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="url"
+          v-model="url"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           placeholder="API URL"
-          v-model="url"
         />
       </div>
       <div class="mb-4 flex flex-row">
         <input
           id="skip_verify"
+          v-model="skipVerify"
           type="checkbox"
           class="h-6 w-6 border border-gray-300 rounded-md checked:bg-blue-600 checked:border-transparent focus:outline-none"
-          v-model="skipVerify"
         />
         <label class="text-sm mt-auto font-bold mx-2" for="skip_verify"
           >Skip TLS certificate validation</label
@@ -91,20 +91,20 @@
           >Source Public SSH Key</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="ssh_key"
+          v-model="sshHostKey"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           autocomplete="off"
           placeholder="Public SSH key"
-          v-model="sshHostKey"
         />
       </div>
       <div class="mb-4 flex flex-row">
         <input
           id="skip_ssh_key_check"
+          v-model="skipSshHostKeyCheck"
           type="checkbox"
           class="h-6 w-6 border border-gray-300 rounded-md checked:bg-blue-600 checked:border-transparent focus:outline-none"
-          v-model="skipSshHostKeyCheck"
         />
         <label class="text-sm mt-auto font-bold mx-2" for="skip_ssh_key_check"
           >Skip SSH host key check</label
@@ -115,11 +115,11 @@
           >Source client ID</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="client_id"
+          v-model="clientId"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           placeholder="Client ID"
-          v-model="clientId"
         />
       </div>
       <div class="mb-4">
@@ -127,11 +127,11 @@
           >Source client secret</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="client_secret"
+          v-model="clientSecret"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="password"
           placeholder="Client secret"
-          v-model="clientSecret"
         />
       </div>
       <div class="flex justify-center">

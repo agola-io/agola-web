@@ -19,7 +19,7 @@
         </div>
         <span class>{{ duration }}</span>
       </div>
-      <div class="p-1 font-mono text-xs" v-show="active">
+      <div v-show="active" class="p-1 font-mono text-xs">
         <div v-if="step.type == 'run'">
           <div class="p-3 rounded-t bg-gray-900 text-white">
             <span>
@@ -94,7 +94,7 @@ import Log from '../components/log.vue';
 import { formatDuration } from '../util/time';
 
 export default defineComponent({
-  name: 'step',
+  name: 'Step',
   components: {
     Log,
   },
@@ -102,9 +102,9 @@ export default defineComponent({
     rungrouptype: { type: String, required: true },
     rungroupref: { type: String, required: true },
     runnumber: { type: Number, required: true },
-    taskid: String,
+    taskid: { type: String, required: true },
     setup: Boolean,
-    stepnum: Number,
+    stepnum: { type: Number, default: undefined },
     step: { type: Object, required: true },
   },
   setup(props) {

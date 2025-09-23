@@ -9,11 +9,11 @@
           >Username</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           id="username"
+          v-model="username"
+          class="appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           placeholder="Username"
-          v-model="username"
         />
       </div>
       <div class="mb-6">
@@ -21,11 +21,11 @@
           >Password</label
         >
         <input
-          class="appearance-none border rounded w-full py-2 px-3 mb-3 leading-tight focus:outline-none focus:shadow-outline"
           id="password"
+          v-model="password"
+          class="appearance-none border rounded w-full py-2 px-3 mb-3 leading-tight focus:outline-none focus:shadow-outline"
           type="password"
           placeholder="******************"
-          v-model="password"
         />
       </div>
       <div class="flex justify-center">
@@ -46,8 +46,8 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
   name: 'LoginForm',
   props: {
-    action: String,
-    name: String,
+    action: { type: String, required: true },
+    name: { type: String, required: true },
   },
   emits: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

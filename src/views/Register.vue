@@ -44,15 +44,15 @@
       </div>
       <div v-else>
         <div
-          class="my-6 flex justify-center items-center"
           v-for="rs in remoteSources"
           :key="rs.id"
+          class="my-6 flex justify-center items-center"
         >
           <div v-if="rs.registrationEnabled">
             <LoginForm
+              v-if="rs.authType == 'password'"
               action="Register"
               :name="rs.name"
-              v-if="rs.authType == 'password'"
               @login="
                 (username, password) => doAuthorize(rs.name, username, password)
               "

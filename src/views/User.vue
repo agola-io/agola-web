@@ -18,7 +18,7 @@
 
     <div class="mb-8 flex justify-between">
       <span class="text-3xl">{{ username }}</span>
-      <createprojectbutton v-on:click="goToCreate($event)" />
+      <createprojectbutton @click="goToCreate($event)" />
     </div>
 
     <div class="flex justify-between">
@@ -75,13 +75,13 @@
           <tabarrow />
         </li>
         <li
-          class="tab-element"
           v-if="
             run &&
             runnumber &&
             ($route.name?.toString() == 'user direct run' ||
               $route.name?.toString() == 'user direct run task')
           "
+          class="tab-element"
           :class="[
             {
               'tab-element-selected':
@@ -100,13 +100,13 @@
           <tabarrow />
         </li>
         <li
-          class="tab-element"
           v-if="
             run &&
             runnumber &&
             taskid &&
             $route.name?.toString() == 'user direct run task'
           "
+          class="tab-element"
           :class="[
             {
               'tab-element-selected':
@@ -158,8 +158,8 @@
         <li>
           <div class="relative">
             <div
-              class="flex -mt-3"
               v-on-click-outside="() => (dropdownActive = false)"
+              class="flex -mt-3"
               @click="dropdownActive = !dropdownActive"
             >
               <button
@@ -223,8 +223,8 @@ export default defineComponent({
   },
   props: {
     username: { type: String, required: true },
-    runnumber: Number,
-    taskid: String,
+    runnumber: { type: Number, default: undefined },
+    taskid: { type: String, default: undefined },
   },
   setup(props) {
     const { username, runnumber } = toRefs(props);

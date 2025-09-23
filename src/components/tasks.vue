@@ -16,14 +16,14 @@
             >
           </div>
           <div class="w-1/4">
-            <span class="block text-xs" v-if="task.parents.length > 0"
+            <span v-if="task.parents.length > 0" class="block text-xs"
               >depends on: &nbsp;</span
             >
             <ul>
               <li
-                class="font-thin text-xs text-gray-600"
                 v-for="dep in task.parents"
                 :key="dep"
+                class="font-thin text-xs text-gray-600"
               >
                 {{ dep }}
               </li>
@@ -43,7 +43,7 @@ import { formatDuration } from '../util/time';
 import { Task } from './runsummary.vue';
 
 export default defineComponent({
-  name: 'tasks',
+  name: 'Tasks',
   components: {},
   props: {
     tasks: {

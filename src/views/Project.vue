@@ -95,13 +95,13 @@
           <tabarrow />
         </li>
         <li
-          class="tab-element"
           v-if="
             run &&
             runnumber &&
             ($route.name?.toString().endsWith('project run') ||
               $route.name?.toString().endsWith('project run task'))
           "
+          class="tab-element"
           :class="[
             {
               'tab-element-selected': $route.name
@@ -123,13 +123,13 @@
           <tabarrow />
         </li>
         <li
-          class="tab-element"
           v-if="
             run &&
             runnumber &&
             taskid &&
             $route.name?.toString().endsWith('project run task')
           "
+          class="tab-element"
           :class="[
             {
               'tab-element-selected': $route.name
@@ -178,8 +178,8 @@
         <li>
           <div class="relative">
             <div
-              class="flex -mt-3"
               v-on-click-outside="() => (dropdownActive = false)"
+              class="flex -mt-3"
               @click="dropdownActive = !dropdownActive"
             >
               <button
@@ -256,8 +256,8 @@ export default defineComponent({
       required: true,
     },
     projectref: { type: Array as PropType<Array<string>>, required: true },
-    runnumber: Number,
-    taskid: String,
+    runnumber: { type: Number, default: undefined },
+    taskid: { type: String, default: undefined },
   },
   setup(props) {
     const { ownertype, ownername, projectref, runnumber } = toRefs(props);

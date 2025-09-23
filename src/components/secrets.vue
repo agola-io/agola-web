@@ -4,9 +4,9 @@
       <div class="w-2/12">Name</div>
     </div>
     <div
-      class="flex hover:bg-gray-100 transition duration-300 ease-in-out pl-2"
       v-for="(secret, index) in secrets"
       :key="secret.id"
+      class="flex hover:bg-gray-100 transition duration-300 ease-in-out pl-2"
     >
       <div class="w-11/12 flex justify-between py-2 border-gray-200">
         <div class="flex flex-col">
@@ -22,16 +22,16 @@
           <button
             type="button"
             class="bg-transparent group-hover:bg-blue-100 transition duration-300 ease-in-out"
-            @click="openDeleteSecretDialog(secret)"
             :data-test="'deleteSecretButton-' + index"
+            @click="openDeleteSecretDialog(secret)"
           >
             <span class="mdi mdi-delete"></span>
           </button>
           <button
             type="button"
             class="bg-transparent group-hover:bg-blue-100 transition duration-300 ease-in-out"
-            @click="gotoSecretUpdate(secret.name)"
             :data-test="'updateSecretButton-' + index"
+            @click="gotoSecretUpdate(secret.name)"
           >
             <span class="mdi mdi-pencil"></span>
           </button>
@@ -45,8 +45,8 @@
     :show="showDeleteSecretDialog"
     @result="handleDeleteSecretDialogResult"
   >
-    <template v-slot:title>Delete secret</template>
-    <template v-slot:body>{{ modalDescription }}</template>
+    <template #title>Delete secret</template>
+    <template #body>{{ modalDescription }}</template>
   </confirmationDialog>
 </template>
 
@@ -67,9 +67,8 @@ import {
 import confirmationDialog from './modals/confirmationDialog.vue';
 
 export default defineComponent({
+  name: 'Secrets',
   components: { confirmationDialog },
-  name: 'secrets',
-  emits: ['secret-deleted'],
   props: {
     secrets: {
       type: Array as PropType<Array<SecretResponse>>,
@@ -87,6 +86,7 @@ export default defineComponent({
     projectref: { type: Array as PropType<Array<string>>, required: true },
     showparentpath: Boolean,
   },
+  emits: ['secret-deleted'],
   setup(props, { emit }) {
     const { ownertype, ownername, projectref, refType } = toRefs(props);
     const api = useAPI();

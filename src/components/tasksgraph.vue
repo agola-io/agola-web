@@ -88,7 +88,7 @@ interface Edge {
 }
 
 export default defineComponent({
-  name: 'tasksgraph',
+  name: 'Tasksgraph',
   components: {},
   props: {
     tasks: {

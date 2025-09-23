@@ -11,9 +11,9 @@
     <div v-if="runs">
       <ul>
         <li
-          class="mb-2 border-l-5 rounded-l"
           v-for="run in runs"
           :key="run.number"
+          class="mb-2 border-l-5 rounded-l"
           :class="runResultClass(run)"
         >
           <div class="pl-4 flex items-center border border-l-0 rounded-r">
@@ -106,8 +106,8 @@
         <button
           v-if="hasMoreRuns"
           class="bg-transparent text-blue-700 font-semibold hover:(bg-blue-500 text-white border-transparent) py-2 px-4 border border-blue-500 disabled:(bg-blue-500 opacity-50 cursor-not-allowed) rounded"
-          @click="loadMoreRuns()"
           data-test="loadMoreRunsButton"
+          @click="loadMoreRuns()"
         >
           Load more...
         </button>
@@ -142,8 +142,8 @@ import { endTime, endTimeHuman, formatDuration } from '../util/time';
 const RUNS_INCREMENT_VALUE = 25;
 
 export default defineComponent({
+  name: 'Runs',
   components: {},
-  name: 'runs',
   props: {
     ownertype: {
       type: String,
@@ -153,8 +153,8 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    projectref: Array as PropType<Array<string>>,
-    query: String,
+    projectref: { type: Array as PropType<Array<string>>, default: undefined },
+    query: { type: String, default: undefined },
   },
   setup(props) {
     const { ownertype, ownername, projectref, query } = toRefs(props);

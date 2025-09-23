@@ -8,20 +8,20 @@
       }}
     </p>
 
-    <form @submit.prevent="submitForm" class="p-4">
+    <form class="p-4" @submit.prevent="submitForm">
       <div class="mb-4">
         <label for="variable-name" class="block text-sm font-medium leading-6">
           Variable Name
         </label>
         <input
           id="variable-name"
+          v-model.trim="variableName"
           class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           required
           placeholder="Variable Name"
-          v-model.trim="variableName"
-          @input="validateVariableName"
           data-test="variableName"
+          @input="validateVariableName"
         />
         <div v-if="variableNameError" class="text-red-500 text-sm">
           {{ variableNameError }}
@@ -43,13 +43,13 @@
             </label>
             <input
               :id="'secret-name-input-' + variableIndex"
+              v-model.trim="variableValue.secretName"
               class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               required
               placeholder="Secret name"
-              v-model.trim="variableValue.secretName"
-              @input="validateVariableSecretName(variableValue)"
               :data-test="'secretName-' + variableIndex"
+              @input="validateVariableSecretName(variableValue)"
             />
           </div>
           <div class="col-span-1 flex flex-col">
@@ -61,22 +61,22 @@
             </label>
             <input
               :id="'secret-value-input-' + variableIndex"
+              v-model="variableValue.secretVar"
               class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               required
               placeholder="Secret Variable"
-              v-model="variableValue.secretVar"
-              @input="validateVariableSecretVar(variableValue)"
               :data-test="'secretVar-' + variableIndex"
+              @input="validateVariableSecretVar(variableValue)"
             />
           </div>
           <div class="col-span-1 self-end">
             <button
               v-if="variableValues.length > 1"
               class="btn btn-gray"
-              @click="removeVariableValue(variableIndex)"
               :disabled="variableValues.length === 1"
               :data-test="'removeVariableValueButton-' + variableIndex"
+              @click="removeVariableValue(variableIndex)"
             >
               Remove Variable Value
             </button>
@@ -119,6 +119,7 @@
                 <div class="ml-2">
                   <button
                     class="btn btn-green py-0 px-2"
+                    :data-test="`addWhenConditionButton-${variableIndex}_${whenType}_${whenConditionsType}`"
                     @click.prevent="
                       addWhenCondition(
                         variableIndex,
@@ -126,7 +127,6 @@
                         whenConditionsType
                       )
                     "
-                    :data-test="`addWhenConditionButton-${variableIndex}_${whenType}_${whenConditionsType}`"
                   >
                     <i class="mdi mdi-plus" />
                   </button>
@@ -166,8 +166,8 @@
                         Condition Match
                       </label>
                       <input
-                        type="text"
                         v-model="whenCondition.match"
+                        type="text"
                         class="appearance-none border p-2 rounded w-min-228 border py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
                         placeholder="Match"
                         :data-test="`whenConditionMatch-${variableIndex}_${whenType}_${whenConditionsType}_${whenConditionIndex}`"
@@ -179,6 +179,8 @@
                       </label>
                       <button
                         class="py-2 self-start"
+                        title="Remove"
+                        :data-test="`removeWhenConditionButton-${variableIndex}_${whenType}_${whenConditionsType}_${whenConditionIndex}`"
                         @click="
                           removeWhenCondition(
                             variableIndex,
@@ -187,8 +189,6 @@
                             whenConditionIndex
                           )
                         "
-                        title="Remove"
-                        :data-test="`removeWhenConditionButton-${variableIndex}_${whenType}_${whenConditionsType}_${whenConditionIndex}`"
                       >
                         <i
                           class="mdi mdi-minus-circle-outline"
@@ -208,8 +208,8 @@
       <button
         id="add-secret"
         class="btn btn-green"
-        @click="addVariableValue"
         data-test="addVariableValueButton"
+        @click="addVariableValue"
       >
         Add Variable Value
       </button>
@@ -287,7 +287,7 @@ const whenTypes: (keyof When)[] = ['branch', 'tag', 'ref'];
 const whenConditionsTypes: (keyof WhenConditions)[] = ['include', 'exclude'];
 
 export default {
-  name: 'createupdatevariable',
+  name: 'Createupdatevariable',
   props: {
     ownertype: {
       type: String,
@@ -300,7 +300,7 @@ export default {
     refType: { type: String, required: true },
     refParam: { type: Array as PropType<Array<string>>, required: true },
     operationType: { type: String as PropType<OperationType>, required: true },
-    variableNameParam: { type: String },
+    variableNameParam: { type: String, default: undefined },
   },
   setup(props) {
     const {

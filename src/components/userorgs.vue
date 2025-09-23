@@ -3,9 +3,9 @@
     <h4 class="text-xl my-3">Organizations</h4>
     <ul v-if="userOrgs && userOrgs.length > 0">
       <li
-        class="mb-2 border rounded-l"
         v-for="userOrg in userOrgs"
         :key="userOrg.Organization?.id"
+        class="mb-2 border rounded-l"
       >
         <div class="pl-4 py-4 flex items-center">
           <router-link
@@ -53,8 +53,8 @@ import { useAppState } from '../app/appstate';
 import { organizationLink } from '../util/link';
 
 export default defineComponent({
-  components: {},
   name: 'UserOrganizations',
+  components: {},
   props: {
     ownertype: {
       type: String,
