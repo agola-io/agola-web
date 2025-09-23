@@ -4,16 +4,16 @@
     <div>
       <div>
         <input
+          v-model="orgName"
           class="mb-4 appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
           type="text"
           placeholder="Organization name"
-          v-model="orgName"
         />
       </div>
     </div>
     <div class="mb-4">
       <label>
-        <input type="checkbox" v-model="orgIsPrivate" />
+        <input v-model="orgIsPrivate" type="checkbox" />
         Private
       </label>
     </div>
@@ -40,8 +40,8 @@ import { APIAbortedError, errorToString, useAPI } from '../app/api';
 import { ownerLink } from '../util/link';
 
 export default defineComponent({
+  name: 'Createorganization',
   components: {},
-  name: 'createorganization',
   props: {},
   setup() {
     const router = useRouter();

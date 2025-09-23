@@ -1,4 +1,4 @@
-import { RunResponse } from 'src/app/api';
+import { RunResponse } from '../app/api';
 
 export function runStatus(run: RunResponse): string {
   // * if the run has a result then return the result

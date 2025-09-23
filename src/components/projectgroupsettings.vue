@@ -7,12 +7,12 @@
           <label class="block font-bold mb-2">Project Group Name</label>
           <div class="control">
             <input
+              v-model.trim="projectGroup.name"
               class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Project Group Name"
-              v-model.trim="projectGroup.name"
-              @input="validateProjectGroupName"
               data-test="projectGroupNameInput"
+              @input="validateProjectGroupName"
             />
             <div v-if="projectGroupNameError" class="text-red-500 text-sm">
               {{ projectGroupNameError }}
@@ -22,8 +22,8 @@
         <div class="mb-4">
           <label>
             <input
-              type="checkbox"
               v-model="projectGroupIsPrivate"
+              type="checkbox"
               data-test="projectGroupIsPrivateInput"
             />
             Private
@@ -36,8 +36,8 @@
             spinner: updateProjectGroupLoading,
           }"
           :disabled="isUpdateProjectGroupButtonDisabled"
-          @click="updateProjectGroup()"
           data-test="updateProjectGroupButton"
+          @click="updateProjectGroup()"
         >
           Update
         </button>
@@ -58,12 +58,12 @@
         <projectsecrets
           v-if="secrets && allSecrets"
           :secrets="secrets"
-          :allSecrets="allSecrets"
+          :all-secrets="allSecrets"
           :ownertype="ownertype"
           :ownername="ownername"
           :projectref="projectgroupref"
+          ref-type="projectgroup"
           @secret-deleted="handleSecretDeleted"
-          refType="projectgroup"
         />
       </div>
     </div>
@@ -74,12 +74,12 @@
         <projectvars
           v-if="variables && allVariables"
           :variables="variables"
-          :allVariables="allVariables"
+          :all-variables="allVariables"
           :ownertype="ownertype"
           :ownername="ownername"
           :projectref="projectgroupref"
+          ref-type="projectgroup"
           @variable-deleted="handleVariableDeleted"
-          refType="projectgroup"
         />
       </div>
     </div>
@@ -106,16 +106,16 @@
         </label>
         <div class="mb-4">
           <input
-            class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             v-model="projectGroupNameToDelete"
+            class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             type="email"
             placeholder="Project Group name to delete"
           />
         </div>
         <button
           class="btn btn-red"
-          @click="deleteProjectGroup()"
           :disabled="isDeleteButtonDisabled"
+          @click="deleteProjectGroup()"
         >
           Delete Project Group
         </button>
@@ -152,8 +152,8 @@ import projectsecrets from './projectsecrets.vue';
 import projectvars from './projectvars.vue';
 
 export default defineComponent({
+  name: 'Projectgroupsettings',
   components: { projectsecrets, projectvars },
-  name: 'projectgroupsettings',
   props: {
     ownertype: {
       type: String,

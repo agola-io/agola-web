@@ -14,9 +14,9 @@
         </div>
         <ul v-if="user && user.linkedAccounts.length">
           <li
-            class="flex justify-between items-center mb-2"
             v-for="(la, index) in user.linkedAccounts"
             :key="index"
+            class="flex justify-between items-center mb-2"
           >
             <div>
               <span class="font-bold">{{ la.remoteUserName }}</span>
@@ -44,8 +44,8 @@
         <div class="inline-block">
           <div class="flex mb-3 relative w-64">
             <select
-              class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
               v-model="selectedRemoteSourceIndex"
+              class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
             >
               <option :value="undefined" disabled>
                 Select the remote source
@@ -72,12 +72,12 @@
       <div class="p-4">
         <ul v-if="user && user.tokens.length">
           <li
+            v-for="userToken in user.tokens"
+            :key="userToken"
             class="flex justify-between items-center mb-2"
-            v-for="token in user.tokens"
-            :key="token"
           >
-            <span class="font-bold">{{ token }}</span>
-            <button class="btn btn-red" @click="deleteUserToken(token)">
+            <span class="font-bold">{{ userToken }}</span>
+            <button class="btn btn-red" @click="deleteUserToken(userToken)">
               Delete
             </button>
           </li>
@@ -137,10 +137,10 @@
         <h5 class="mb-3 text-xl">Create new User Token</h5>
         <div class="control">
           <input
+            v-model="newTokenName"
             class="shadow appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             type="text"
             placeholder="Token name"
-            v-model="newTokenName"
           />
           <button class="ml-3 btn btn-blue" @click="createUserToken()">
             Create Token
@@ -173,8 +173,8 @@ import { userAddLinkedAccountLink } from '../util/link';
 import { getAllRemoteSources } from '../util/remotesource';
 
 export default defineComponent({
+  name: 'Usersettings',
   components: {},
-  name: 'usersettings',
   props: {},
   setup() {
     const router = useRouter();

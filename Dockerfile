@@ -1,8 +1,8 @@
-FROM node:20-alpine AS web_build
+FROM node:22-alpine AS web_build
 
 WORKDIR /agola-web
 
-RUN npm install -g pnpm@^8
+RUN npm install -g pnpm@^10
 
 # copy both 'package.json' and 'pnpm-lock.yaml' (if available)
 COPY package.json pnpm-lock.yaml ./

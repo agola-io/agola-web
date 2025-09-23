@@ -9,8 +9,8 @@ import { useAppState } from '../app/appstate';
 import { useAuth } from '../app/auth';
 
 export default defineComponent({
-  components: {},
   name: 'Oauth2',
+  components: {},
   props: {},
   setup() {
     const appState = useAppState();

@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div>
     <span
@@ -16,8 +17,14 @@
         No lines
       </div>
       <div class="overflow-x-auto">
-        <div v-for="(logLines, index) in logLinesGroups" :key="index">
-          <div v-for="(logLine, index) in logLines" :key="index">
+        <div
+          v-for="(logLinesGroup, logLineGroupIndex) in logLinesGroups"
+          :key="logLineGroupIndex"
+        >
+          <div
+            v-for="(logLine, logLineindex) in logLinesGroup"
+            :key="logLineindex"
+          >
             <div
               class="font-mono leading-normal text-xs whitespace-nowrap"
               v-html="logLine"
@@ -66,10 +73,10 @@ export default defineComponent({
     rungrouptype: { type: String, required: true },
     rungroupref: { type: String, required: true },
     runnumber: { type: Number, required: true },
-    taskid: String,
+    taskid: { type: String, required: true },
     setup: Boolean,
-    step: Number,
-    stepphase: String,
+    step: { type: Number, default: undefined },
+    stepphase: { type: String, default: undefined },
   },
   setup(props) {
     const {

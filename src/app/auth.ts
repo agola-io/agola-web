@@ -79,7 +79,7 @@ export function newAuth(inRouter: Router, inAPI: API): Auth {
     try {
       const userRes = await api.getAuthUser();
       user.value = userRes;
-    } catch (e) {
+    } catch {
       user.value = undefined;
     }
   };

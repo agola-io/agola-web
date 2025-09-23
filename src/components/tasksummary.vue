@@ -93,15 +93,15 @@ import rundetail from '../components/rundetail.vue';
 import step from '../components/step.vue';
 
 export default defineComponent({
+  name: 'Tasksummary',
   components: {
     step,
     rundetail,
   },
-  name: 'tasksummary',
   props: {
     ownertype: { type: String, required: true },
     ownername: { type: String, required: true },
-    projectref: Array as PropType<Array<string>>,
+    projectref: { type: Array as PropType<Array<string>>, default: undefined },
     runnumber: { type: Number, required: true },
     taskid: { type: String, required: true },
   },

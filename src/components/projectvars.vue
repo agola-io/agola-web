@@ -11,11 +11,11 @@
     <vars
       v-if="variables"
       :variables="variables"
-      @variable-deleted="handleVariableDeleted"
       :ownertype="ownertype"
       :ownername="ownername"
       :projectref="projectref"
-      :refType="refType"
+      :ref-type="refType"
+      @variable-deleted="handleVariableDeleted"
     />
     <span v-else>No variables</span>
 
@@ -29,7 +29,7 @@
       :ownertype="ownertype"
       :ownername="ownername"
       :projectref="projectref"
-      :refType="refType"
+      :ref-type="refType"
     />
     <span v-else>No variables</span>
   </div>
@@ -45,9 +45,8 @@ import {
 } from '../util/link';
 
 export default defineComponent({
+  name: 'Projectvars',
   components: { vars },
-  name: 'projectvars',
-  emits: ['variable-deleted'],
   props: {
     variables: {
       type: Array as PropType<Array<VariableResponse>>,
@@ -68,6 +67,7 @@ export default defineComponent({
     },
     projectref: { type: Array as PropType<Array<string>>, required: true },
   },
+  emits: ['variable-deleted'],
 
   setup(props, { emit }) {
     const { refType, ownertype, ownername, projectref } = toRefs(props);

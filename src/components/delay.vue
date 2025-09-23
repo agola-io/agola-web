@@ -3,6 +3,7 @@ import { useTimeoutFn } from '@vueuse/shared';
 import { defineComponent, ref, toRefs } from 'vue';
 
 export default defineComponent({
+  // eslint-disable-next-line vue/component-definition-name-casing
   name: 'delay',
   props: {
     timeout: {

@@ -36,8 +36,8 @@
           <div v-if="user" class="relative mr-3">
             <button
               v-on-click-outside="() => (createDropdownActive = false)"
-              @click="createDropdownActive = !createDropdownActive"
               class="relative flex items-center focus:outline-none"
+              @click="createDropdownActive = !createDropdownActive"
             >
               <i class="mdi mdi-plus-box mdi-24px" />
               <i class="mdi mdi-chevron-down"></i>
@@ -61,8 +61,8 @@
             <div class="flex">
               <button
                 v-on-click-outside="() => (userDropdownActive = false)"
-                @click="userDropdownActive = !userDropdownActive"
                 class="relative flex items-center focus:outline-none"
+                @click="userDropdownActive = !userDropdownActive"
               >
                 {{ user.username }}
                 <i class="mdi mdi-chevron-down"></i>

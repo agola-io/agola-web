@@ -54,7 +54,7 @@ import { defineComponent, PropType } from 'vue';
 import { ownerLink, projectGroupLink, projectLink } from '../util/link';
 
 export default defineComponent({
-  name: 'projbreadcrumbs',
+  name: 'Projbreadcrumbs',
   components: {},
   props: {
     ownertype: {
@@ -65,8 +65,11 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    projectref: Array as PropType<Array<string>>,
-    projectgroupref: Array as PropType<Array<string>>,
+    projectref: { type: Array as PropType<Array<string>>, default: undefined },
+    projectgroupref: {
+      type: Array as PropType<Array<string>>,
+      default: undefined,
+    },
   },
   setup() {
     return {

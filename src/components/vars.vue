@@ -30,7 +30,7 @@
           </div>
         </div>
         <div class="w-10/12">
-          <div class="flex" v-for="(val, i) in variable.values" :key="i">
+          <div v-for="(val, i) in variable.values" :key="i" class="flex">
             <div class="w-2/12">
               <span>{{ val.secretName }}</span>
               <div v-if="val.matchingSecretParentPath" class="text-sm">
@@ -77,16 +77,16 @@
         </div>
         <div class="w-1/12 flex justify-center items-center">
           <span
-            class="mdi mdi-pencil rounded-full p-1 mr-1"
             v-if="!showparentpath"
-            @click="gotoVariableUpdate(variable.name)"
+            class="mdi mdi-pencil rounded-full p-1 mr-1"
             style="cursor: pointer"
+            @click="gotoVariableUpdate(variable.name)"
           ></span>
           <span
-            class="mdi mdi-delete rounded-full p-1"
             v-if="!showparentpath"
-            @click="openDeleteVariableDialog(variable.name)"
+            class="mdi mdi-delete rounded-full p-1"
             style="cursor: pointer"
+            @click="openDeleteVariableDialog(variable.name)"
           ></span>
         </div>
       </div>
@@ -97,8 +97,8 @@
       :show="showDeleteVariableDialog"
       @result="handleDeleteVariableDialogResult"
     >
-      <template v-slot:title>Delete variable</template>
-      <template v-slot:body>{{ modalDescription }}</template>
+      <template #title>Delete variable</template>
+      <template #body>{{ modalDescription }}</template>
     </confirmationDialog>
   </div>
 </template>
@@ -129,9 +129,8 @@ interface FlatWhenConditions {
 const whenTypes: (keyof When)[] = ['branch', 'tag', 'ref'];
 
 export default defineComponent({
+  name: 'Vars',
   components: { confirmationDialog },
-  name: 'vars',
-  emits: ['variable-deleted'],
   props: {
     variables: {
       type: Array as PropType<Array<VariableResponse>>,
@@ -149,6 +148,7 @@ export default defineComponent({
     },
     projectref: { type: Array as PropType<Array<string>>, required: true },
   },
+  emits: ['variable-deleted'],
   setup(props, { emit }) {
     const { ownertype, ownername, projectref, refType } = toRefs(props);
     const api = useAPI();

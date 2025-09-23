@@ -2,9 +2,9 @@
   <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm">
     <div v-if="remoterepos">
       <label
-        class="block px-4 py-2 border-b"
         v-for="(repo, index) in remoterepos"
         :key="repo.id"
+        class="block px-4 py-2 border-b"
         @click="select(index)"
       >
         <input
@@ -24,8 +24,8 @@ import { RemoteRepoResponse } from '../app/api';
 import { defineComponent, PropType, ref, toRefs } from 'vue';
 
 export default defineComponent({
+  name: 'Remoterepos',
   components: {},
-  name: 'remoterepos',
   props: {
     remoterepos: {
       type: Array as PropType<Array<RemoteRepoResponse>>,

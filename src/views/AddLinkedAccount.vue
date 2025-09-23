@@ -55,12 +55,12 @@ import { getAllRemoteSources } from '../util/remotesource';
 
 export default defineComponent({
   name: 'AddLinkedAccount',
+  components: {
+    LoginForm,
+  },
   props: {
     username: { type: String, required: true },
     remoteSourceName: { type: String, required: true },
-  },
-  components: {
-    LoginForm,
   },
   setup(props) {
     const { username, remoteSourceName } = toRefs(props);

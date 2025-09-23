@@ -3,9 +3,9 @@
     <h4 class="mb-3 text-xl">Organization Members</h4>
     <ul v-if="orgMembers?.members && orgMembers.members.length > 0">
       <li
-        class="flex"
         v-for="member in orgMembers.members"
         :key="member.user.id"
+        class="flex"
       >
         <span class="w-1/2 font-bold">{{ member.user.username }}</span>
         <span class="w-1/2">{{ member.role }}</span>
@@ -54,8 +54,8 @@ import { APIAbortedError, OrgMembersResponse, useAPI } from '../app/api';
 import { useAppState } from '../app/appstate';
 
 export default defineComponent({
+  name: 'Orgmembers',
   components: {},
-  name: 'orgmembers',
   props: {
     orgname: {
       type: String,

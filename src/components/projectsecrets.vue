@@ -14,7 +14,7 @@
       :ownername="ownername"
       :ownertype="ownertype"
       :projectref="projectref"
-      :refType="refType"
+      :ref-type="refType"
       @secret-deleted="handleSecretDeleted"
     />
     <span v-else>No secrets</span>
@@ -28,7 +28,7 @@
       :ownername="ownername"
       :ownertype="ownertype"
       :projectref="projectref"
-      :refType="refType"
+      :ref-type="refType"
       :showparentpath="true"
     />
     <span v-else>No secrets</span>
@@ -42,9 +42,8 @@ import { projectGroupNewSecretLink, projectNewSecretLink } from '../util/link';
 import secrets from './secrets.vue';
 
 export default defineComponent({
+  name: 'Projectsecrets',
   components: { secrets },
-  name: 'projectsecrets',
-  emits: ['secret-deleted'],
   props: {
     secrets: {
       type: Array as PropType<Array<SecretResponse>>,
@@ -65,6 +64,7 @@ export default defineComponent({
     },
     projectref: { type: Array as PropType<Array<string>>, required: true },
   },
+  emits: ['secret-deleted'],
   setup(props, { emit }) {
     const { refType, ownertype, ownername, projectref } = toRefs(props);
 
