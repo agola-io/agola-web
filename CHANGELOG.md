@@ -1,5 +1,9 @@
 ## Changelog
 
+### v0.11.0
+
+- Update dependencies (@sgotti)                                    [#132](https://github.com/agola-io/agola-web/pull/132)
+
 ### v0.10.0
 
 - api: handle AbortError in handleFetchError (@sgotti)             [#130](https://github.com/agola-io/agola-web/pull/130)
